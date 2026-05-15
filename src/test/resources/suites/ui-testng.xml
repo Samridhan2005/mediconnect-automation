@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE suite SYSTEM "https://testng.org/testng-1.0.dtd">
+<suite name="MediConnect UI Suite" verbose="1">
+
+    <listeners>
+        <listener class-name="com.cts.mfrp.mediconnect.utils.ExtentReportListener"/>
+    </listeners>
+
+    <test name="Auth - Login / Role selectors / Forgot password / Invalid creds">
+        <classes>
+            <class name="com.cts.mfrp.mediconnect.ui.tests.LoginTest"/>
+        </classes>
+    </test>
+
+    <test name="Patient Portal">
+        <classes>
+            <class name="com.cts.mfrp.mediconnect.ui.tests.patient.PatientHealthOverviewTest"/>
+            <class name="com.cts.mfrp.mediconnect.ui.tests.patient.PatientAppointmentsTest"/>
+            <class name="com.cts.mfrp.mediconnect.ui.tests.patient.PatientMedicalRecordsTest"/>
+            <class name="com.cts.mfrp.mediconnect.ui.tests.patient.PatientLabReportsTest"/>
+            <class name="com.cts.mfrp.mediconnect.ui.tests.patient.PatientTelemedicineTest"/>
+            <class name="com.cts.mfrp.mediconnect.ui.tests.patient.PatientReminderTest"/>
+            <class name="com.cts.mfrp.mediconnect.ui.tests.patient.PatientAiAssistantTest"/>
+        </classes>
+    </test>
+
+    <test name="Doctor Portal">
+        <classes>
+            <class name="com.cts.mfrp.mediconnect.ui.tests.doctor.DoctorDashboardTest"/>
+            <class name="com.cts.mfrp.mediconnect.ui.tests.doctor.DoctorPatientsTest"/>
+            <class name="com.cts.mfrp.mediconnect.ui.tests.doctor.DoctorAppointmentsTest"/>
+            <class name="com.cts.mfrp.mediconnect.ui.tests.doctor.DoctorLabReportsTest"/>
+            <class name="com.cts.mfrp.mediconnect.ui.tests.doctor.DoctorMedicalRecordsTest"/>
+            <class name="com.cts.mfrp.mediconnect.ui.tests.doctor.DoctorTelemedicineTest"/>
+            <class name="com.cts.mfrp.mediconnect.ui.tests.doctor.DoctorAnalyticsTest"/>
+            <class name="com.cts.mfrp.mediconnect.ui.tests.doctor.DoctorSupplyChainTest"/>
+            <class name="com.cts.mfrp.mediconnect.ui.tests.doctor.DoctorAiAssistantTest"/>
+        </classes>
+    </test>
+
+    <test name="Admin Portal">
+        <classes>
+            <class name="com.cts.mfrp.mediconnect.ui.tests.admin.AdminLoginTest"/>
+            <class name="com.cts.mfrp.mediconnect.ui.tests.admin.AdminOverviewTest"/>
+            <class name="com.cts.mfrp.mediconnect.ui.tests.admin.AdminHospitalsTest"/>
+            <class name="com.cts.mfrp.mediconnect.ui.tests.admin.AdminPatientsTest"/>
+            <class name="com.cts.mfrp.mediconnect.ui.tests.admin.AdminAppointmentsTest"/>
+            <class name="com.cts.mfrp.mediconnect.ui.tests.admin.AdminDiagnosticsTest"/>
+            <class name="com.cts.mfrp.mediconnect.ui.tests.admin.AdminSupplyChainTest"/>
+            <class name="com.cts.mfrp.mediconnect.ui.tests.admin.AdminRevenueBillingTest"/>
+            <class name="com.cts.mfrp.mediconnect.ui.tests.admin.AdminAnalyticsTest"/>
+        </classes>
+    </test>
+
+    <test name="Common Cross-Portal Rules">
+        <classes>
+            <class name="com.cts.mfrp.mediconnect.ui.tests.CommonTest"/>
+        </classes>
+    </test>
+
+</suite>
