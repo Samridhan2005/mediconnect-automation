@@ -14,7 +14,7 @@ public class DoctorAppointments extends BasePage {
     public final By tabToday          = By.xpath("//button[normalize-space()='Today']");
     public final By tabUpcoming       = By.xpath("//button[normalize-space()='Upcoming']");
     public final By tabPast           = By.xpath("//button[normalize-space()='Past']");
-    public final By calendarToggle    = By.cssSelector("[class*='calendar'], button[title*='Calendar' i]");
+    public final By calendarToggle    = By.xpath("//button[contains(normalize-space(),'Calendar view')]");
 
     // New Appointment Modal
     public final By modalTitle        = By.xpath("//*[normalize-space()='New Appointment']");

@@ -10,7 +10,8 @@ import org.openqa.selenium.WebDriver;
 public class DoctorAnalytics extends BasePage {
 
     public final By pageHeader       = By.xpath("//*[normalize-space()='Analytics']");
-    public final By timePeriodSelect = By.cssSelector("[class*='period'] select, select[name*='period'], select[name*='time']");
+    public final By timePeriodSelect  = By.cssSelector("select.range-select");
+    public final By timePeriodButtons = By.cssSelector("select.range-select"); // same element, kept for test compatibility
     public final By exportBtn        = By.xpath("//*[contains(text(),'Export')]");
     public final By appointmentChart = By.cssSelector("[class*='appointment-chart'], svg, canvas");
 

@@ -10,7 +10,7 @@ import org.openqa.selenium.WebDriver;
 public class DoctorTelemedicine extends BasePage {
 
     public final By pageHeader        = By.xpath("//*[normalize-space()='Telemedicine']");
-    public final By scheduleSessionBtn = By.xpath("//*[contains(text(),'+ Schedule Session') or contains(text(),'Schedule Session')]");
+    public final By scheduleSessionBtn = By.xpath("//button[contains(normalize-space(),'Schedule session')]");
     public final By liveSection       = By.xpath("//*[contains(normalize-space(),'Live & Upcoming')]");
     public final By pastSessionsTable = By.xpath("//*[contains(normalize-space(),'Past Sessions')]/following-sibling::*[1]");
 

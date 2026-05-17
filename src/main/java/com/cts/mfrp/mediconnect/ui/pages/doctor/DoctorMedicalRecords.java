@@ -11,8 +11,9 @@ public class DoctorMedicalRecords extends BasePage {
 
     public final By pageHeader      = By.xpath("//*[normalize-space()='Medical Records']");
     public final By searchInput     = By.cssSelector("input[placeholder*='Search' i]");
-    public final By newRecordBtn    = By.xpath("//button[contains(normalize-space(),'+ New Record') or contains(normalize-space(),'New Record')]");
-    public final By saveRecordBtn   = By.xpath("//button[normalize-space()='Save Record' or normalize-space()='Save']");
+    public final By newRecordBtn    = By.xpath("//button[contains(normalize-space(),'New Record')]");
+    public final By modalTitle      = By.xpath("//*[normalize-space()='New Medical Record']");
+    public final By saveRecordBtn   = By.xpath("//button[normalize-space()='Create Record']");
     public final By patientRows     = By.cssSelector("[class*='patient-row'], .patient-card");
 
     public DoctorMedicalRecords(WebDriver driver) {

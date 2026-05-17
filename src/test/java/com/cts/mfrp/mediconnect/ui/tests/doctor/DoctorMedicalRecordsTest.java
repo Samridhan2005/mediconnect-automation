@@ -3,9 +3,11 @@ package com.cts.mfrp.mediconnect.ui.tests.doctor;
 import com.cts.mfrp.mediconnect.ui.pages.doctor.DoctorMedicalRecords;
 import com.cts.mfrp.mediconnect.ui.tests.base.BaseDoctorTest;
 import org.openqa.selenium.By;
-import org.openqa.selenium.WebElement;
+import org.openqa.selenium.support.ui.ExpectedConditions;
+import org.openqa.selenium.support.ui.WebDriverWait;
 import org.testng.annotations.Test;
 
+import java.time.Duration;
 import java.util.List;
 
 import static org.testng.Assert.assertTrue;
@@ -17,31 +19,37 @@ public class DoctorMedicalRecordsTest extends BaseDoctorTest {
     @Test
     public void TC044_doctor_medical_records_ui_search() {
         DoctorMedicalRecords page = new DoctorMedicalRecords(driver).open(loggedInUserId);
-        assertTrue(driver.findElements(page.pageHeader).size() > 0);
-        assertTrue(driver.findElements(page.searchInput).size() > 0,
-                "Patient search bar should be visible");
-        assertTrue(driver.findElements(page.newRecordBtn).size() > 0,
-                "+ New Record button should be visible");
+        WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(10));
+
+        wait.until(ExpectedConditions.presenceOfElementLocated(page.pageHeader));
+        assertTrue(driver.findElements(page.pageHeader).size() > 0, "Page header 'Medical Records' not found");
+        assertTrue(driver.findElements(page.searchInput).size() > 0, "Patient search bar should be visible");
+        assertTrue(driver.findElements(page.newRecordBtn).size() > 0, "+ New Record button should be visible");
     }
 
-    // TC045 — Create new record form
+    // TC045 — New Medical Record modal form fields
     @Test
     public void TC045_doctor_create_new_record() {
         DoctorMedicalRecords page = new DoctorMedicalRecords(driver).open(loggedInUserId);
-        List<WebElement> patientRows = driver.findElements(page.patientRows);
-        if (!patientRows.isEmpty()) {
-            patientRows.get(0).click();
-            try { Thread.sleep(700); } catch (InterruptedException ignored) {}
+        WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(10));
+
+        // Step 1 — + New Record button is in top-right, visible without patient selection
+        wait.until(ExpectedConditions.elementToBeClickable(page.newRecordBtn));
+        assertTrue(driver.findElements(page.newRecordBtn).size() > 0, "+ New Record button should be visible");
+
+        // Step 2 — Click + New Record, modal should open
+        driver.findElement(page.newRecordBtn).click();
+        wait.until(ExpectedConditions.presenceOfElementLocated(page.modalTitle));
+        assertTrue(driver.findElements(page.modalTitle).size() > 0, "Modal title 'New Medical Record' should appear");
+
+        // Steps 3-5 — Verify actual form fields visible in modal
+        for (String label : List.of("Patient", "Record Date", "Diagnosis", "Treatment", "Prescription", "Clinical Notes")) {
+            assertTrue(driver.findElements(By.xpath(
+                            "//*[contains(normalize-space(),'" + label + "')]")).size() > 0,
+                    "New Record form label missing: " + label);
         }
-        List<WebElement> btn = driver.findElements(page.newRecordBtn);
-        if (!btn.isEmpty() && btn.get(0).isEnabled()) {
-            btn.get(0).click();
-            try { Thread.sleep(800); } catch (InterruptedException ignored) {}
-            for (String label : List.of("Record Type", "Date", "Chief Complaint", "Diagnosis", "Doctor's Notes")) {
-                assertTrue(driver.findElements(By.xpath(
-                                "//*[contains(normalize-space(),\"" + label + "\")]")).size() > 0,
-                        "New Record form label missing: " + label);
-            }
-        }
+
+        // Save button should be present
+        assertTrue(driver.findElements(page.saveRecordBtn).size() > 0, "'Create Record' button should be visible");
     }
 }

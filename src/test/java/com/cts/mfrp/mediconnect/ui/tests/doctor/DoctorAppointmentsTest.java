@@ -4,8 +4,11 @@ import com.cts.mfrp.mediconnect.ui.pages.doctor.DoctorAppointments;
 import com.cts.mfrp.mediconnect.ui.tests.base.BaseDoctorTest;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebElement;
+import org.openqa.selenium.support.ui.ExpectedConditions;
+import org.openqa.selenium.support.ui.WebDriverWait;
 import org.testng.annotations.Test;
 
+import java.time.Duration;
 import java.util.List;
 
 import static org.testng.Assert.assertTrue;
@@ -17,6 +20,9 @@ public class DoctorAppointmentsTest extends BaseDoctorTest {
     @Test
     public void TC039_doctor_appointments_list_ui() {
         DoctorAppointments page = new DoctorAppointments(driver).open(loggedInUserId);
+        WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(10));
+
+        wait.until(ExpectedConditions.presenceOfElementLocated(page.pageHeader));
         assertTrue(driver.findElements(page.pageHeader).size() > 0);
 
         for (String tile : List.of("Today", "Confirmed", "Pending", "Cancelled")) {
@@ -33,12 +39,39 @@ public class DoctorAppointmentsTest extends BaseDoctorTest {
     @Test
     public void TC040_doctor_appointments_tabs_and_calendar() {
         DoctorAppointments page = new DoctorAppointments(driver).open(loggedInUserId);
-        List<WebElement> upcoming = driver.findElements(page.tabUpcoming);
-        if (!upcoming.isEmpty()) upcoming.get(0).click();
-        try { Thread.sleep(500); } catch (InterruptedException ignored) {}
+        WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(10));
 
+        // Step 1 — Today tab should be active by default
+        wait.until(ExpectedConditions.presenceOfElementLocated(page.tabToday));
+        assertTrue(driver.findElements(page.tabToday).size() > 0, "Today tab should be present");
+
+        // Step 2 — Click Upcoming tab
+        wait.until(ExpectedConditions.elementToBeClickable(page.tabUpcoming));
+        driver.findElement(page.tabUpcoming).click();
+        wait.until(ExpectedConditions.presenceOfElementLocated(page.tabUpcoming));
+        assertTrue(driver.findElements(page.tabUpcoming).size() > 0, "Upcoming tab should be clickable");
+
+        // Step 3 — Click Past tab
+        wait.until(ExpectedConditions.elementToBeClickable(page.tabPast));
+        driver.findElement(page.tabPast).click();
+        wait.until(ExpectedConditions.presenceOfElementLocated(page.tabPast));
+        assertTrue(driver.findElements(page.tabPast).size() > 0, "Past tab should be clickable");
+
+        // Step 4 — Click Today tab to return to default
+        wait.until(ExpectedConditions.elementToBeClickable(page.tabToday));
+        driver.findElement(page.tabToday).click();
+        wait.until(ExpectedConditions.presenceOfElementLocated(page.tabToday));
+        assertTrue(driver.findElements(page.tabToday).size() > 0, "Today tab should be clickable");
+
+        // Step 5 — Calendar view button should be present and clickable
+        wait.until(ExpectedConditions.presenceOfElementLocated(page.calendarToggle));
         assertTrue(driver.findElements(page.calendarToggle).size() > 0,
-                "Calendar view toggle should be present");
+                "Calendar view button should be visible");
+        driver.findElement(page.calendarToggle).click();
+        try { Thread.sleep(800); } catch (InterruptedException ignored) {}
+        // After clicking, the view switches — verify calendar toggle is still accessible
+        assertTrue(driver.findElements(page.calendarToggle).size() > 0,
+                "Calendar view should remain navigable after click");
     }
 
     // TC041 — New Appointment Modal field validation

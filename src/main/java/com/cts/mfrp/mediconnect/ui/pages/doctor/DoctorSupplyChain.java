@@ -11,7 +11,7 @@ public class DoctorSupplyChain extends BasePage {
 
     public final By pageHeader     = By.xpath("//*[normalize-space()='Supply Chain']");
     public final By addItemBtn     = By.xpath("//*[contains(text(),'+ Add Item')]");
-    public final By lowStockFilter = By.xpath("//*[contains(normalize-space(),'Low Stock')]");
+    public final By lowStockFilter = By.xpath("//*[contains(normalize-space(),'Low stock')]");
     public final By inventoryTable = By.cssSelector("table");
     public final By reorderBtn     = By.cssSelector("[class*='reorder-icon'], button[title='Reorder']");
 
