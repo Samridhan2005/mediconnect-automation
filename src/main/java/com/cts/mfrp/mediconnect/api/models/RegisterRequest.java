@@ -5,7 +5,8 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class RegisterRequest {
 
-    private String name;
+    private String firstName;
+    private String lastName;
     private String email;
     private String password;
     private String phone;
@@ -16,8 +17,11 @@ public class RegisterRequest {
     private String emergencyContact;
     private String dateOfBirth;
 
-    public String getName() { return name; }
-    public RegisterRequest setName(String name) { this.name = name; return this; }
+    public String getFirstName() { return firstName; }
+    public RegisterRequest setFirstName(String firstName) { this.firstName = firstName; return this; }
+
+    public String getLastName() { return lastName; }
+    public RegisterRequest setLastName(String lastName) { this.lastName = lastName; return this; }
 
     public String getEmail() { return email; }
     public RegisterRequest setEmail(String email) { this.email = email; return this; }

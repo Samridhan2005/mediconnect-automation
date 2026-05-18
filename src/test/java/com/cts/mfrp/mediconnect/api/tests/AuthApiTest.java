@@ -30,7 +30,8 @@ public class AuthApiTest extends ApiBaseTest {
     public void registerNewPatient_shouldReturnCreatedRecord() {
         long unique = System.currentTimeMillis();
         RegisterRequest body = new RegisterRequest()
-                .setName("Test User " + unique)
+                .setFirstName("Test")
+                .setLastName("User " + unique)
                 .setEmail("test" + unique + "@gmail.com")
                 .setPassword("Test@123")
                 .setPhone("9876543210")
@@ -43,6 +44,7 @@ public class AuthApiTest extends ApiBaseTest {
 
         auth.register(body).then()
                 .statusCode(createdStatus())
+                .body("name", equalTo(body.getFirstName() + " " + body.getLastName()))
                 .body("email", equalTo(body.getEmail()))
                 .body("role", equalTo("PATIENT"));
     }
@@ -58,6 +60,7 @@ public class AuthApiTest extends ApiBaseTest {
 
         response.then()
                 .statusCode(200)
+                .body("name", equalTo(ConfigReader.get("valid.name")))
                 .body("email", equalTo(body.getEmail()))
                 .body("userId", notNullValue())
                 .body("token", notNullValue())
