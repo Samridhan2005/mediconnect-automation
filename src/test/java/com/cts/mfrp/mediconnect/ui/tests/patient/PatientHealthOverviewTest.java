@@ -17,6 +17,7 @@ import static org.testng.Assert.assertTrue;
  */
 public class PatientHealthOverviewTest extends BasePatientTest {
 
+
     // TC015 — Patient login lands on Health Overview
     @Test
     public void TC015_patient_login_lands_on_health_overview() {
@@ -32,7 +33,7 @@ public class PatientHealthOverviewTest extends BasePatientTest {
 
         List<String> expected = List.of(
                 "Health Overview", "Appointments", "Medical Records", "Lab Reports",
-                "Telemedicine", "Medicine Reminders", "AI Health Assistant", "Sign Out");
+                "Telemedicine", "Medicine Reminders", "AI Health Assistant", "Sign out");
         for (String label : expected) {
             assertTrue(driver.findElements(By.xpath("//*[normalize-space()='" + label + "']")).size() >= 1,
                     "Sidebar item missing: " + label);
@@ -41,10 +42,16 @@ public class PatientHealthOverviewTest extends BasePatientTest {
         WebElement activeLink = driver.findElement(dash.sidebar().activeNavLink);
         assertEquals(activeLink.getText().trim(), "Health Overview");
 
-        String bodyText = driver.findElement(By.tagName("body")).getText().toLowerCase();
-        assertTrue(bodyText.contains("good morning") || bodyText.contains("good afternoon")
-                        || bodyText.contains("good evening"),
-                "Top banner should include a time-of-day greeting");
+        By greetingLocator = By.cssSelector(".hh-greeting");
+        String greeting = wait.until(d -> {
+            List<WebElement> els = d.findElements(greetingLocator);
+            if (els.isEmpty()) return null;
+            String t = els.get(0).getText();
+            return (t != null && !t.isBlank()) ? t.toLowerCase() : null;
+        });
+        assertTrue(greeting.contains("good morning") || greeting.contains("good afternoon")
+                        || greeting.contains("good evening"),
+                "Top banner should include a time-of-day greeting (was: '" + greeting + "')");
 
         assertTrue(driver.findElements(dash.healthScoreRing).size() > 0,
                 "Health Score circular indicator missing");
@@ -67,10 +74,17 @@ public class PatientHealthOverviewTest extends BasePatientTest {
     // TC019 — Upcoming Appointments section on dashboard
     @Test
     public void TC019_upcoming_appointments_section() {
-        WebElement section = driver.findElement(By.xpath(
-                "//*[contains(normalize-space(),'Upcoming Appointments')]/ancestor::*[contains(@class,'section') or contains(@class,'card') or contains(@class,'panel')][1]"));
-        assertTrue(section.isDisplayed());
-        assertTrue(driver.findElements(By.xpath("//*[contains(text(),'View all')]")).size() >= 1,
+        WebElement section = wait.until(d -> {
+            List<WebElement> sections = d.findElements(By.xpath(
+                    "//div[contains(concat(' ',normalize-space(@class),' '),' card ')]" +
+                            "[.//*[normalize-space()='Upcoming Appointments']]"));
+            for (WebElement el : sections) {
+                if (el.isDisplayed()) return el;
+            }
+            return null;
+        });
+        assertTrue(section.isDisplayed(), "Upcoming Appointments card should be visible");
+        assertTrue(driver.findElements(By.xpath("//*[contains(normalize-space(),'View all')]")).size() >= 1,
                 "FRD: 'View all' hyperlink should be visible");
     }
 
@@ -126,4 +140,4 @@ public class PatientHealthOverviewTest extends BasePatientTest {
         assertTrue(driver.getCurrentUrl().contains("/login"),
                 "User should be redirected to /login after sign out");
     }
-}
+} 

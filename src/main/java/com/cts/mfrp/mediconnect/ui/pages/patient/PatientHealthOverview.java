@@ -9,22 +9,22 @@ import org.openqa.selenium.WebDriver;
 /** Patient Health Overview Dashboard — /patient/{userId}/dashboard */
 public class PatientHealthOverview extends BasePage {
 
-    public final By healthScoreRing       = By.cssSelector("[class*='health-score'], [class*='score-ring']");
-    public final By summaryTiles          = By.cssSelector("[class*='summary'] [class*='tile'], .tile-card, .summary-card");
-    public final By upcomingAppointmentsTile = By.xpath("//*[contains(text(),'Upcoming Appointments')]/ancestor::*[contains(@class,'tile') or contains(@class,'card')][1]");
-    public final By pendingLabReportsTile    = By.xpath("//*[contains(text(),'Pending Lab Reports')]/ancestor::*[contains(@class,'tile') or contains(@class,'card')][1]");
-    public final By activePrescriptionsTile  = By.xpath("//*[contains(text(),'Active Prescriptions')]/ancestor::*[contains(@class,'tile') or contains(@class,'card')][1]");
-    public final By unreadNotificationsTile  = By.xpath("//*[contains(text(),'Unread Notifications')]/ancestor::*[contains(@class,'tile') or contains(@class,'card')][1]");
+    public final By healthScoreRing       = By.cssSelector("[class*='health-score'], [class*='score-ring'], .hs-ring");
+    public final By summaryTiles          = By.cssSelector(".stat-card");
+    public final By upcomingAppointmentsTile = By.xpath("//div[contains(@class,'stat-card')][.//*[normalize-space()='Upcoming Appointments']]");
+    public final By pendingLabReportsTile    = By.xpath("//div[contains(@class,'stat-card')][.//*[normalize-space()='Pending Lab Reports']]");
+    public final By activePrescriptionsTile  = By.xpath("//div[contains(@class,'stat-card')][.//*[normalize-space()='Active Prescriptions']]");
+    public final By unreadNotificationsTile  = By.xpath("//div[contains(@class,'stat-card')][.//*[normalize-space()='Unread Notifications']]");
 
     // AI assistant widget on Health Overview
-    public final By aiWidget              = By.cssSelector("[class*='ai-cta'], [class*='ai-widget'], [class*='ai-card']");
+    public final By aiWidget              = By.cssSelector(".ai-panel, [class*='ai-cta'], [class*='ai-widget'], [class*='ai-card']");
     public final By aiChipExplainLab      = By.xpath("//button[normalize-space()='Explain my lab report']");
     public final By aiChipSymptomChecker  = By.xpath("//button[normalize-space()='Symptom checker']");
     public final By aiChipBookAppointment = By.xpath("//button[normalize-space()='Book appointment']");
     public final By openAiAssistantCta    = By.xpath("//button[contains(normalize-space(),'Open AI Assistant')]");
 
-    // Tile "View all" / "All" links
-    public final By tileLinks             = By.xpath("//button[normalize-space()='View all →' or normalize-space()='All →']");
+    // Card "View all" / "All" links inside the panel headers
+    public final By tileLinks             = By.cssSelector("a.card-link, button.card-link");
 
     public PatientHealthOverview(WebDriver driver) {
         super(driver);

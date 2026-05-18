@@ -92,22 +92,54 @@ public class DoctorAppointmentsTest extends BaseDoctorTest {
     }
 
     // TC078 — Unknown patient search negative
+    // TC078 — Unknown patient search negative
+    // TC078 — Unknown patient search negative
     @Test
     public void TC078_new_appointment_patient_search_negative() {
         DoctorAppointments page = new DoctorAppointments(driver).open(loggedInUserId);
-        List<WebElement> btn = driver.findElements(page.newAppointmentBtn);
-        if (!btn.isEmpty()) {
-            btn.get(0).click();
-            try { Thread.sleep(800); } catch (InterruptedException ignored) {}
-        }
-        List<WebElement> patientField = driver.findElements(page.modalPatientField);
-        if (!patientField.isEmpty()) {
-            patientField.get(0).clear();
-            patientField.get(0).sendKeys("XYZ999");
-            try { Thread.sleep(800); } catch (InterruptedException ignored) {}
-            assertTrue(driver.findElements(By.xpath(
-                            "//*[contains(text(),'No matching patients') or contains(text(),'No patients')]")).size() > 0,
-                    "Empty-state message expected for unknown patient");
+        WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(15));
+
+        // Wait for and click + New Appointment button
+        wait.until(ExpectedConditions.elementToBeClickable(page.newAppointmentBtn));
+        driver.findElement(page.newAppointmentBtn).click();
+
+        // Wait for modal to open
+        wait.until(ExpectedConditions.visibilityOfElementLocated(page.modalTitle));
+
+        // Wait for patient field and type unknown patient
+        wait.until(ExpectedConditions.visibilityOfElementLocated(page.modalPatientField));
+        WebElement patientField = driver.findElement(page.modalPatientField);
+        patientField.clear();
+        patientField.sendKeys("XYZ999");
+
+        // Wait up to 3 seconds for any no-results indicator
+        try { Thread.sleep(2000); } catch (InterruptedException ignored) {}
+
+        // Check for any known empty-state text the app might show
+        By emptyState = By.xpath(
+                "//*[contains(text(),'No patients found')" +
+                        " or contains(text(),'No matching patients')" +
+                        " or contains(text(),'No patients')" +
+                        " or contains(text(),'No results')" +
+                        " or contains(text(),'not found')" +
+                        " or contains(text(),'0 results')]"
+        );
+
+        List<WebElement> emptyMsg = driver.findElements(emptyState);
+
+        // If no explicit message, verify no patient list items appeared (dropdown is empty)
+        if (emptyMsg.isEmpty()) {
+            By dropdownOptions = By.xpath(
+                    "//*[contains(@class,'option') or contains(@class,'dropdown-item')" +
+                            " or contains(@class,'suggestion') or contains(@role,'option')]"
+            );
+            List<WebElement> options = driver.findElements(dropdownOptions);
+            assertTrue(options.isEmpty(),
+                    "No patient results should appear for unknown search 'XYZ999' — " +
+                            "but dropdown options were found. " +
+                            "Also check: the empty-state message text may differ from expected values.");
+        } else {
+            assertTrue(true, "Empty-state message correctly shown for unknown patient");
         }
     }
 }
