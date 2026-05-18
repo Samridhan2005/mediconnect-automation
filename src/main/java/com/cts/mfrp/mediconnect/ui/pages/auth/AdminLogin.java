@@ -15,7 +15,7 @@ public class AdminLogin extends BasePage {
 
     private final By heading            = By.tagName("h1");
     private final By subtitle           = By.xpath("//*[contains(normalize-space(),'Access restricted to authorised personnel only')]");
-    private final By adminPanelLabel    = By.xpath("//div[normalize-space()='Admin Control Panel']");
+    private final By adminPanelLabel    = By.xpath("//p[text()='Connecting care.']");
     private final By featureBullet1     = By.xpath("//*[contains(normalize-space(),'Real-time hospital network monitoring')]");
     private final By featureBullet2     = By.xpath("//*[contains(normalize-space(),'AI-powered operational insights')]");
     private final By featureBullet3     = By.xpath("//*[contains(normalize-space(),'Multi-branch administration')]");

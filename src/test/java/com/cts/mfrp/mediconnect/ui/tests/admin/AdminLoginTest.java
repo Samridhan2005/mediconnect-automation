@@ -1,6 +1,7 @@
 package com.cts.mfrp.mediconnect.ui.tests.admin;
 
 import com.cts.mfrp.mediconnect.ui.base.UiBaseTest;
+import com.cts.mfrp.mediconnect.ui.pages.admin.AdminOverview;
 import com.cts.mfrp.mediconnect.ui.pages.auth.AdminLogin;
 import com.cts.mfrp.mediconnect.utils.ConfigReader;
 import org.testng.annotations.Test;
@@ -23,6 +24,8 @@ import static org.testng.Assert.assertTrue;
 public class AdminLoginTest extends UiBaseTest {
 
     // ============== TC016 — positive login ==============
+    // Clicking 'Sign In to Admin Panel' must navigate to /admin/{userId}/overview
+    // (the Admin System Overview dashboard).
     @Test
     public void TC016_admin_login_positive() {
         new AdminLogin(driver).open()
@@ -30,9 +33,13 @@ public class AdminLoginTest extends UiBaseTest {
                 .enterPassword(ConfigReader.get("admin.password"))
                 .submit();
 
-        wait.until(d -> d.getCurrentUrl().matches(".*/admin/\\d+/.*"));
-        assertTrue(driver.getCurrentUrl().matches(".*/admin/\\d+/.*"),
-                "After valid login admin should land on /admin/{id}/...");
+        AdminOverview overview = new AdminOverview(driver);
+        wait.until(d -> overview.isLoaded());
+        assertTrue(driver.getCurrentUrl().matches(".*/admin/\\d+/overview$"),
+                "After valid login admin should land on /admin/{id}/overview, but URL was: "
+                        + driver.getCurrentUrl());
+        assertTrue(overview.sidebar().isAdminControlLabelVisible(),
+                "'ADMIN CONTROL' label should be visible in the sidebar after login");
     }
 
 
