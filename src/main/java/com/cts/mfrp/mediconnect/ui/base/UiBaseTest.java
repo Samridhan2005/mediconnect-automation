@@ -29,6 +29,8 @@ public abstract class UiBaseTest {
         wait = new WebDriverWait(driver, Duration.ofSeconds(ConfigReader.getInt("explicit.wait")));
         baseUrl = ConfigReader.get("ui.baseUrl");
         driver.get(baseUrl);
+        driver.manage().window().maximize();
+        driver.manage().timeouts().implicitlyWait(Duration.ofSeconds(20));
     }
 
     @AfterMethod(alwaysRun = true)

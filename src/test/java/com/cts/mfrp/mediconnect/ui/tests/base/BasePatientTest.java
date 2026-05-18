@@ -10,6 +10,8 @@ public abstract class BasePatientTest extends UiBaseTest {
 
     protected long loggedInUserId;
 
+
+
     @BeforeMethod(dependsOnMethods = "uiSetup")
     public void loginAsPatient() {
         new Login(driver).open()
