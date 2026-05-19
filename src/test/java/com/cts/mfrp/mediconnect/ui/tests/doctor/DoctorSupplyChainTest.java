@@ -16,7 +16,7 @@ import static org.testng.Assert.assertTrue;
 public class DoctorSupplyChainTest extends BaseDoctorTest {
 
     // TC049 — Supply Chain page UI
-    @Test
+    @Test(groups = {"regression"})
     public void TC049_doctor_supply_chain_ui() {
         DoctorSupplyChain page = new DoctorSupplyChain(driver).open(loggedInUserId);
         WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(10));
@@ -36,7 +36,7 @@ public class DoctorSupplyChainTest extends BaseDoctorTest {
     }
 
     // TC081 — Low Stock filter
-    @Test
+    @Test(groups = {"regression"})
     public void TC081_doctor_supply_chain_low_stock() {
         DoctorSupplyChain page = new DoctorSupplyChain(driver).open(loggedInUserId);
         WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(10));

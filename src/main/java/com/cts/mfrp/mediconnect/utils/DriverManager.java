@@ -54,8 +54,14 @@ public final class DriverManager {
 
     private static ChromeOptions buildChromeOptions() {
         ChromeOptions options = new ChromeOptions();
-        if (Boolean.parseBoolean(System.getProperty("headless", "false"))) {
+        // Driven by `headless` in config.properties. ConfigReader honours a -Dheadless=...
+        // CLI override automatically, so you can flip without editing the file.
+        if (ConfigReader.getBoolean("headless")) {
             options.addArguments("--headless=new");
+            // Without an explicit viewport, headless Chrome defaults to 800x600 — some
+            // elements never enter the layout and selectors miss them. Force a desktop size.
+            options.addArguments("--window-size=1920,1080");
+            options.addArguments("--disable-gpu");
         }
         options.addArguments("--remote-allow-origins=*");
         options.addArguments("--disable-notifications");

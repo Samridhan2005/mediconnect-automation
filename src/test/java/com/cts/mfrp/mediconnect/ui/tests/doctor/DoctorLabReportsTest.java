@@ -17,7 +17,7 @@ import static org.testng.Assert.assertTrue;
 public class DoctorLabReportsTest extends BaseDoctorTest {
 
     // TC042 — Lab Reports page UI
-    @Test
+    @Test(groups = {"regression"})
     public void TC042_doctor_lab_reports_ui() {
         DoctorLabReports page = new DoctorLabReports(driver).open(loggedInUserId);
         WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(30));
@@ -89,7 +89,7 @@ public class DoctorLabReportsTest extends BaseDoctorTest {
     }
 
     // TC043 — Request Test form
-    @Test
+    @Test(groups = {"regression"})
     public void TC043_doctor_request_test() {
         DoctorLabReports page = new DoctorLabReports(driver).open(loggedInUserId);
         WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(30));

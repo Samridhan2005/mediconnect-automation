@@ -10,8 +10,12 @@ import org.openqa.selenium.WebDriver;
 public class AdminAnalytics extends BasePage {
 
     public final By pageHeader       = By.xpath("//*[contains(normalize-space(),'Analytics')]");
-    public final By periodSelect     = By.cssSelector("select[name*='period'], [class*='period-selector']");
-    public final By departmentSelect = By.cssSelector("select[name*='dept'], select[name*='department']");
+    // Page exposes native <select> dropdowns whose options contain the period / department keywords.
+    // We pick selects by their option content rather than by a specific name attribute (none present).
+    public final By periodSelect     = By.xpath("//select[option[contains(normalize-space(),'Last') or contains(normalize-space(),'days') or contains(normalize-space(),'Month')]]");
+    public final By departmentSelect = By.xpath("//select[option[contains(normalize-space(),'Department') or contains(normalize-space(),'Cardiology') or contains(normalize-space(),'All ')]]");
+    // Generic fallback — any dropdown on the page.
+    public final By anyDropdown      = By.cssSelector("select, [role='combobox'], [class*='dropdown']");
     public final By heatmap          = By.xpath("//*[contains(normalize-space(),'Patient Flow Heatmap') or contains(@class,'heatmap')]");
 
     public AdminAnalytics(WebDriver driver) {

@@ -17,7 +17,7 @@ import static org.testng.Assert.assertTrue;
 public class DoctorAppointmentsTest extends BaseDoctorTest {
 
     // TC039 — Appointments page UI
-    @Test
+    @Test(groups = {"sanity", "regression"})
     public void TC039_doctor_appointments_list_ui() {
         DoctorAppointments page = new DoctorAppointments(driver).open(loggedInUserId);
         WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(10));
@@ -36,7 +36,7 @@ public class DoctorAppointmentsTest extends BaseDoctorTest {
     }
 
     // TC040 — Tabs + Calendar view
-    @Test
+    @Test(groups = {"regression"})
     public void TC040_doctor_appointments_tabs_and_calendar() {
         DoctorAppointments page = new DoctorAppointments(driver).open(loggedInUserId);
         WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(10));
@@ -75,7 +75,7 @@ public class DoctorAppointmentsTest extends BaseDoctorTest {
     }
 
     // TC041 — New Appointment Modal field validation
-    @Test
+    @Test(groups = {"regression"})
     public void TC041_doctor_new_appointment_modal() {
         DoctorAppointments page = new DoctorAppointments(driver).open(loggedInUserId);
         List<WebElement> btn = driver.findElements(page.newAppointmentBtn);
@@ -94,7 +94,7 @@ public class DoctorAppointmentsTest extends BaseDoctorTest {
     // TC078 — Unknown patient search negative
     // TC078 — Unknown patient search negative
     // TC078 — Unknown patient search negative
-    @Test
+    @Test(groups = {"regression"})
     public void TC078_new_appointment_patient_search_negative() {
         DoctorAppointments page = new DoctorAppointments(driver).open(loggedInUserId);
         WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(15));

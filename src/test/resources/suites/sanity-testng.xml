@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE suite SYSTEM "https://testng.org/testng-1.0.dtd">
+<!--
+  Sanity pack — ~10 minutes.
+  Smoke + one happy-path per major area:
+    - getAll on every API resource
+    - Hospital create-update-delete lifecycle
+    - One UI dashboard test per role
+    - Key negative login flows
+    - Role-based access control
+  Run after a hotfix to confirm nothing important broke.
+-->
+<suite name="MediConnect Sanity Suite" verbose="1">
+
+    <listeners>
+        <listener class-name="com.cts.mfrp.mediconnect.utils.ExtentReportListener"/>
+    </listeners>
+
+    <test name="Sanity">
+        <groups>
+            <run>
+                <include name="sanity"/>
+            </run>
+        </groups>
+        <packages>
+            <package name="com.cts.mfrp.mediconnect.ui.tests"/>
+            <package name="com.cts.mfrp.mediconnect.ui.tests.patient"/>
+            <package name="com.cts.mfrp.mediconnect.ui.tests.doctor"/>
+            <package name="com.cts.mfrp.mediconnect.ui.tests.admin"/>
+        </packages>
+    </test>
+
+</suite>

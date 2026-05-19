@@ -13,7 +13,7 @@ import static org.testng.Assert.assertTrue;
 public class AdminRevenueBillingTest extends BaseAdminTest {
 
     // TC060 — Revenue & Billing UI (double-quoted xpath handles apostrophe in "Today's Revenue")
-    @Test
+    @Test(groups = {"regression"})
     public void TC060_admin_revenue_billing_ui() {
         AdminRevenueBilling page = new AdminRevenueBilling(driver).open(loggedInUserId);
         assertTrue(driver.findElements(page.pageHeader).size() > 0);
@@ -25,7 +25,7 @@ public class AdminRevenueBillingTest extends BaseAdminTest {
     }
 
     // TC061 — Recent Bills + Insurance Claims tables
-    @Test
+    @Test(groups = {"regression"})
     public void TC061_admin_revenue_bills_claims_tables() {
         AdminRevenueBilling page = new AdminRevenueBilling(driver).open(loggedInUserId);
         assertTrue(driver.findElements(page.recentBillsHeader).size() > 0,

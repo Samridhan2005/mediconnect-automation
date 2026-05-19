@@ -26,7 +26,7 @@ public class AdminLoginTest extends UiBaseTest {
     // ============== TC016 — positive login ==============
     // Clicking 'Sign In to Admin Panel' must navigate to /admin/{userId}/overview
     // (the Admin System Overview dashboard).
-    @Test
+    @Test(groups = {"smoke", "sanity", "regression"})
     public void TC016_admin_login_positive() {
         new AdminLogin(driver).open()
                 .enterEmail(ConfigReader.get("admin.email"))
@@ -43,7 +43,7 @@ public class AdminLoginTest extends UiBaseTest {
     }
 
 
-    @Test
+    @Test(groups = {"regression"})
     public void TC017_admin_login_page_ui_elements_visible() {
         AdminLogin login = new AdminLogin(driver).open();
 
@@ -63,7 +63,7 @@ public class AdminLoginTest extends UiBaseTest {
     }
 
     // TC018 — Password is masked by default
-    @Test
+    @Test(groups = {"regression"})
     public void TC018_admin_login_password_field_is_masked_by_default() {
         AdminLogin login = new AdminLogin(driver).open();
         login.enterPassword("Anything@123");
@@ -72,7 +72,7 @@ public class AdminLoginTest extends UiBaseTest {
     }
 
     // TC019 — Eye toggle flips password visibility
-    @Test
+    @Test(groups = {"regression"})
     public void TC019_admin_login_password_visibility_toggle_works() {
         AdminLogin login = new AdminLogin(driver).open();
         login.enterPassword("Anything@123");
@@ -88,7 +88,7 @@ public class AdminLoginTest extends UiBaseTest {
     // ============== Batch B — Negative validation ==============
 
     // TC020 — Empty submit shows an error / stays on page
-    @Test
+    @Test(groups = {"regression"})
     public void TC020_admin_login_empty_fields_show_error_or_blocked() {
         AdminLogin login = new AdminLogin(driver).open();
         login.submit();
@@ -99,7 +99,7 @@ public class AdminLoginTest extends UiBaseTest {
     }
 
     // TC021 — Invalid email format is rejected (browser-native or app-level)
-    @Test
+    @Test(groups = {"regression"})
     public void TC021_admin_login_invalid_email_format_rejected() {
         AdminLogin login = new AdminLogin(driver).open();
         login.enterEmail("not-an-email");
@@ -110,7 +110,7 @@ public class AdminLoginTest extends UiBaseTest {
     }
 
     // TC022 — Wrong email with correct password → error, stay on page
-    @Test
+    @Test(groups = {"regression"})
     public void TC022_admin_login_wrong_email_shows_error() {
         AdminLogin login = new AdminLogin(driver).open();
         login.loginAs("wrong.admin@mediconnect.com", ConfigReader.get("admin.password"));
@@ -121,7 +121,7 @@ public class AdminLoginTest extends UiBaseTest {
     }
 
     // TC023 — Correct email with wrong password → error, stay on page
-    @Test
+    @Test(groups = {"regression"})
     public void TC023_admin_login_wrong_password_shows_error() {
         AdminLogin login = new AdminLogin(driver).open();
         login.loginAs(ConfigReader.get("admin.email"), "WrongPass@999");
@@ -132,7 +132,7 @@ public class AdminLoginTest extends UiBaseTest {
     }
 
     // TC024 — Both wrong → error, stay on page
-    @Test
+    @Test(groups = {"regression"})
     public void TC024_admin_login_both_credentials_wrong_shows_error() {
         AdminLogin login = new AdminLogin(driver).open();
         login.loginAs("nobody@mediconnect.com", "TotallyWrong@1");
@@ -145,7 +145,7 @@ public class AdminLoginTest extends UiBaseTest {
     // ============== Batch C — Link navigation ==============
 
     // TC025 — "Back to Home" returns user to landing page
-    @Test
+    @Test(groups = {"regression"})
     public void TC025_back_to_home_link_navigates_to_home() {
         AdminLogin login = new AdminLogin(driver).open();
         login.clickBackHome();
@@ -158,7 +158,7 @@ public class AdminLoginTest extends UiBaseTest {
     }
 
     // TC026 — "Create admin account" link navigates to /admin/register
-    @Test
+    @Test(groups = {"regression"})
     public void TC026_create_admin_account_link_navigates_to_register() {
         AdminLogin login = new AdminLogin(driver).open();
         login.clickRegister();

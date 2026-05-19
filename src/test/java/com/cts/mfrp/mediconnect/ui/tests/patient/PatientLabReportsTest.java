@@ -16,7 +16,7 @@ import static org.testng.Assert.assertTrue;
 public class PatientLabReportsTest extends BasePatientTest {
 
     // TC030 — Page UI: header, report cards rendered
-    @Test
+    @Test(groups = {"regression"})
     public void TC030_lab_reports_ui() {
         PatientLabReports page = new PatientLabReports(driver).open(loggedInUserId);
 
@@ -30,7 +30,7 @@ public class PatientLabReportsTest extends BasePatientTest {
     }
 
     // TC031 — Ask AI to Explain + Download PDF buttons are clickable
-    @Test
+    @Test(groups = {"regression"})
     public void TC031_lab_reports_ai_explanation_and_download() {
         PatientLabReports page = new PatientLabReports(driver).open(loggedInUserId);
 
@@ -46,7 +46,7 @@ public class PatientLabReportsTest extends BasePatientTest {
     }
 
     // TC082 — Abnormal Result Alert Banner: visible and not dismissible
-    @Test
+    @Test(groups = {"regression"})
     public void TC082_lab_reports_alert_banner_persistence() {
         PatientLabReports page = new PatientLabReports(driver).open(loggedInUserId);
 

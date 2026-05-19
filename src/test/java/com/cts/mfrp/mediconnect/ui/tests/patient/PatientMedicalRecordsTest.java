@@ -11,7 +11,7 @@ import static org.testng.Assert.assertTrue;
 public class PatientMedicalRecordsTest extends BasePatientTest {
 
     // TC028 — UI structure: header, left panel with search, at least one record
-    @Test
+    @Test(groups = {"regression"})
     public void TC028_medical_records_ui() {
         PatientMedicalRecords page = new PatientMedicalRecords(driver).open(loggedInUserId);
 
@@ -27,7 +27,7 @@ public class PatientMedicalRecordsTest extends BasePatientTest {
     }
 
     // TC029 — Search filters the records list
-    @Test
+    @Test(groups = {"regression"})
     public void TC029_medical_records_search() {
         PatientMedicalRecords page = new PatientMedicalRecords(driver).open(loggedInUserId);
         int total = page.waitForRecordsLoaded();

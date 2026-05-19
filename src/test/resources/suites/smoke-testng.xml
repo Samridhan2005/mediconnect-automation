@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE suite SYSTEM "https://testng.org/testng-1.0.dtd">
+<!--
+  Smoke pack — ~3 minutes.
+  Bare-minimum health checks proving the build is alive:
+    - API up + auth endpoint works
+    - UI deployment reachable + login form renders
+    - Each role can log in
+  Run on every PR / after every deployment.
+-->
+<suite name="MediConnect Smoke Suite" verbose="1">
+
+    <listeners>
+        <listener class-name="com.cts.mfrp.mediconnect.utils.ExtentReportListener"/>
+    </listeners>
+
+    <test name="Smoke">
+        <groups>
+            <run>
+                <include name="smoke"/>
+            </run>
+        </groups>
+        <packages>
+            <package name="com.cts.mfrp.mediconnect.ui.tests"/>
+            <package name="com.cts.mfrp.mediconnect.ui.tests.patient"/>
+            <package name="com.cts.mfrp.mediconnect.ui.tests.doctor"/>
+            <package name="com.cts.mfrp.mediconnect.ui.tests.admin"/>
+        </packages>
+    </test>
+
+</suite>

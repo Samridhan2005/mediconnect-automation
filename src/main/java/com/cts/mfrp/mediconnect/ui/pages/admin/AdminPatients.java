@@ -9,13 +9,17 @@ import org.openqa.selenium.WebDriver;
 /** Admin Patient Management — /admin/{userId}/patients */
 public class AdminPatients extends BasePage {
 
-    public final By pageHeader   = By.xpath("//*[normalize-space()='Patient Management']");
-    public final By inpatientTab = By.xpath("//*[normalize-space()='Inpatients']");
-    public final By outpatientTab = By.xpath("//*[normalize-space()='Outpatients']");
-    public final By exportBtn    = By.xpath("//button[contains(normalize-space(),'Export') or contains(@class,'export')]");
-    public final By viewBtn      = By.cssSelector("[class*='view'], button[title='View']");
-    public final By aiSummarizeBtn = By.xpath("//button[contains(normalize-space(),'+ AI Summarize') or contains(normalize-space(),'AI Summarize')]");
-    public final By editBtn      = By.xpath("//button[contains(@class,'edit') or normalize-space()='Edit']");
+    // Header: deployment shows "Patient List" card title (no top-level "Patient Management" h1).
+    public final By pageHeader     = By.xpath("//*[contains(normalize-space(),'Patient List') or contains(normalize-space(),'Patient Management')]");
+    // Tabs include a row count: "Inpatients (55)" / "Outpatients (1)" — use contains.
+    public final By inpatientTab   = By.xpath("//*[contains(normalize-space(),'Inpatients')]");
+    public final By outpatientTab  = By.xpath("//*[contains(normalize-space(),'Outpatients')]");
+    public final By exportBtn      = By.xpath("//button[contains(normalize-space(),'Export')]");
+    // Buttons are plain "View" / "Edit" / "Delete" — match by visible text.
+    public final By viewBtn        = By.xpath("//button[normalize-space()='View']");
+    public final By editBtn        = By.xpath("//button[normalize-space()='Edit']");
+    public final By deleteBtn      = By.xpath("//button[normalize-space()='Delete']");
+    public final By aiSummarizeBtn = By.xpath("//button[contains(normalize-space(),'AI Summarize')]");
 
     public AdminPatients(WebDriver driver) {
         super(driver);

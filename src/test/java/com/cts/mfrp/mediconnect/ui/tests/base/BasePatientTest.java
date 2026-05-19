@@ -12,7 +12,12 @@ public abstract class BasePatientTest extends UiBaseTest {
 
 
 
-    @BeforeMethod(dependsOnMethods = "uiSetup")
+    // FIX: removed `dependsOnMethods = "uiSetup"`. That attribute is intended for @Test
+    // methods to declare ordering against other @Test methods. Pointing one @BeforeMethod
+    // at another @BeforeMethod with it caused intermittent silent skips in multi-test runs
+    // (the browser opened /login but credentials were never typed).
+    // Inheritance already guarantees the parent's UiBaseTest.uiSetup() runs before this.
+    @BeforeMethod(alwaysRun = true)
     public void loginAsPatient() {
         new Login(driver).open()
                 .selectPatientTab()

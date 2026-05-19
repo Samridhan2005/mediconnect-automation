@@ -14,18 +14,21 @@ import static org.testng.Assert.assertTrue;
 public class AdminPatientsTest extends BaseAdminTest {
 
     // TC054 — Patient Management UI
-    @Test
+    // FIX: actual tab text contains a count, e.g. "Inpatients (55)" / "Outpatients (1)".
+    // Switched from normalize-space() equality to contains() so the count suffix doesn't break the match.
+    @Test(groups = {"sanity", "regression"})
     public void TC054_admin_patient_management_ui() {
         AdminPatients page = new AdminPatients(driver).open(loggedInUserId);
         assertTrue(driver.findElements(page.pageHeader).size() > 0);
         for (String tab : List.of("Inpatients", "Outpatients")) {
-            assertTrue(driver.findElements(By.xpath("//*[normalize-space()='" + tab + "']")).size() > 0,
+            assertTrue(driver.findElements(By.xpath(
+                            "//*[contains(normalize-space(),'" + tab + "')]")).size() > 0,
                     "Tab missing: " + tab);
         }
     }
 
     // TC055 — AI Summarize button on patient detail
-    @Test
+    @Test(groups = {"regression"})
     public void TC055_admin_patient_ai_summarize() {
         AdminPatients page = new AdminPatients(driver).open(loggedInUserId);
         List<WebElement> viewBtn = driver.findElements(page.viewBtn);
@@ -38,7 +41,7 @@ public class AdminPatientsTest extends BaseAdminTest {
     }
 
     // TC080 — Export
-    @Test
+    @Test(groups = {"regression"})
     public void TC080_admin_patient_management_export() {
         AdminPatients page = new AdminPatients(driver).open(loggedInUserId);
         assertTrue(driver.findElements(page.exportBtn).size() > 0,

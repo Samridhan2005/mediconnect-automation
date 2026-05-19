@@ -10,7 +10,9 @@ public abstract class BaseAdminTest extends UiBaseTest {
 
     protected long loggedInUserId;
 
-    @BeforeMethod(dependsOnMethods = "uiSetup")
+    // FIX: removed `dependsOnMethods = "uiSetup"` — see BasePatientTest for details.
+    // Parent UiBaseTest.uiSetup() runs first by inheritance order; no explicit dep needed.
+    @BeforeMethod(alwaysRun = true)
     public void loginAsAdmin() {
         new AdminLogin(driver).open()
                 .enterEmail(ConfigReader.get("admin.email"))
