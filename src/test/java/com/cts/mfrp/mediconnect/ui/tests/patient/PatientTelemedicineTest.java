@@ -12,7 +12,7 @@ import static org.testng.Assert.assertTrue;
 public class PatientTelemedicineTest extends BasePatientTest {
 
     // TC032 — Telemedicine page UI: header + Book Video Call CTA
-    @Test
+    @Test(groups = {"regression"})
     public void TC032_telemedicine_ui() {
         PatientTelemedicine page = new PatientTelemedicine(driver).open(loggedInUserId);
 
@@ -24,7 +24,7 @@ public class PatientTelemedicineTest extends BasePatientTest {
     }
 
     // TC076 — Sessions area: either reschedule/cancel actions exist on sessions, or empty state shows
-    @Test
+    @Test(groups = {"regression"})
     public void TC076_patient_telemedicine_sessions_or_empty() {
         PatientTelemedicine page = new PatientTelemedicine(driver).open(loggedInUserId);
 

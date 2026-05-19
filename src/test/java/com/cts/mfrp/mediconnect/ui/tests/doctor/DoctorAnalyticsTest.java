@@ -16,7 +16,7 @@ import static org.testng.Assert.assertTrue;
 public class DoctorAnalyticsTest extends BaseDoctorTest {
 
     // TC047 — Analytics page UI
-    @Test
+    @Test(groups = {"regression"})
     public void TC047_doctor_analytics_ui() {
         DoctorAnalytics page = new DoctorAnalytics(driver).open(loggedInUserId);
         WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(10));
@@ -36,7 +36,7 @@ public class DoctorAnalyticsTest extends BaseDoctorTest {
     }
 
     // TC048 — Time period filter
-    @Test
+    @Test(groups = {"regression"})
     public void TC048_doctor_analytics_time_period_filter() {
         DoctorAnalytics page = new DoctorAnalytics(driver).open(loggedInUserId);
         WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(10));

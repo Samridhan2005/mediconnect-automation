@@ -30,35 +30,35 @@ public class AppointmentApiTest extends ApiBaseTest {
         appointments = new AppointmentEndpoints(spec);
     }
 
-    @Test(priority = 1)
+    @Test(groups = {"sanity", "regression"}, priority = 1)
     public void getAll_shouldReturn200() {
         appointments.getAll().then()
                 .statusCode(200)
                 .body("size()", greaterThanOrEqualTo(0));
     }
 
-    @Test(priority = 2)
+    @Test(groups = {"regression"}, priority = 2)
     public void getById_seedAppointment_shouldReturnRecord() {
         appointments.getById(SEED_APPOINTMENT_ID).then()
                 .statusCode(200)
                 .body("appointmentId", equalTo((int) SEED_APPOINTMENT_ID));
     }
 
-    @Test(priority = 3)
+    @Test(groups = {"regression"}, priority = 3)
     public void getByPatient_shouldReturnList() {
         appointments.getByPatient(SEED_PATIENT_ID).then()
                 .statusCode(200)
                 .body("size()", greaterThanOrEqualTo(0));
     }
 
-    @Test(priority = 4)
+    @Test(groups = {"regression"}, priority = 4)
     public void getByDoctor_shouldReturnList() {
         appointments.getByDoctor(SEED_DOCTOR_ID).then()
                 .statusCode(200)
                 .body("size()", greaterThanOrEqualTo(0));
     }
 
-    @Test(priority = 5)
+    @Test(groups = {"regression"}, priority = 5)
     public void create_inPersonAppointment_shouldSucceed() {
         Appointment body = new Appointment()
                 .setPatient(new PatientRef(SEED_PATIENT_ID))
@@ -81,7 +81,7 @@ public class AppointmentApiTest extends ApiBaseTest {
         createdId = response.jsonPath().getLong("appointmentId");
     }
 
-    @Test(priority = 6, dependsOnMethods = "create_inPersonAppointment_shouldSucceed")
+    @Test(groups = {"regression"}, priority = 6, dependsOnMethods = "create_inPersonAppointment_shouldSucceed")
     public void update_cancelAppointment_shouldReflectStatus() {
         Appointment body = new Appointment()
                 .setPatient(new PatientRef(SEED_PATIENT_ID))
@@ -98,7 +98,7 @@ public class AppointmentApiTest extends ApiBaseTest {
                 .body("status", equalTo("CANCELLED"));
     }
 
-    @Test(priority = 7, dependsOnMethods = "create_inPersonAppointment_shouldSucceed")
+    @Test(groups = {"regression"}, priority = 7, dependsOnMethods = "create_inPersonAppointment_shouldSucceed")
     public void delete_shouldReturnNoContentOrConstraintError() {
         // Backend auto-creates a Bill row referencing the appointment, which
         // blocks deletion via FK constraint. The endpoint either succeeds

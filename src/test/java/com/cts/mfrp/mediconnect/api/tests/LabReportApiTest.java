@@ -29,28 +29,28 @@ public class LabReportApiTest extends ApiBaseTest {
         reports = new LabReportEndpoints(spec);
     }
 
-    @Test(priority = 1)
+    @Test(groups = {"sanity", "regression"}, priority = 1)
     public void getAll_shouldReturn200() {
         reports.getAll().then()
                 .statusCode(200)
                 .body("size()", greaterThanOrEqualTo(0));
     }
 
-    @Test(priority = 2)
+    @Test(groups = {"regression"}, priority = 2)
     public void getById_seedReport_shouldReturnRecord() {
         reports.getById(SEED_REPORT_ID).then()
                 .statusCode(200)
                 .body("reportId", equalTo((int) SEED_REPORT_ID));
     }
 
-    @Test(priority = 3)
+    @Test(groups = {"regression"}, priority = 3)
     public void getByPatient_shouldReturnList() {
         reports.getByPatient(SEED_PATIENT_ID).then()
                 .statusCode(200)
                 .body("size()", greaterThanOrEqualTo(0));
     }
 
-    @Test(priority = 4)
+    @Test(groups = {"regression"}, priority = 4)
     public void create_shouldReturnCreatedReport() {
         LabReport body = new LabReport()
                 .setPatient(new PatientRef(SEED_PATIENT_ID))
@@ -71,7 +71,7 @@ public class LabReportApiTest extends ApiBaseTest {
         createdId = response.jsonPath().getLong("reportId");
     }
 
-    @Test(priority = 5, dependsOnMethods = "create_shouldReturnCreatedReport")
+    @Test(groups = {"regression"}, priority = 5, dependsOnMethods = "create_shouldReturnCreatedReport")
     public void update_shouldReflectChanges() {
         LabReport body = new LabReport()
                 .setPatient(new PatientRef(SEED_PATIENT_ID))
@@ -87,7 +87,7 @@ public class LabReportApiTest extends ApiBaseTest {
                 .body("testName", equalTo("Complete Blood Count (CBC)"));
     }
 
-    @Test(priority = 6, dependsOnMethods = "create_shouldReturnCreatedReport")
+    @Test(groups = {"regression"}, priority = 6, dependsOnMethods = "create_shouldReturnCreatedReport")
     public void delete_shouldReturnNoContent() {
         reports.delete(createdId).then()
                 .statusCode(deletedStatus());

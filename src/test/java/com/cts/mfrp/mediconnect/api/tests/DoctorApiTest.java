@@ -30,35 +30,35 @@ public class DoctorApiTest extends ApiBaseTest {
         doctors = new DoctorEndpoints(spec);
     }
 
-    @Test(priority = 1)
+    @Test(groups = {"sanity", "regression"}, priority = 1)
     public void getAll_shouldReturn200() {
         doctors.getAll().then()
                 .statusCode(200)
                 .body("size()", greaterThanOrEqualTo(0));
     }
 
-    @Test(priority = 2)
+    @Test(groups = {"regression"}, priority = 2)
     public void getById_seedDoctor_shouldReturnRecord() {
         doctors.getById(SEED_DOCTOR_ID).then()
                 .statusCode(200)
                 .body("doctorId", equalTo((int) SEED_DOCTOR_ID));
     }
 
-    @Test(priority = 3)
+    @Test(groups = {"regression"}, priority = 3)
     public void getByHospital_shouldReturnList() {
         doctors.getByHospital(SEED_HOSPITAL_ID).then()
                 .statusCode(200)
                 .body("size()", greaterThanOrEqualTo(0));
     }
 
-    @Test(priority = 4)
+    @Test(groups = {"regression"}, priority = 4)
     public void getBySpecialization_shouldReturnList() {
         doctors.getBySpecialization("Cardiology").then()
                 .statusCode(200)
                 .body("size()", greaterThanOrEqualTo(0));
     }
 
-    @Test(priority = 5)
+    @Test(groups = {"regression"}, priority = 5)
     public void create_shouldReturnCreatedRecord() {
         Doctor body = new Doctor()
                 .setUser(new UserRef(SEED_USER_ID))
@@ -77,7 +77,7 @@ public class DoctorApiTest extends ApiBaseTest {
         createdId = response.jsonPath().getLong("doctorId");
     }
 
-    @Test(priority = 6, dependsOnMethods = "create_shouldReturnCreatedRecord")
+    @Test(groups = {"regression"}, priority = 6, dependsOnMethods = "create_shouldReturnCreatedRecord")
     public void update_shouldReflectChanges() {
         Doctor body = new Doctor()
                 .setUser(new UserRef(SEED_USER_ID))
@@ -91,7 +91,7 @@ public class DoctorApiTest extends ApiBaseTest {
                 .body("availabilityStatus", equalTo("NOT_AVAILABLE"));
     }
 
-    @Test(priority = 7, dependsOnMethods = "create_shouldReturnCreatedRecord")
+    @Test(groups = {"regression"}, priority = 7, dependsOnMethods = "create_shouldReturnCreatedRecord")
     public void delete_shouldReturnNoContent() {
         doctors.delete(createdId).then()
                 .statusCode(deletedStatus());

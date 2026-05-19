@@ -11,7 +11,7 @@ import static org.testng.Assert.assertTrue;
 public class PatientReminderTest extends BasePatientTest {
 
     // TC033 — UI: header, stats blocks, at least one med-card with DUE NOW
-    @Test
+    @Test(groups = {"regression"})
     public void TC033_medicine_reminders_ui() {
         PatientMedicineReminders page = new PatientMedicineReminders(driver).open(loggedInUserId);
 
@@ -28,7 +28,7 @@ public class PatientReminderTest extends BasePatientTest {
     }
 
     // TC034 — Mark dose as taken: clicking the mp-check button updates the row
-    @Test
+    @Test(groups = {"regression"})
     public void TC034_mark_dose_as_taken() {
         PatientMedicineReminders page = new PatientMedicineReminders(driver).open(loggedInUserId);
 

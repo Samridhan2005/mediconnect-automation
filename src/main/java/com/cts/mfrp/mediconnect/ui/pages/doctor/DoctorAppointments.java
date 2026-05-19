@@ -9,8 +9,9 @@ import org.openqa.selenium.WebDriver;
 /** Doctor Appointments page — /doctor/{userId}/appointments */
 public class DoctorAppointments extends BasePage {
 
-    public final By pageHeader        = By.xpath("//*[normalize-space()='Appointments']");
-    public final By newAppointmentBtn = By.xpath("//*[contains(text(),'+ New Appointment') or contains(text(),'New Appointment')]");
+    public final By pageHeader        = By.xpath("//h1[normalize-space()='Appointments']");
+    // Actual button text on the new deployment is "New Appointment" (no leading "+").
+    public final By newAppointmentBtn = By.xpath("//button[normalize-space()='New Appointment' or normalize-space()='+ New Appointment']");
     public final By tabToday          = By.xpath("//button[normalize-space()='Today']");
     public final By tabUpcoming       = By.xpath("//button[normalize-space()='Upcoming']");
     public final By tabPast           = By.xpath("//button[normalize-space()='Past']");

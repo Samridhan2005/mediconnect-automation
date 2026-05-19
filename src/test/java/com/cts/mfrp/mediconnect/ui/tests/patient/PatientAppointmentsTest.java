@@ -18,7 +18,7 @@ import static org.testng.Assert.assertTrue;
 public class PatientAppointmentsTest extends BasePatientTest {
 
     // TC023 — Appointments page UI: header, primary CTA, tabs
-    @Test
+    @Test(groups = {"regression"})
     public void TC023_appointments_page_ui() {
         PatientAppointments page = new PatientAppointments(driver).open(loggedInUserId);
 
@@ -39,7 +39,7 @@ public class PatientAppointmentsTest extends BasePatientTest {
     }
 
     // TC024 — Upcoming tab content: either appointment cards OR empty state message
-    @Test
+    @Test(groups = {"regression"})
     public void TC024_appointment_cards_or_empty_state() {
         PatientAppointments page = new PatientAppointments(driver).open(loggedInUserId);
 
@@ -56,7 +56,7 @@ public class PatientAppointmentsTest extends BasePatientTest {
     }
 
     // TC025 — Book Appointment Modal UI: title + fields visible
-    @Test
+    @Test(groups = {"regression"})
     public void TC025_book_appointment_modal_ui() {
         PatientAppointments page = new PatientAppointments(driver).open(loggedInUserId);
         page.openBookModal();
@@ -86,7 +86,7 @@ public class PatientAppointmentsTest extends BasePatientTest {
     }
 
     // TC026 — Mandatory field validation: confirming with empty form must not submit
-    @Test
+    @Test(groups = {"regression"})
     public void TC026_book_appointment_mandatory_validation() {
         PatientAppointments page = new PatientAppointments(driver).open(loggedInUserId);
         page.openBookModal();
@@ -103,7 +103,7 @@ public class PatientAppointmentsTest extends BasePatientTest {
     }
 
     // TC027 — Successful booking: fill fields, confirm, modal closes
-    @Test
+    @Test(groups = {"regression"})
     public void TC027_book_appointment_success() {
         PatientAppointments page = new PatientAppointments(driver).open(loggedInUserId);
         page.openBookModal();

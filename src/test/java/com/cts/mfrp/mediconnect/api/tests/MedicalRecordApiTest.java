@@ -29,28 +29,28 @@ public class MedicalRecordApiTest extends ApiBaseTest {
         records = new MedicalRecordEndpoints(spec);
     }
 
-    @Test(priority = 1)
+    @Test(groups = {"sanity", "regression"}, priority = 1)
     public void getAll_shouldReturn200() {
         records.getAll().then()
                 .statusCode(200)
                 .body("size()", greaterThanOrEqualTo(0));
     }
 
-    @Test(priority = 2)
+    @Test(groups = {"regression"}, priority = 2)
     public void getById_seedRecord_shouldReturnRecord() {
         records.getById(SEED_RECORD_ID).then()
                 .statusCode(200)
                 .body("recordId", equalTo((int) SEED_RECORD_ID));
     }
 
-    @Test(priority = 3)
+    @Test(groups = {"regression"}, priority = 3)
     public void getByPatient_shouldReturnList() {
         records.getByPatient(SEED_PATIENT_ID).then()
                 .statusCode(200)
                 .body("size()", greaterThanOrEqualTo(0));
     }
 
-    @Test(priority = 4)
+    @Test(groups = {"regression"}, priority = 4)
     public void create_shouldReturnCreatedRecord() {
         MedicalRecord body = new MedicalRecord()
                 .setPatient(new PatientRef(SEED_PATIENT_ID))
@@ -72,7 +72,7 @@ public class MedicalRecordApiTest extends ApiBaseTest {
         createdId = response.jsonPath().getLong("recordId");
     }
 
-    @Test(priority = 5, dependsOnMethods = "create_shouldReturnCreatedRecord")
+    @Test(groups = {"regression"}, priority = 5, dependsOnMethods = "create_shouldReturnCreatedRecord")
     public void update_shouldReflectChanges() {
         MedicalRecord body = new MedicalRecord()
                 .setPatient(new PatientRef(SEED_PATIENT_ID))
@@ -89,7 +89,7 @@ public class MedicalRecordApiTest extends ApiBaseTest {
                 .body("diagnosis", equalTo("Hypertension Stage 1 - Controlled"));
     }
 
-    @Test(priority = 6, dependsOnMethods = "create_shouldReturnCreatedRecord")
+    @Test(groups = {"regression"}, priority = 6, dependsOnMethods = "create_shouldReturnCreatedRecord")
     public void delete_shouldReturnNoContentOrConstraintError() {
         // Backend may auto-create a Prescription row referencing the record,
         // which blocks deletion via FK constraint. Accept either outcome.

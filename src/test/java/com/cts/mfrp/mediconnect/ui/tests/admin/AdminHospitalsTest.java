@@ -16,7 +16,7 @@ import static org.testng.Assert.assertTrue;
 public class AdminHospitalsTest extends BaseAdminTest {
 
     // TC053 — Hospitals page UI
-    @Test
+    @Test(groups = {"regression"})
     public void TC053_admin_hospitals_ui() {
         AdminHospitals page = new AdminHospitals(driver).open(loggedInUserId);
         for (String tile : List.of("Total Hospitals", "Operational", "Under Maintenance", "Critical Capacity")) {
@@ -32,7 +32,7 @@ public class AdminHospitalsTest extends BaseAdminTest {
     }
 
     // TC077 — Occupancy colour coding (green/amber/red)
-    @Test
+    @Test(groups = {"regression"})
     public void TC077_admin_hospitals_occupancy_colors() {
         AdminHospitals page = new AdminHospitals(driver).open(loggedInUserId);
         List<WebElement> rows = driver.findElements(By.cssSelector("table tr"));
@@ -43,7 +43,7 @@ public class AdminHospitalsTest extends BaseAdminTest {
     }
 
     // TC086 — Clicking 'Hospitals' in the sidebar navigates to /admin/{id}/hospitals
-    @Test
+    @Test(groups = {"regression"})
     public void TC086_hospitals_sidebar_link_navigates_to_hospitals_page() {
         // BaseAdminTest leaves us on /admin/{id}/overview after login
         AdminOverview overview = new AdminOverview(driver);
@@ -61,7 +61,7 @@ public class AdminHospitalsTest extends BaseAdminTest {
     }
 
     // TC087 — '+ Add Hospital' button opens the Add Hospital modal
-    @Test
+    @Test(groups = {"regression"})
     public void TC087_add_hospital_button_opens_modal() {
         AdminHospitals page = new AdminHospitals(driver).open(loggedInUserId);
         assertTrue(page.isAddHospitalButtonVisible(),
@@ -79,7 +79,7 @@ public class AdminHospitalsTest extends BaseAdminTest {
     //   - The modal may not auto-close after submit; we don't rely on that.
     //   - We verify success by looking for the new hospital row directly in the table.
     //   - The "modal stayed open" check is recorded separately as an informational side-effect.
-    @Test
+    @Test(groups = {"regression"})
     public void TC089_submit_add_hospital_form_creates_new_row() {
         AdminHospitals page = new AdminHospitals(driver).open(loggedInUserId);
 
@@ -111,7 +111,7 @@ public class AdminHospitalsTest extends BaseAdminTest {
     }
 
     // TC090 — Clicking 'Edit' on a row opens the Edit Hospital modal pre-filled with that row's data
-    @Test
+    @Test(groups = {"regression"})
     public void TC090_edit_button_opens_prefilled_modal() {
         AdminHospitals page = new AdminHospitals(driver).open(loggedInUserId);
 
@@ -134,7 +134,7 @@ public class AdminHospitalsTest extends BaseAdminTest {
     // TC092 — Save Changes inside the Edit Hospital modal must update the row in the table.
     // Picks an existing hospital, appends a timestamp to its name, clicks Save Changes,
     // and verifies the renamed row appears in the table.
-    @Test
+    @Test(groups = {"regression"})
     public void TC092_save_changes_in_edit_modal_persists_update() {
         AdminHospitals page = new AdminHospitals(driver).open(loggedInUserId);
 
@@ -161,7 +161,7 @@ public class AdminHospitalsTest extends BaseAdminTest {
     }
 
     // TC091 — Clicking 'Details' on a row reveals the Expanded view section below the table
-    @Test
+    @Test(groups = {"regression"})
     public void TC091_details_button_reveals_expanded_view() {
         AdminHospitals page = new AdminHospitals(driver).open(loggedInUserId);
 
@@ -187,7 +187,7 @@ public class AdminHospitalsTest extends BaseAdminTest {
 
     // TC088 — Every hospital row in the table must have a non-empty name
     // (Catches the data-integrity issue seen in the UI where one row has a blank Hospital Name column.)
-    @Test
+    @Test(groups = {"regression"})
     public void TC088_every_hospital_row_has_non_empty_name() {
         AdminHospitals page = new AdminHospitals(driver).open(loggedInUserId);
 

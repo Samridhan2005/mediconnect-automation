@@ -24,21 +24,21 @@ public class InventoryApiTest extends ApiBaseTest {
         inventory = new InventoryEndpoints(spec);
     }
 
-    @Test(priority = 1)
+    @Test(groups = {"sanity", "regression"}, priority = 1)
     public void getAll_shouldReturn200() {
         inventory.getAll().then()
                 .statusCode(200)
                 .body("size()", greaterThanOrEqualTo(0));
     }
 
-    @Test(priority = 2)
+    @Test(groups = {"regression"}, priority = 2)
     public void getByHospital_shouldReturnList() {
         inventory.getByHospital(SEED_HOSPITAL_ID).then()
                 .statusCode(200)
                 .body("size()", greaterThanOrEqualTo(0));
     }
 
-    @Test(priority = 3)
+    @Test(groups = {"regression"}, priority = 3)
     public void create_newItem_shouldSucceed() {
         Inventory body = new Inventory()
                 .setHospital(new HospitalRef(SEED_HOSPITAL_ID))
@@ -58,7 +58,7 @@ public class InventoryApiTest extends ApiBaseTest {
         createdId = response.jsonPath().getLong("itemId");
     }
 
-    @Test(priority = 4, dependsOnMethods = "create_newItem_shouldSucceed")
+    @Test(groups = {"regression"}, priority = 4, dependsOnMethods = "create_newItem_shouldSucceed")
     public void update_restock_shouldReflectQuantity() {
         Inventory body = new Inventory()
                 .setHospital(new HospitalRef(SEED_HOSPITAL_ID))
@@ -73,7 +73,7 @@ public class InventoryApiTest extends ApiBaseTest {
                 .body("quantity", equalTo(800));
     }
 
-    @Test(priority = 5, dependsOnMethods = "create_newItem_shouldSucceed")
+    @Test(groups = {"regression"}, priority = 5, dependsOnMethods = "create_newItem_shouldSucceed")
     public void delete_shouldReturnNoContent() {
         inventory.delete(createdId).then()
                 .statusCode(deletedStatus());

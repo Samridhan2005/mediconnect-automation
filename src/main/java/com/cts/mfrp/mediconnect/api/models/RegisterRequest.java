@@ -49,4 +49,21 @@ public class RegisterRequest {
 
     public String getDateOfBirth() { return dateOfBirth; }
     public RegisterRequest setDateOfBirth(String dateOfBirth) { this.dateOfBirth = dateOfBirth; return this; }
+
+    /**
+     * Convenience setter that accepts a full name and splits it into
+     * firstName + lastName on the first whitespace. Useful for callers that
+     * still pass a single "Auto Admin"-style string.
+     */
+    public RegisterRequest setName(String fullName) {
+        if (fullName == null || fullName.isBlank()) {
+            this.firstName = null;
+            this.lastName = null;
+            return this;
+        }
+        String[] parts = fullName.trim().split("\\s+", 2);
+        this.firstName = parts[0];
+        this.lastName  = parts.length > 1 ? parts[1] : "";
+        return this;
+    }
 }

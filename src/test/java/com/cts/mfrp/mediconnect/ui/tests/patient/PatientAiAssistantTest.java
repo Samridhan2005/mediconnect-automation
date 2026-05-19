@@ -15,7 +15,7 @@ import static org.testng.Assert.assertTrue;
 public class PatientAiAssistantTest extends BasePatientTest {
 
     // TC035 — UI: header + 4 mode buttons + at least one quick action
-    @Test
+    @Test(groups = {"regression"})
     public void TC035_ai_assistant_page_ui() {
         PatientAiHealthAssistant page = new PatientAiHealthAssistant(driver).open(loggedInUserId);
 
@@ -30,7 +30,7 @@ public class PatientAiAssistantTest extends BasePatientTest {
     }
 
     // TC036 — Mode switching: clicking each mode button activates it
-    @Test
+    @Test(groups = {"regression"})
     public void TC036_ai_assistant_chat_mode_switching() {
         PatientAiHealthAssistant page = new PatientAiHealthAssistant(driver).open(loggedInUserId);
 
@@ -43,7 +43,7 @@ public class PatientAiAssistantTest extends BasePatientTest {
     }
 
     // TC079 — Emergency Note card cannot be dismissed
-    @Test
+    @Test(groups = {"regression"})
     public void TC079_ai_emergency_note_is_persistent() {
         PatientAiHealthAssistant page = new PatientAiHealthAssistant(driver).open(loggedInUserId);
 

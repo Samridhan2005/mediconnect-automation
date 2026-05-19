@@ -26,35 +26,35 @@ public class BedApiTest extends ApiBaseTest {
         beds = new BedEndpoints(spec);
     }
 
-    @Test(priority = 1)
+    @Test(groups = {"sanity", "regression"}, priority = 1)
     public void getAll_shouldReturn200() {
         beds.getAll().then()
                 .statusCode(200)
                 .body("size()", greaterThanOrEqualTo(0));
     }
 
-    @Test(priority = 2)
+    @Test(groups = {"regression"}, priority = 2)
     public void getById_seedBed_shouldReturnRecord() {
         beds.getById(SEED_BED_ID).then()
                 .statusCode(200)
                 .body("bedId", equalTo((int) SEED_BED_ID));
     }
 
-    @Test(priority = 3)
+    @Test(groups = {"regression"}, priority = 3)
     public void getByHospital_shouldReturnList() {
         beds.getByHospital(SEED_HOSPITAL_ID).then()
                 .statusCode(200)
                 .body("size()", greaterThanOrEqualTo(0));
     }
 
-    @Test(priority = 4)
+    @Test(groups = {"regression"}, priority = 4)
     public void getByStatus_available_shouldReturnList() {
         beds.getByStatus(AppConstants.BedStatus.AVAILABLE).then()
                 .statusCode(200)
                 .body("size()", greaterThanOrEqualTo(0));
     }
 
-    @Test(priority = 5)
+    @Test(groups = {"regression"}, priority = 5)
     public void create_availableBed_shouldSucceed() {
         Bed body = new Bed()
                 .setHospital(new HospitalRef(SEED_HOSPITAL_ID))
@@ -73,7 +73,7 @@ public class BedApiTest extends ApiBaseTest {
         createdId = response.jsonPath().getLong("bedId");
     }
 
-    @Test(priority = 6, dependsOnMethods = "create_availableBed_shouldSucceed")
+    @Test(groups = {"regression"}, priority = 6, dependsOnMethods = "create_availableBed_shouldSucceed")
     public void update_dischargeBed_shouldReflectStatus() {
         Bed body = new Bed()
                 .setHospital(new HospitalRef(SEED_HOSPITAL_ID))
@@ -87,7 +87,7 @@ public class BedApiTest extends ApiBaseTest {
                 .body("status", equalTo("AVAILABLE"));
     }
 
-    @Test(priority = 7, dependsOnMethods = "create_availableBed_shouldSucceed")
+    @Test(groups = {"regression"}, priority = 7, dependsOnMethods = "create_availableBed_shouldSucceed")
     public void delete_shouldReturnNoContent() {
         beds.delete(createdId).then()
                 .statusCode(deletedStatus());

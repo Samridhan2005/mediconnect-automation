@@ -13,7 +13,7 @@ import static org.testng.Assert.assertTrue;
 public class AdminSupplyChainTest extends BaseAdminTest {
 
     // TC058 — Supply Chain UI + AI insights
-    @Test
+    @Test(groups = {"regression"})
     public void TC058_admin_supply_chain_ui_ai_insights() {
         AdminSupplyChain page = new AdminSupplyChain(driver).open(loggedInUserId);
         assertTrue(driver.findElements(page.pageHeader).size() > 0);
@@ -26,7 +26,7 @@ public class AdminSupplyChainTest extends BaseAdminTest {
     }
 
     // TC059 — Inventory table + filters
-    @Test
+    @Test(groups = {"regression"})
     public void TC059_admin_supply_chain_inventory_table() {
         AdminSupplyChain page = new AdminSupplyChain(driver).open(loggedInUserId);
         for (String filter : List.of("All", "Low Stock", "Expiring")) {
