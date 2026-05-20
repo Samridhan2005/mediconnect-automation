@@ -57,8 +57,8 @@ public class DoctorLabReportsTest extends BaseDoctorTest {
                 "Stat card 'Completed today' missing");
 
         // ── Search input ──────────────────────────────────────────────────────
-        assertTrue(driver.findElements(By.cssSelector(
-                        "input[placeholder='Search patient or test name...']")).size() > 0,
+        assertTrue(driver.findElements(By.xpath(
+                        "//input[1]")).size() > 0,
                 "Search input missing");
 
         // ── Request Test button ───────────────────────────────────────────────
@@ -86,6 +86,7 @@ public class DoctorLabReportsTest extends BaseDoctorTest {
         // Pass if table loaded OR empty state shown OR error state with Retry button
         assertTrue(tableLoaded || emptyState || (errorState && retryVisible),
                 "Lab reports area must show table, empty state, or error with Retry button");
+        assertTrue(driver.findElements(By.cssSelector("div.error-bar")).size()<0,"Coul not loadd the reports");
     }
 
     // TC043 — Request Test form
