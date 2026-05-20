@@ -15,6 +15,9 @@ public class AdminAppointments extends BasePage {
     public final By allDoctorsFilter  = By.xpath("//*[contains(normalize-space(),'All Doctors')]");
     public final By allDeptsFilter    = By.xpath("//*[contains(normalize-space(),'All Departments')]");
     public final By datePicker        = By.cssSelector("input[type='date'], [class*='date-picker']");
+    public final By filter = By.xpath("//*[text()=\"Filters\"]");
+    public final By recentAppointments = By.xpath("//*[text()=\" Recent Appointments \"]");
+    public final By app = By.xpath("//*[text()=\"All Appointments\"]");
 
     public AdminAppointments(WebDriver driver) {
         super(driver);
