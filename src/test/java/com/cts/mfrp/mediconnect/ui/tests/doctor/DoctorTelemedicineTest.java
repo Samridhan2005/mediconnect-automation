@@ -37,7 +37,6 @@ import static org.testng.Assert.assertTrue;
  */
 public class DoctorTelemedicineTest extends BaseDoctorTest {
 
-<<<<<<< HEAD
     private static final Duration WAIT = Duration.ofSeconds(60);
 
     private WebDriverWait w() {
@@ -45,27 +44,20 @@ public class DoctorTelemedicineTest extends BaseDoctorTest {
     }
 
     // ─────────────────────────────────────────────────────────────────────────
-    // TC046 — Telemedicine UI + session management (original)
-    // ─────────────────────────────────────────────────────────────────────────
-    @Test
-=======
     // TC046 — Telemedicine UI + session management
+    // ─────────────────────────────────────────────────────────────────────────
     @Test(groups = {"regression"})
->>>>>>> f6db4cd54a4fe28abf6baffa2fcc3643cf12044c
     public void TC046_doctor_telemedicine_ui() {
         DoctorTelemedicine page = new DoctorTelemedicine(driver).open(loggedInUserId);
         WebDriverWait wait     = new WebDriverWait(driver, Duration.ofSeconds(60));
         WebDriverWait longWait = new WebDriverWait(driver, Duration.ofSeconds(60));
 
-        // Step 1 — Wait for URL and page to load
         wait.until(ExpectedConditions.urlContains("telemedicine"));
 
-        // Step 2 — Page header
         wait.until(ExpectedConditions.visibilityOfElementLocated(page.pageHeader));
         assertTrue(driver.findElements(page.pageHeader).size() > 0,
                 "Page header 'Telemedicine' not found");
 
-        // Step 3 — Summary tiles
         wait.until(ExpectedConditions.presenceOfElementLocated(
                 By.xpath("//*[contains(normalize-space(),'Live now')]")));
 
@@ -87,12 +79,10 @@ public class DoctorTelemedicineTest extends BaseDoctorTest {
                                 "or contains(normalize-space(),'Average duration')]")).size() > 0,
                 "Summary tile missing: Avg. duration");
 
-        // Step 4 — Live & Upcoming section
         wait.until(ExpectedConditions.presenceOfElementLocated(page.liveSection));
         assertTrue(driver.findElements(page.liveSection).size() > 0,
                 "'Live & Upcoming' section should be visible");
 
-        // Step 5 — Past sessions section heading
         wait.until(ExpectedConditions.presenceOfElementLocated(
                 By.xpath("//*[contains(normalize-space(),'Past sessions') " +
                         "or contains(normalize-space(),'Past Sessions')]")));
@@ -101,7 +91,6 @@ public class DoctorTelemedicineTest extends BaseDoctorTest {
                                 "or contains(normalize-space(),'Past Sessions')]")).size() > 0,
                 "'Past sessions' section should be visible");
 
-        // Step 5a — Scroll table into view for Angular lazy rendering
         try {
             WebElement table = longWait.until(
                     ExpectedConditions.presenceOfElementLocated(By.cssSelector("table")));
@@ -117,7 +106,7 @@ public class DoctorTelemedicineTest extends BaseDoctorTest {
                         "Past sessions column missing: " + col);
             }
 
-            List<WebElement> dataRows  = driver.findElements(By.cssSelector("tbody tr"));
+            List<WebElement> dataRows = driver.findElements(By.cssSelector("tbody tr"));
             List<WebElement> emptyRows = driver.findElements(By.xpath(
                     "//*[contains(normalize-space(),'No sessions') " +
                             "or contains(normalize-space(),'No past sessions') " +
@@ -130,7 +119,6 @@ public class DoctorTelemedicineTest extends BaseDoctorTest {
             assertTrue(true, "No past sessions table present — acceptable for empty account");
         }
 
-        // Step 6 — Schedule session button
         wait.until(ExpectedConditions.visibilityOfElementLocated(page.scheduleSessionBtn));
         assertTrue(driver.findElements(page.scheduleSessionBtn).size() > 0,
                 "'+ Schedule session' button should be visible");
@@ -138,7 +126,6 @@ public class DoctorTelemedicineTest extends BaseDoctorTest {
 
     // ─────────────────────────────────────────────────────────────────────────
     // TC_T01 — Page title "Telemedicine" visible
-    //          h1.page-title → "Telemedicine"
     // ─────────────────────────────────────────────────────────────────────────
     @Test
     public void TC_T01_telemedicine_page_title() {
@@ -153,7 +140,6 @@ public class DoctorTelemedicineTest extends BaseDoctorTest {
 
     // ─────────────────────────────────────────────────────────────────────────
     // TC_T02 — Page subtitle visible
-    //          p.page-sub → "Video consultations via session URL"
     // ─────────────────────────────────────────────────────────────────────────
     @Test
     public void TC_T02_telemedicine_page_subtitle() {
@@ -169,7 +155,6 @@ public class DoctorTelemedicineTest extends BaseDoctorTest {
 
     // ─────────────────────────────────────────────────────────────────────────
     // TC_T03 — "Schedule session" button present and enabled
-    //          button.btn.btn-primary → "Schedule session"
     // ─────────────────────────────────────────────────────────────────────────
     @Test
     public void TC_T03_telemedicine_schedule_session_button() {
@@ -187,7 +172,6 @@ public class DoctorTelemedicineTest extends BaseDoctorTest {
 
     // ─────────────────────────────────────────────────────────────────────────
     // TC_T04 — All four stat card labels visible
-    //          div.stat-label → Live now | Today's video | This week | Avg. duration
     // ─────────────────────────────────────────────────────────────────────────
     @Test
     public void TC_T04_telemedicine_stat_card_labels() {
@@ -208,7 +192,6 @@ public class DoctorTelemedicineTest extends BaseDoctorTest {
 
     // ─────────────────────────────────────────────────────────────────────────
     // TC_T05 — Stat card values are non-empty
-    //          div.stat-val → non-empty text
     // ─────────────────────────────────────────────────────────────────────────
     @Test
     public void TC_T05_telemedicine_stat_card_values() {
@@ -227,7 +210,6 @@ public class DoctorTelemedicineTest extends BaseDoctorTest {
 
     // ─────────────────────────────────────────────────────────────────────────
     // TC_T06 — Stat card sub-labels visible
-    //          span.stat-sub → Active session | 0 remaining | Per session
     // ─────────────────────────────────────────────────────────────────────────
     @Test
     public void TC_T06_telemedicine_stat_card_sub_labels() {
@@ -239,8 +221,7 @@ public class DoctorTelemedicineTest extends BaseDoctorTest {
         List<String> found = driver.findElements(statSub)
                 .stream().map(e -> e.getText().trim()).toList();
 
-        for (String expected : List.of(
-                "Active session", "remaining", "Per session")) {
+        for (String expected : List.of("Active session", "remaining", "Per session")) {
             assertTrue(found.stream().anyMatch(t -> t.contains(expected)),
                     "Sub-label containing '" + expected + "' missing. Found: " + found);
         }
@@ -248,7 +229,6 @@ public class DoctorTelemedicineTest extends BaseDoctorTest {
 
     // ─────────────────────────────────────────────────────────────────────────
     // TC_T07 — "Live & Upcoming" section title visible
-    //          div.section-title → "Live & Upcoming"
     // ─────────────────────────────────────────────────────────────────────────
     @Test
     public void TC_T07_telemedicine_live_upcoming_section() {
@@ -264,7 +244,6 @@ public class DoctorTelemedicineTest extends BaseDoctorTest {
 
     // ─────────────────────────────────────────────────────────────────────────
     // TC_T08 — "Live & Upcoming" empty state message correct
-    //          div.empty-state p → "No upcoming sessions today."
     // ─────────────────────────────────────────────────────────────────────────
     @Test
     public void TC_T08_telemedicine_live_upcoming_empty_state() {
@@ -290,7 +269,6 @@ public class DoctorTelemedicineTest extends BaseDoctorTest {
 
     // ─────────────────────────────────────────────────────────────────────────
     // TC_T09 — "Past sessions" section title visible
-    //          div.section-title → "Past sessions"
     // ─────────────────────────────────────────────────────────────────────────
     @Test
     public void TC_T09_telemedicine_past_sessions_section() {
@@ -306,15 +284,12 @@ public class DoctorTelemedicineTest extends BaseDoctorTest {
 
     // ─────────────────────────────────────────────────────────────────────────
     // TC_T10 — Past sessions table column headers correct
-    //          div.past-card div.table-wrap table thead th
-    //          PATIENT | DATE | DURATION | REASON | STATUS
     // ─────────────────────────────────────────────────────────────────────────
     @Test
     public void TC_T10_telemedicine_past_sessions_columns() {
         new DoctorTelemedicine(driver).open(loggedInUserId);
 
-        By thLocator = By.cssSelector(
-                "div.past-card div.table-wrap table thead th");
+        By thLocator = By.cssSelector("div.past-card div.table-wrap table thead th");
         w().until(ExpectedConditions.visibilityOfElementLocated(thLocator));
 
         List<String> headers = driver.findElements(thLocator)
@@ -325,8 +300,7 @@ public class DoctorTelemedicineTest extends BaseDoctorTest {
                         .toUpperCase())
                 .toList();
 
-        for (String col : List.of(
-                "PATIENT", "DATE", "DURATION", "REASON", "STATUS")) {
+        for (String col : List.of("PATIENT", "DATE", "DURATION", "REASON", "STATUS")) {
             assertTrue(headers.stream().anyMatch(h -> h.equals(col)),
                     "Column '" + col + "' not found. Found: " + headers);
         }
@@ -334,14 +308,12 @@ public class DoctorTelemedicineTest extends BaseDoctorTest {
 
     // ─────────────────────────────────────────────────────────────────────────
     // TC_T11 — Past sessions table has data rows
-    //          div.past-card div.table-wrap table tbody tr
     // ─────────────────────────────────────────────────────────────────────────
     @Test
     public void TC_T11_telemedicine_past_sessions_has_rows() {
         new DoctorTelemedicine(driver).open(loggedInUserId);
 
-        By rows = By.cssSelector(
-                "div.past-card div.table-wrap table tbody tr");
+        By rows = By.cssSelector("div.past-card div.table-wrap table tbody tr");
         w().until(ExpectedConditions.numberOfElementsToBeMoreThan(rows, 0));
 
         assertTrue(driver.findElements(rows).size() > 0,
@@ -350,14 +322,12 @@ public class DoctorTelemedicineTest extends BaseDoctorTest {
 
     // ─────────────────────────────────────────────────────────────────────────
     // TC_T12 — Past sessions row data validation
-    //          PATIENT | DATE | REASON | STATUS non-empty
     // ─────────────────────────────────────────────────────────────────────────
     @Test
     public void TC_T12_telemedicine_past_sessions_row_data() {
         new DoctorTelemedicine(driver).open(loggedInUserId);
 
-        By rows = By.cssSelector(
-                "div.past-card div.table-wrap table tbody tr");
+        By rows = By.cssSelector("div.past-card div.table-wrap table tbody tr");
         w().until(ExpectedConditions.numberOfElementsToBeMoreThan(rows, 0));
 
         List<WebElement> dataRows = driver.findElements(rows);
@@ -369,22 +339,15 @@ public class DoctorTelemedicineTest extends BaseDoctorTest {
             assertTrue(cells.size() >= 4,
                     "Row " + i + " should have ≥4 columns, found: " + cells.size());
 
-            // col 0 — PATIENT
             assertFalse(cells.get(0).getText().trim().isEmpty(),
                     "Row " + i + " PATIENT is empty");
-
-            // col 1 — DATE
             assertFalse(cells.get(1).getText().trim().isEmpty(),
                     "Row " + i + " DATE is empty");
-
-            // col 3 — REASON
             assertFalse(cells.get(3).getText().trim().isEmpty(),
                     "Row " + i + " REASON is empty");
 
-            // col 4 — STATUS
             String status = cells.get(4).getText().trim();
-            assertFalse(status.isEmpty(),
-                    "Row " + i + " STATUS is empty");
+            assertFalse(status.isEmpty(), "Row " + i + " STATUS is empty");
             assertTrue(
                     List.of("No-show", "Completed", "Cancelled", "Pending")
                             .stream().anyMatch(status::contains),
@@ -394,7 +357,6 @@ public class DoctorTelemedicineTest extends BaseDoctorTest {
 
     // ─────────────────────────────────────────────────────────────────────────
     // TC_T13 — Past sessions card and table-wrap visible
-    //          div.past-card → exists | div.past-card div.table-wrap → exists
     // ─────────────────────────────────────────────────────────────────────────
     @Test
     public void TC_T13_telemedicine_past_card_visible() {
