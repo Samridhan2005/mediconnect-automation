@@ -312,7 +312,7 @@ public class AdminPatientsTest extends BaseAdminTest {
     // ─────────────────────────────────────────────────────────────────────────
     // TC080 — Export CSV button present and enabled
     // ─────────────────────────────────────────────────────────────────────────
-    @Test
+
     // TC054 — Patient Management UI
     // FIX: actual tab text contains a count, e.g. "Inpatients (55)" / "Outpatients (1)".
     // Switched from normalize-space() equality to contains() so the count suffix doesn't break the match.
@@ -354,4 +354,6 @@ public class AdminPatientsTest extends BaseAdminTest {
         assertTrue(btn.getText().trim().contains("Export CSV"),
                 "Export button text mismatch: '" + btn.getText() + "'");
     }
+
+
 }
