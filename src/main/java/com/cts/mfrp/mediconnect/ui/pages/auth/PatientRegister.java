@@ -1,0 +1,68 @@
+package com.cts.mfrp.mediconnect.ui.pages.auth;
+
+import com.cts.mfrp.mediconnect.ui.pages.BasePage;
+import com.cts.mfrp.mediconnect.utils.ConfigReader;
+import org.openqa.selenium.By;
+import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.WebElement;
+import org.openqa.selenium.support.ui.ExpectedConditions;
+import org.openqa.selenium.support.ui.Select;
+
+/**
+ * Page Object for the unified Patient / Doctor registration form at /register.
+ * Patient role is selected by default; switching to Doctor uses a slider.
+ */
+public class PatientRegister extends BasePage {
+
+    public static final String PATH = "/register";
+
+    private final By firstName       = By.name("firstName");
+    private final By lastName        = By.name("lastName");
+    private final By email           = By.name("email");
+    private final By phone           = By.name("phone");
+    private final By dateOfBirth     = By.name("dateOfBirth");
+    private final By bloodGroup      = By.xpath("//*[text()='Blood group']/parent::div/div/select");
+    private final By gender          = By.xpath("//*[text()='Gender']/parent::div/div/select");
+    private final By password        = By.xpath("//*[text()='Password']/parent::div/div/input");
+    private final By confirmPassword = By.xpath("//*[text()='Confirm password']/parent::div/div/input");
+    private final By termsCheckbox   = By.xpath("//input[@type='checkbox']");
+    private final By submitButton    = By.xpath("//button[@type='submit']");
+
+    public PatientRegister(WebDriver driver) {
+        super(driver);
+    }
+
+    public PatientRegister open() {
+        driver.get(ConfigReader.get("ui.baseUrl") + PATH);
+        wait.until(ExpectedConditions.visibilityOfElementLocated(firstName));
+        return this;
+    }
+
+    public PatientRegister enterFirstName(String v)       { type(firstName, v); return this; }
+    public PatientRegister enterLastName(String v)        { type(lastName, v); return this; }
+    public PatientRegister enterEmail(String v)           { type(email, v); return this; }
+    public PatientRegister enterPhone(String v)           { type(phone, v); return this; }
+    public PatientRegister enterDateOfBirth(String v)     { type(dateOfBirth, v); return this; }
+    public PatientRegister enterPassword(String v)        { type(password, v); return this; }
+    public PatientRegister enterConfirmPassword(String v) { type(confirmPassword, v); return this; }
+
+    public PatientRegister selectBloodGroup(String visibleText) {
+        new Select(visible(bloodGroup)).selectByVisibleText(visibleText);
+        return this;
+    }
+
+    public PatientRegister selectGender(String visibleText) {
+        new Select(visible(gender)).selectByVisibleText(visibleText);
+        return this;
+    }
+
+    public PatientRegister acceptTerms() {
+        WebElement cb = visible(termsCheckbox);
+        if (!cb.isSelected()) cb.click();
+        return this;
+    }
+
+    public void submit() {
+        click(submitButton);
+    }
+}

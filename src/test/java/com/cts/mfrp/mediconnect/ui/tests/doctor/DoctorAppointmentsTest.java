@@ -44,6 +44,7 @@ import static org.testng.Assert.assertTrue;
  */
 public class DoctorAppointmentsTest extends BaseDoctorTest {
 
+<<<<<<< HEAD
     private static final Duration WAIT = Duration.ofSeconds(60);
 
     private WebDriverWait w() {
@@ -56,6 +57,13 @@ public class DoctorAppointmentsTest extends BaseDoctorTest {
     @Test
     public void TC_A01_appointments_page_title() {
         new DoctorAppointments(driver).open(loggedInUserId);
+=======
+    // TC039 — Appointments page UI
+    @Test(groups = {"sanity", "regression"})
+    public void TC039_doctor_appointments_list_ui() {
+        DoctorAppointments page = new DoctorAppointments(driver).open(loggedInUserId);
+        WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(10));
+>>>>>>> f6db4cd54a4fe28abf6baffa2fcc3643cf12044c
 
         By title = By.cssSelector("h1.page-title");
         w().until(ExpectedConditions.visibilityOfElementLocated(title));
@@ -203,6 +211,7 @@ public class DoctorAppointmentsTest extends BaseDoctorTest {
         }
     }
 
+<<<<<<< HEAD
     // ─────────────────────────────────────────────────────────────────────────
     // TC_A09 — Toolbar filters present
     //          search-wrap | 2× select.tb-input | input[type=date].tb-input
@@ -210,6 +219,13 @@ public class DoctorAppointmentsTest extends BaseDoctorTest {
     @Test
     public void TC_A09_appointments_toolbar_filters() {
         new DoctorAppointments(driver).open(loggedInUserId);
+=======
+    // TC040 — Tabs + Calendar view
+    @Test(groups = {"regression"})
+    public void TC040_doctor_appointments_tabs_and_calendar() {
+        DoctorAppointments page = new DoctorAppointments(driver).open(loggedInUserId);
+        WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(10));
+>>>>>>> f6db4cd54a4fe28abf6baffa2fcc3643cf12044c
 
         By toolbar = By.cssSelector("div.toolbar");
         w().until(ExpectedConditions.visibilityOfElementLocated(toolbar));
@@ -231,6 +247,7 @@ public class DoctorAppointmentsTest extends BaseDoctorTest {
                 "Date picker input not found in toolbar");
     }
 
+<<<<<<< HEAD
     // ─────────────────────────────────────────────────────────────────────────
     // TC_A10 — Appointments table column headers correct
     //          PATIENT | TIME | TYPE | REASON | STATUS | ACTIONS
@@ -238,6 +255,18 @@ public class DoctorAppointmentsTest extends BaseDoctorTest {
     @Test
     public void TC_A10_appointments_table_columns() {
         new DoctorAppointments(driver).open(loggedInUserId);
+=======
+    // TC041 — New Appointment Modal field validation
+    @Test(groups = {"regression"})
+    public void TC041_doctor_new_appointment_modal() {
+        DoctorAppointments page = new DoctorAppointments(driver).open(loggedInUserId);
+        List<WebElement> btn = driver.findElements(page.newAppointmentBtn);
+        assertTrue(btn.size() > 0, "+ New Appointment button should be visible");
+        btn.get(0).click();
+        try { Thread.sleep(800); } catch (InterruptedException ignored) {}
+        assertTrue(driver.findElements(page.modalTitle).size() > 0,
+                "Modal title should be visible");
+>>>>>>> f6db4cd54a4fe28abf6baffa2fcc3643cf12044c
 
         By thLocator = By.cssSelector("div.table-wrap table thead tr th");
         w().until(ExpectedConditions.visibilityOfElementLocated(thLocator));
@@ -257,12 +286,22 @@ public class DoctorAppointmentsTest extends BaseDoctorTest {
         }
     }
 
+<<<<<<< HEAD
     // ─────────────────────────────────────────────────────────────────────────
     // TC_A11 — Appointments table has data rows (tr.data-row)
     // ─────────────────────────────────────────────────────────────────────────
     @Test
     public void TC_A11_appointments_table_has_rows() {
         new DoctorAppointments(driver).open(loggedInUserId);
+=======
+    // TC078 — Unknown patient search negative
+    // TC078 — Unknown patient search negative
+    // TC078 — Unknown patient search negative
+    @Test(groups = {"regression"})
+    public void TC078_new_appointment_patient_search_negative() {
+        DoctorAppointments page = new DoctorAppointments(driver).open(loggedInUserId);
+        WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(15));
+>>>>>>> f6db4cd54a4fe28abf6baffa2fcc3643cf12044c
 
         By rows = By.cssSelector("div.table-wrap table tbody tr.data-row");
         w().until(ExpectedConditions.numberOfElementsToBeMoreThan(rows, 0));

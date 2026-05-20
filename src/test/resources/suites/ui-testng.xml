@@ -6,6 +6,12 @@
         <listener class-name="com.cts.mfrp.mediconnect.utils.ExtentReportListener"/>
     </listeners>
 
+    <test name="Home / Landing page">
+        <classes>
+            <class name="com.cts.mfrp.mediconnect.ui.tests.HomePageTest"/>
+        </classes>
+    </test>
+
     <test name="Auth - Login / Role selectors / Forgot password / Invalid creds">
         <classes>
             <class name="com.cts.mfrp.mediconnect.ui.tests.LoginTest"/>
@@ -41,6 +47,7 @@
     <test name="Admin Portal">
         <classes>
             <class name="com.cts.mfrp.mediconnect.ui.tests.admin.AdminLoginTest"/>
+            <class name="com.cts.mfrp.mediconnect.ui.tests.admin.AdminRegisterTest"/>
             <class name="com.cts.mfrp.mediconnect.ui.tests.admin.AdminOverviewTest"/>
             <class name="com.cts.mfrp.mediconnect.ui.tests.admin.AdminHospitalsTest"/>
             <class name="com.cts.mfrp.mediconnect.ui.tests.admin.AdminPatientsTest"/>

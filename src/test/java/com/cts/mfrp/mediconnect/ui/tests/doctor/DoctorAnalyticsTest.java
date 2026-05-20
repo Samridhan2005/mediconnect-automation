@@ -42,6 +42,7 @@ import static org.testng.Assert.assertTrue;
  */
 public class DoctorAnalyticsTest extends BaseDoctorTest {
 
+<<<<<<< HEAD
     private static final Duration WAIT = Duration.ofSeconds(60);
 
     private WebDriverWait w() {
@@ -52,6 +53,10 @@ public class DoctorAnalyticsTest extends BaseDoctorTest {
     // TC047 — Analytics page UI (original)
     // ─────────────────────────────────────────────────────────────────────────
     @Test
+=======
+    // TC047 — Analytics page UI
+    @Test(groups = {"regression"})
+>>>>>>> f6db4cd54a4fe28abf6baffa2fcc3643cf12044c
     public void TC047_doctor_analytics_ui() {
         DoctorAnalytics page = new DoctorAnalytics(driver).open(loggedInUserId);
 
@@ -71,10 +76,15 @@ public class DoctorAnalyticsTest extends BaseDoctorTest {
         }
     }
 
+<<<<<<< HEAD
     // ─────────────────────────────────────────────────────────────────────────
     // TC048 — Time period filter (original)
     // ─────────────────────────────────────────────────────────────────────────
     @Test
+=======
+    // TC048 — Time period filter
+    @Test(groups = {"regression"})
+>>>>>>> f6db4cd54a4fe28abf6baffa2fcc3643cf12044c
     public void TC048_doctor_analytics_time_period_filter() {
         DoctorAnalytics page = new DoctorAnalytics(driver).open(loggedInUserId);
 

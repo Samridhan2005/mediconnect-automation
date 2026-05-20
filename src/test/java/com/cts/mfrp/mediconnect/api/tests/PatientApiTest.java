@@ -25,21 +25,21 @@ public class PatientApiTest extends ApiBaseTest {
         patients = new PatientEndpoints(spec);
     }
 
-    @Test(priority = 1)
+    @Test(groups = {"sanity", "regression"}, priority = 1)
     public void getAll_shouldReturn200() {
         patients.getAll().then()
                 .statusCode(200)
                 .body("size()", greaterThanOrEqualTo(0));
     }
 
-    @Test(priority = 2)
+    @Test(groups = {"regression"}, priority = 2)
     public void getById_seedPatient_shouldReturnRecord() {
         patients.getById(SEED_PATIENT_ID).then()
                 .statusCode(200)
                 .body("patientId", equalTo((int) SEED_PATIENT_ID));
     }
 
-    @Test(priority = 3)
+    @Test(groups = {"regression"}, priority = 3)
     public void create_shouldReturnCreatedRecord() {
         Patient body = new Patient()
                 .setUser(new UserRef(SEED_USER_ID))
@@ -59,7 +59,7 @@ public class PatientApiTest extends ApiBaseTest {
         createdId = response.jsonPath().getLong("patientId");
     }
 
-    @Test(priority = 4, dependsOnMethods = "create_shouldReturnCreatedRecord")
+    @Test(groups = {"regression"}, priority = 4, dependsOnMethods = "create_shouldReturnCreatedRecord")
     public void update_shouldReflectChanges() {
         Patient body = new Patient()
                 .setUser(new UserRef(SEED_USER_ID))
@@ -74,7 +74,7 @@ public class PatientApiTest extends ApiBaseTest {
                 .body("bloodGroup", equalTo("A+"));
     }
 
-    @Test(priority = 5, dependsOnMethods = "create_shouldReturnCreatedRecord")
+    @Test(groups = {"regression"}, priority = 5, dependsOnMethods = "create_shouldReturnCreatedRecord")
     public void delete_shouldReturnNoContent() {
         patients.delete(createdId).then()
                 .statusCode(deletedStatus());

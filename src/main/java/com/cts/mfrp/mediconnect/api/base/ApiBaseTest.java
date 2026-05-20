@@ -61,7 +61,8 @@ public abstract class ApiBaseTest {
     private static synchronized String getToken() {
         if (cachedToken == null) {
             RegisterRequest admin = new RegisterRequest()
-                    .setName("Auto Admin")
+                    .setFirstName("Auto")
+                    .setLastName("Admin")
                     .setEmail("auto_admin_" + System.currentTimeMillis() + "@cts.com")
                     .setPassword("Admin@123")
                     .setPhone("9999999999")

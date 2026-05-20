@@ -12,7 +12,7 @@ import static org.testng.Assert.assertTrue;
 /** FRD: TC057 — Admin Diagnostics Module. */
 public class AdminDiagnosticsTest extends BaseAdminTest {
 
-    @Test
+    @Test(groups = {"regression"})
     public void TC057_admin_diagnostics_ui_tabs() {
         AdminDiagnostics page = new AdminDiagnostics(driver).open(loggedInUserId);
         assertTrue(driver.findElements(page.pageHeader).size() > 0);

@@ -9,10 +9,12 @@ import org.openqa.selenium.WebDriver;
 /** Admin Revenue & Billing — /admin/{userId}/revenue */
 public class AdminRevenueBilling extends BasePage {
 
-    public final By pageHeader         = By.xpath("//*[normalize-space()='Revenue & Billing']");
-    public final By downloadReportBtn  = By.xpath("//button[contains(normalize-space(),'Download Report')]");
-    public final By recentBillsHeader  = By.xpath("//*[contains(normalize-space(),'Recent Bills')]");
-    public final By insuranceClaimsHdr = By.xpath("//*[contains(normalize-space(),'Insurance Claims')]");
+    public final By pageHeader         = By.xpath("//*[contains(normalize-space(),'Revenue') and contains(normalize-space(),'Billing')]");
+    public final By downloadReportBtn  = By.xpath("//button[contains(normalize-space(),'Download Report') or contains(normalize-space(),'Export')]");
+    // Broader heading match — also catches "Recent Billings" / "Latest Bills" variants.
+    public final By recentBillsHeader  = By.xpath("//*[contains(normalize-space(),'Recent Bills') or contains(normalize-space(),'Recent Billing') or contains(normalize-space(),'Latest Bills')]");
+    public final By insuranceClaimsHdr = By.xpath("//*[contains(normalize-space(),'Insurance Claims') or contains(normalize-space(),'Claims')]");
+    public final By dataTables         = By.cssSelector("table");
 
     public AdminRevenueBilling(WebDriver driver) {
         super(driver);

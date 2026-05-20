@@ -50,6 +50,7 @@ import static org.testng.Assert.assertTrue;
  */
 public class DoctorDashboardTest extends BaseDoctorTest {
 
+<<<<<<< HEAD
     private static final Duration WAIT = Duration.ofSeconds(60);
 
     private WebDriverWait w() {
@@ -61,6 +62,11 @@ public class DoctorDashboardTest extends BaseDoctorTest {
     // ─────────────────────────────────────────────────────────────────────────
     @Test
     public void TC007_doctor_dashboard_page_title() {
+=======
+    // ── TC007 — Doctor Dashboard UI validation ───────────────────────────────
+    @Test(groups = {"sanity", "regression"})
+    public void TC007_doctor_dashboard_ui_validation() {
+>>>>>>> f6db4cd54a4fe28abf6baffa2fcc3643cf12044c
         DoctorDashboard dash = new DoctorDashboard(driver);
 
         By titleLocator = By.cssSelector("h1.page-title");
@@ -99,6 +105,7 @@ public class DoctorDashboardTest extends BaseDoctorTest {
         }
     }
 
+<<<<<<< HEAD
     // ─────────────────────────────────────────────────────────────────────────
     // TC009 — Hospital selector button visible
     //         button.hospital-btn → "City General Hospital"
@@ -106,6 +113,13 @@ public class DoctorDashboardTest extends BaseDoctorTest {
     @Test
     public void TC009_doctor_dashboard_hospital_selector() {
         new DoctorDashboard(driver);
+=======
+    // ── TC008 — Hospital selector dropdown functionality ─────────────────────
+    @Test(groups = {"regression"})
+    public void TC008_hospital_selector_dropdown() {
+        DoctorDashboard dash = new DoctorDashboard(driver);
+        WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(20));
+>>>>>>> f6db4cd54a4fe28abf6baffa2fcc3643cf12044c
 
         By hospitalBtn = By.cssSelector("button.hospital-btn");
         w().until(ExpectedConditions.visibilityOfElementLocated(hospitalBtn));
@@ -116,6 +130,7 @@ public class DoctorDashboardTest extends BaseDoctorTest {
                 "Hospital selector button text is empty");
     }
 
+<<<<<<< HEAD
     // ─────────────────────────────────────────────────────────────────────────
     // TC010 — Notification bell visible with badge count
     //         button.notif-btn + span.notif-badge
@@ -123,6 +138,13 @@ public class DoctorDashboardTest extends BaseDoctorTest {
     @Test
     public void TC010_doctor_dashboard_notification_bell() {
         new DoctorDashboard(driver);
+=======
+    // ── TC009 — Global Search textbox functionality ───────────────────────────
+    @Test(groups = {"regression"})
+    public void TC009_global_search_textbox() {
+        DoctorDashboard dash = new DoctorDashboard(driver);
+        WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(20));
+>>>>>>> f6db4cd54a4fe28abf6baffa2fcc3643cf12044c
 
         By notifBtn = By.cssSelector("button.notif-btn");
         w().until(ExpectedConditions.visibilityOfElementLocated(notifBtn));
@@ -245,6 +267,7 @@ public class DoctorDashboardTest extends BaseDoctorTest {
         assertFalse(badges.isEmpty(), "No badges found in appt-row");
     }
 
+<<<<<<< HEAD
     // ─────────────────────────────────────────────────────────────────────────
     // TC013 — "Upcoming consultations" section visible with Join button
     //         span.card-title → "Upcoming consultations"
@@ -253,6 +276,15 @@ public class DoctorDashboardTest extends BaseDoctorTest {
     @Test
     public void TC013_doctor_dashboard_upcoming_consultations() {
         new DoctorDashboard(driver);
+=======
+    // ── TC010 — Notification bell + profile dropdown ──────────────────────────
+    // ── TC010 — Notification bell + profile dropdown ──────────────────────────
+    // TC010 — Notification bell + profile dropdown
+    @Test(groups = {"regression"})
+    public void TC010_notification_bell_and_profile_dropdown() {
+        DoctorDashboard dash = new DoctorDashboard(driver);
+        WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(30));
+>>>>>>> f6db4cd54a4fe28abf6baffa2fcc3643cf12044c
 
         By cardTitles = By.cssSelector("span.card-title");
         w().until(ExpectedConditions.visibilityOfElementLocated(cardTitles));
@@ -285,6 +317,7 @@ public class DoctorDashboardTest extends BaseDoctorTest {
                     By.cssSelector("span.consult-meta")).getText().trim();
             assertFalse(meta.isEmpty(), "consult-meta is empty");
 
+<<<<<<< HEAD
             WebElement joinBtn = first.findElement(By.cssSelector("button.join-btn"));
             assertTrue(joinBtn.isDisplayed(), "button.join-btn not visible");
             assertEquals(joinBtn.getText().trim(), "Join", "Join button text mismatch");
@@ -300,6 +333,70 @@ public class DoctorDashboardTest extends BaseDoctorTest {
     @Test
     public void TC075_doctor_dashboard_bed_availability() {
         new DoctorDashboard(driver);
+=======
+        // Assert status options or Sign Out visible after clicking profile area
+        // "Available" is always visible in sidebar even before click — use normalize-space text
+        By profileOptions = By.xpath(
+                "//*[contains(normalize-space(text()),'Available')] | " +
+                        "//*[contains(normalize-space(text()),'Sign Out')] | " +
+                        "//*[contains(normalize-space(text()),'Logout')]");
+        wait.until(ExpectedConditions.presenceOfElementLocated(profileOptions));
+        assertTrue(driver.findElements(profileOptions).size() >= 1,
+                "Profile area should show Available status or Sign Out");
+    }
+    // ── TC011 — Stats summary card behaviour ─────────────────────────────────
+    @Test(groups = {"regression"})
+    public void TC011_stats_summary_card() {
+        DoctorDashboard dash = new DoctorDashboard(driver);
+        WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(20));
+
+        wait.until(ExpectedConditions.urlContains("/dashboard"));
+
+        // Wait for at least one stat card to be present
+        wait.until(ExpectedConditions.presenceOfElementLocated(
+                By.xpath("//*[contains(normalize-space(text()),'Total patients')]")));
+
+        assertTrue(driver.findElements(
+                        By.xpath("//*[contains(normalize-space(text()),'Total patients')]")).size() > 0,
+                "Stat card missing: Total patients");
+
+        // FIX: "Today's" apostrophe — use double-quoted XPath string
+        assertTrue(driver.findElements(
+                        By.xpath("//*[contains(normalize-space(text()),\"Today's appointments\")]")).size() > 0,
+                "Stat card missing: Today's appointments");
+
+        assertTrue(driver.findElements(
+                        By.xpath("//*[contains(normalize-space(text()),'Pending lab reports')]")).size() > 0,
+                "Stat card missing: Pending lab reports");
+
+        assertTrue(driver.findElements(
+                        By.xpath("//*[contains(normalize-space(text()),'Unread notifications')]")).size() > 0,
+                "Stat card missing: Unread notifications");
+
+        // Verify stat cards are read-only (no editable inputs inside)
+        By totalPatientsCard = By.xpath(
+                "//*[contains(normalize-space(text()),'Total patients')]/ancestor::div[1]");
+        List<WebElement> cards = driver.findElements(totalPatientsCard);
+        for (WebElement card : cards) {
+            assertTrue(
+                    card.findElements(By.cssSelector("input,[contenteditable='true']")).isEmpty(),
+                    "Stat cards must not be editable");
+        }
+    }
+
+    // ── TC012 — Recent appointments list ─────────────────────────────────────
+    // TC012 — Recent appointments list
+    // TC012 — Recent appointments list
+    // TC012 — Recent appointments list
+    // TC012 — Recent appointments list
+    // TC012 — Recent appointments list
+    // TC012 — Recent appointments list
+    // TC012 — Recent appointments list
+    @Test(groups = {"regression"})
+    public void TC012_recent_appointments_list() {
+        DoctorDashboard dash = new DoctorDashboard(driver);
+        WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(30));
+>>>>>>> f6db4cd54a4fe28abf6baffa2fcc3643cf12044c
 
         By cardTitles = By.cssSelector("span.card-title");
         w().until(ExpectedConditions.visibilityOfElementLocated(cardTitles));
@@ -325,6 +422,7 @@ public class DoctorDashboardTest extends BaseDoctorTest {
         }
     }
 
+<<<<<<< HEAD
     // ─────────────────────────────────────────────────────────────────────────
     // TC075a — "Lab reports" section visible
     //          span.card-title → "Lab reports"
@@ -333,6 +431,14 @@ public class DoctorDashboardTest extends BaseDoctorTest {
     @Test
     public void TC075a_doctor_dashboard_lab_reports_section() {
         new DoctorDashboard(driver);
+=======
+    // ── TC013 — Upcoming consultations panel ──────────────────────────────────
+    // TC013 — Upcoming consultations panel
+    @Test(groups = {"regression"})
+    public void TC013_upcoming_consultant_panel() {
+        DoctorDashboard dash = new DoctorDashboard(driver);
+        WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(30));
+>>>>>>> f6db4cd54a4fe28abf6baffa2fcc3643cf12044c
 
         By cardTitles = By.cssSelector("span.card-title");
         w().until(ExpectedConditions.visibilityOfElementLocated(cardTitles));
@@ -359,6 +465,7 @@ public class DoctorDashboardTest extends BaseDoctorTest {
         }
     }
 
+<<<<<<< HEAD
     // ─────────────────────────────────────────────────────────────────────────
     // TC075b — "Supply chain alerts" section visible with inventory rows
     //          span.card-title → "Supply chain alerts"
@@ -367,6 +474,14 @@ public class DoctorDashboardTest extends BaseDoctorTest {
     @Test
     public void TC075b_doctor_dashboard_supply_chain_alerts() {
         new DoctorDashboard(driver);
+=======
+
+    // ── TC073 — Doctor Sign Out ───────────────────────────────────────────────
+    @Test(groups = {"regression"})
+    public void TC073_doctor_sign_out() {
+        DoctorDashboard dash = new DoctorDashboard(driver);
+        WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(20));
+>>>>>>> f6db4cd54a4fe28abf6baffa2fcc3643cf12044c
 
         By cardTitles = By.cssSelector("span.card-title");
         w().until(ExpectedConditions.visibilityOfElementLocated(cardTitles));
@@ -398,6 +513,7 @@ public class DoctorDashboardTest extends BaseDoctorTest {
         }
     }
 
+<<<<<<< HEAD
     // ─────────────────────────────────────────────────────────────────────────
     // TC073 — Sign Out button visible and present in sidebar
     //         button.sb-logout → "Sign Out"
@@ -405,6 +521,13 @@ public class DoctorDashboardTest extends BaseDoctorTest {
     @Test
     public void TC073_doctor_dashboard_sign_out_visible() {
         new DoctorDashboard(driver);
+=======
+    // ── TC075 — Bed availability + additional dashboard sections ─────────────
+    @Test(groups = {"regression"})
+    public void TC075_bed_availability_and_dashboard_sections() {
+        DoctorDashboard dash = new DoctorDashboard(driver);
+        WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(20));
+>>>>>>> f6db4cd54a4fe28abf6baffa2fcc3643cf12044c
 
         By signOut = By.cssSelector("button.sb-logout");
         w().until(ExpectedConditions.visibilityOfElementLocated(signOut));

@@ -5,15 +5,19 @@ import com.cts.mfrp.mediconnect.ui.pages.common.PatientSidebar;
 import com.cts.mfrp.mediconnect.utils.ConfigReader;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.support.ui.ExpectedConditions;
 
 /** Patient Lab Reports page — /patient/{userId}/lab-reports */
 public class PatientLabReports extends BasePage {
 
-    public final By pageHeader        = By.xpath("//*[normalize-space()='Lab Reports']");
-    public final By attentionBanner   = By.xpath("//*[contains(normalize-space(),'Attention required') or contains(@class,'alert-banner')]");
-    public final By reportCards       = By.cssSelector("[class*='report-card']");
-    public final By askAiButton       = By.xpath("//button[contains(normalize-space(),'Ask AI to Explain')]");
-    public final By downloadPdfButton = By.xpath("//button[contains(normalize-space(),'Download PDF')]");
+    public final By pageHeader        = By.xpath("//div[contains(@class,'tb-title')][normalize-space()='Lab Reports']");
+    public final By attentionBanner   = By.cssSelector(".flagged-alert");
+    public final By reportCards       = By.cssSelector(".report-card");
+    public final By flaggedReportCard = By.cssSelector(".report-card.flagged");
+    public final By askAiButton       = By.xpath("//button[normalize-space()='Ask AI to Explain']");
+    public final By downloadPdfButton = By.xpath("//button[normalize-space()='Download PDF']");
+    public final By aiPanel           = By.cssSelector(".ai-panel");
+    public final By aiChips           = By.cssSelector(".ai-chip");
 
     public PatientLabReports(WebDriver driver) {
         super(driver);
@@ -21,7 +25,13 @@ public class PatientLabReports extends BasePage {
 
     public PatientLabReports open(long userId) {
         driver.get(ConfigReader.get("ui.baseUrl") + "/patient/" + userId + "/lab-reports");
-        wait.until(d -> isLoaded());
+        waitUntilLoaded();
+        return this;
+    }
+
+    public PatientLabReports waitUntilLoaded() {
+        wait.until(ExpectedConditions.urlContains("/lab-reports"));
+        wait.until(ExpectedConditions.visibilityOfElementLocated(pageHeader));
         return this;
     }
 

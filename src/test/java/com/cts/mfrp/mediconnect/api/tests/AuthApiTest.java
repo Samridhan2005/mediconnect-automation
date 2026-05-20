@@ -26,11 +26,12 @@ public class AuthApiTest extends ApiBaseTest {
         auth = new AuthEndpoints(noAuthSpec);
     }
 
-    @Test(priority = 1)
+    @Test(groups = {"regression"}, priority = 1)
     public void registerNewPatient_shouldReturnCreatedRecord() {
         long unique = System.currentTimeMillis();
         RegisterRequest body = new RegisterRequest()
-                .setName("Test User " + unique)
+                .setFirstName("Test")
+                .setLastName("User " + unique)
                 .setEmail("test" + unique + "@gmail.com")
                 .setPassword("Test@123")
                 .setPhone("9876543210")
@@ -43,11 +44,12 @@ public class AuthApiTest extends ApiBaseTest {
 
         auth.register(body).then()
                 .statusCode(createdStatus())
+                .body("name", equalTo(body.getFirstName() + " " + body.getLastName()))
                 .body("email", equalTo(body.getEmail()))
                 .body("role", equalTo("PATIENT"));
     }
 
-    @Test(priority = 2)
+    @Test(groups = {"smoke", "sanity", "regression"}, priority = 2)
     public void login_withValidCredentials_shouldReturnToken() {
         LoginRequest body = new LoginRequest(
                 ConfigReader.get("valid.email"),
@@ -58,6 +60,7 @@ public class AuthApiTest extends ApiBaseTest {
 
         response.then()
                 .statusCode(200)
+                .body("name", equalTo(ConfigReader.get("valid.name")))
                 .body("email", equalTo(body.getEmail()))
                 .body("userId", notNullValue())
                 .body("token", notNullValue())
@@ -70,7 +73,7 @@ public class AuthApiTest extends ApiBaseTest {
         System.out.println("Logged-in userId=" + userId + " token=" + token.substring(0, 20) + "...");
     }
 
-    @Test(priority = 3)
+    @Test(groups = {"regression"}, priority = 3)
     public void login_withInvalidPassword_shouldFail() {
         LoginRequest body = new LoginRequest(
                 ConfigReader.get("valid.email"),

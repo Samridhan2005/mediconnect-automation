@@ -5,7 +5,8 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class RegisterRequest {
 
-    private String name;
+    private String firstName;
+    private String lastName;
     private String email;
     private String password;
     private String phone;
@@ -16,8 +17,11 @@ public class RegisterRequest {
     private String emergencyContact;
     private String dateOfBirth;
 
-    public String getName() { return name; }
-    public RegisterRequest setName(String name) { this.name = name; return this; }
+    public String getFirstName() { return firstName; }
+    public RegisterRequest setFirstName(String firstName) { this.firstName = firstName; return this; }
+
+    public String getLastName() { return lastName; }
+    public RegisterRequest setLastName(String lastName) { this.lastName = lastName; return this; }
 
     public String getEmail() { return email; }
     public RegisterRequest setEmail(String email) { this.email = email; return this; }
@@ -45,4 +49,21 @@ public class RegisterRequest {
 
     public String getDateOfBirth() { return dateOfBirth; }
     public RegisterRequest setDateOfBirth(String dateOfBirth) { this.dateOfBirth = dateOfBirth; return this; }
+
+    /**
+     * Convenience setter that accepts a full name and splits it into
+     * firstName + lastName on the first whitespace. Useful for callers that
+     * still pass a single "Auto Admin"-style string.
+     */
+    public RegisterRequest setName(String fullName) {
+        if (fullName == null || fullName.isBlank()) {
+            this.firstName = null;
+            this.lastName = null;
+            return this;
+        }
+        String[] parts = fullName.trim().split("\\s+", 2);
+        this.firstName = parts[0];
+        this.lastName  = parts.length > 1 ? parts[1] : "";
+        return this;
+    }
 }

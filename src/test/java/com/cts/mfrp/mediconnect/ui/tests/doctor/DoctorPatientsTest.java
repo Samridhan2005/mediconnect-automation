@@ -18,7 +18,7 @@ import static org.testng.Assert.assertTrue;
 public class DoctorPatientsTest extends BaseDoctorTest {
 
     // TC037 — Patients page UI
-    @Test
+    @Test(groups = {"regression"})
     public void TC037_doctor_patients_page_ui() {
         DoctorPatients page = new DoctorPatients(driver).open(loggedInUserId);
         WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(15));
@@ -57,7 +57,7 @@ public class DoctorPatientsTest extends BaseDoctorTest {
     }
 
     // TC038 — Search, filter and action icons
-    @Test
+    @Test(groups = {"regression"})
     public void TC038_doctor_patients_search_filter() {
         DoctorPatients page = new DoctorPatients(driver).open(loggedInUserId);
         WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(10));
