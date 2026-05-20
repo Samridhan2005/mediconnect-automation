@@ -58,11 +58,9 @@ public class AdminOverviewTest extends BaseAdminTest {
         return new WebDriverWait(driver, WAIT);
     }
 
-    // ─────────────────────────────────────────────────────────────────────────
-    // TC051 — System Overview UI validation (original - enhanced)
-    // ─────────────────────────────────────────────────────────────────────────
+    // Merged TC051 + TC_OV01 + TC_OV02
     @Test(groups = {"sanity", "regression"})
-    public void TC051_admin_system_overview_ui() {
+    public void TC051_OV01_OV02_admin_overview_ui_and_filters() {
         AdminOverview admin = new AdminOverview(driver);
         assertTrue(admin.isLoaded(), "Admin overview page not loaded");
 
@@ -97,17 +95,33 @@ public class AdminOverviewTest extends BaseAdminTest {
             assertTrue(found.contains(tile),
                     "Summary tile missing: '" + tile + "'. Found: " + found);
         }
+
+        By title = By.cssSelector("div.tb-title");
+        w().until(ExpectedConditions.visibilityOfElementLocated(title));
+        assertEquals(driver.findElement(title).getText().trim(),
+                "System Overview", "Page title mismatch");
+
+        By sub = By.cssSelector("div.tb-sub");
+        w().until(ExpectedConditions.visibilityOfElementLocated(sub));
+        assertFalse(driver.findElement(sub).getText().trim().isEmpty(),
+                "div.tb-sub is empty");
+        assertTrue(driver.findElement(sub).getText().contains("All hospitals"),
+                "Subtitle should contain 'All hospitals'");
+
+        By chips = By.cssSelector("div.tb-chip");
+        w().until(ExpectedConditions.visibilityOfElementLocated(chips));
+
+        List<String> chipTexts = driver.findElements(chips)
+                .stream().map(e -> e.getText().trim()).toList();
+
+        assertTrue(chipTexts.stream().anyMatch(t -> t.contains("Hospitals")),
+                "All Hospitals chip missing. Found: " + chipTexts);
+        assertFalse(chipTexts.isEmpty(), "No tb-chip elements found");
     }
 
-    // ─────────────────────────────────────────────────────────────────────────
-    // TC052 — Filters (Period + All Hospitals)
-    // ─────────────────────────────────────────────────────────────────────────
-    // ─────────────────────────────────────────────────────────────────────────
-// TC052 — Filters (Period + All Hospitals) visible
-//         div.tb-chip → "Apr 2026" | "All Hospitals ↓"
-// ─────────────────────────────────────────────────────────────────────────
+    // Merged TC052 + TC_OV03 + TC_OV04 + TC_OV05
     @Test(groups = {"regression"})
-    public void TC052_admin_filters_validation() {
+    public void TC052_OV03_OV05_admin_overview_stat_tiles() {
         new AdminOverview(driver);
 
         // div.tb-chip contains both the period chip and hospitals chip
@@ -130,75 +144,6 @@ public class AdminOverviewTest extends BaseAdminTest {
         assertTrue(hospitalsFound,
                 "All Hospitals chip not found. Found chips: " +
                         chips.stream().map(e -> e.getText().trim()).toList());
-    }
-
-    // ─────────────────────────────────────────────────────────────────────────
-    // TC084 — Hospital Branch Map on overview
-    // ─────────────────────────────────────────────────────────────────────────
-    @Test(groups = {"regression"})
-    public void TC084_admin_hospital_branch_map() {
-        AdminOverview admin = new AdminOverview(driver);
-        assertTrue(admin.isLoaded());
-
-        w().until(ExpectedConditions.visibilityOfElementLocated(admin.hospitalBranchMap));
-        assertTrue(driver.findElements(admin.hospitalBranchMap).size() > 0,
-                "Hospital Branch Map should be visible on Overview");
-
-        // Map pins must be present
-        By mapPins = By.cssSelector("div.map-container div.map-pin");
-        w().until(ExpectedConditions.numberOfElementsToBeMoreThan(mapPins, 0));
-        assertTrue(driver.findElements(mapPins).size() > 0,
-                "No div.map-pin found inside div.map-container");
-    }
-
-    // ─────────────────────────────────────────────────────────────────────────
-    // TC_OV01 — Page title "System Overview" and subtitle visible
-    //           div.tb-title | div.tb-sub
-    // ─────────────────────────────────────────────────────────────────────────
-    @Test
-    public void TC_OV01_overview_page_title_subtitle() {
-        new AdminOverview(driver);
-
-        By title = By.cssSelector("div.tb-title");
-        w().until(ExpectedConditions.visibilityOfElementLocated(title));
-        assertEquals(driver.findElement(title).getText().trim(),
-                "System Overview", "Page title mismatch");
-
-        By sub = By.cssSelector("div.tb-sub");
-        w().until(ExpectedConditions.visibilityOfElementLocated(sub));
-        assertFalse(driver.findElement(sub).getText().trim().isEmpty(),
-                "div.tb-sub is empty");
-        assertTrue(driver.findElement(sub).getText().contains("All hospitals"),
-                "Subtitle should contain 'All hospitals'");
-    }
-
-    // ─────────────────────────────────────────────────────────────────────────
-    // TC_OV02 — Period and Hospital filter chips visible
-    //           div.tb-chip → "Apr 2026" | "All Hospitals ↓"
-    // ─────────────────────────────────────────────────────────────────────────
-    @Test
-    public void TC_OV02_overview_filter_chips() {
-        new AdminOverview(driver);
-
-        By chips = By.cssSelector("div.tb-chip");
-        w().until(ExpectedConditions.visibilityOfElementLocated(chips));
-
-        List<String> chipTexts = driver.findElements(chips)
-                .stream().map(e -> e.getText().trim()).toList();
-
-        assertTrue(chipTexts.stream().anyMatch(t -> t.contains("Hospitals")),
-                "All Hospitals chip missing. Found: " + chipTexts);
-        assertFalse(chipTexts.isEmpty(), "No tb-chip elements found");
-    }
-
-    // ─────────────────────────────────────────────────────────────────────────
-    // TC_OV03 — All five stat tile labels visible
-    //           div.stat-label → Total Patients | Total Doctors |
-    //                            Bed Occupancy | Revenue (Month) | Doctors On Duty
-    // ─────────────────────────────────────────────────────────────────────────
-    @Test
-    public void TC_OV03_overview_stat_tile_labels() {
-        new AdminOverview(driver);
 
         By statLabel = By.cssSelector("div.stats-grid div.stat-label");
         w().until(ExpectedConditions.visibilityOfElementLocated(statLabel));
@@ -212,15 +157,6 @@ public class AdminOverviewTest extends BaseAdminTest {
             assertTrue(found.contains(expected),
                     "Tile label '" + expected + "' missing. Found: " + found);
         }
-    }
-
-    // ─────────────────────────────────────────────────────────────────────────
-    // TC_OV04 — Stat tile values are non-empty
-    //           div.stat-val → non-empty text
-    // ─────────────────────────────────────────────────────────────────────────
-    @Test
-    public void TC_OV04_overview_stat_tile_values() {
-        new AdminOverview(driver);
 
         By statVal = By.cssSelector("div.stats-grid div.stat-val");
         w().until(ExpectedConditions.visibilityOfElementLocated(statVal));
@@ -231,15 +167,6 @@ public class AdminOverviewTest extends BaseAdminTest {
         for (WebElement v : values) {
             assertFalse(v.getText().trim().isEmpty(), "div.stat-val is blank");
         }
-    }
-
-    // ─────────────────────────────────────────────────────────────────────────
-    // TC_OV05 — Stat tile sub-labels visible
-    //           div.stat-sub → non-empty text per tile
-    // ─────────────────────────────────────────────────────────────────────────
-    @Test
-    public void TC_OV05_overview_stat_tile_sub_labels() {
-        new AdminOverview(driver);
 
         By statSub = By.cssSelector("div.stats-grid div.stat-sub");
         w().until(ExpectedConditions.visibilityOfElementLocated(statSub));
@@ -252,13 +179,9 @@ public class AdminOverviewTest extends BaseAdminTest {
         }
     }
 
-    // ─────────────────────────────────────────────────────────────────────────
-    // TC_OV06 — "Appointment Inflow" chart card visible
-    //           div.card-title → "Appointment Inflow"
-    //           div.chart-pad canvas → line chart canvas
-    // ─────────────────────────────────────────────────────────────────────────
-    @Test
-    public void TC_OV06_overview_appointment_inflow_chart() {
+    // Merged TC_OV06 + TC_OV07 + TC_OV08 + TC_OV09
+    @Test(groups = {"regression"})
+    public void TC_OV06_OV09_admin_overview_charts() {
         new AdminOverview(driver);
 
         By cardTitles = By.cssSelector("div.card div.card-title");
@@ -272,20 +195,6 @@ public class AdminOverviewTest extends BaseAdminTest {
         w().until(ExpectedConditions.presenceOfElementLocated(canvas));
         assertTrue(driver.findElements(canvas).size() > 0,
                 "No canvas found in div.chart-pad");
-    }
-
-    // ─────────────────────────────────────────────────────────────────────────
-    // TC_OV07 — "Disease Distribution" donut chart + legend visible
-    //           div.card-title → "Disease Distribution"
-    //           div.disease-legend div.dl-row → legend rows
-    //           span.dl-label | span.dl-val → name + percentage
-    // ─────────────────────────────────────────────────────────────────────────
-    @Test
-    public void TC_OV07_overview_disease_distribution_chart() {
-        new AdminOverview(driver);
-
-        By cardTitles = By.cssSelector("div.card div.card-title");
-        w().until(ExpectedConditions.visibilityOfElementLocated(cardTitles));
 
         boolean titleFound = driver.findElements(cardTitles).stream()
                 .anyMatch(e -> e.getText().trim().equals("Disease Distribution"));
@@ -310,18 +219,6 @@ public class AdminOverviewTest extends BaseAdminTest {
             assertTrue(val.contains("%"),
                     "dl-val should contain '%': '" + val + "'");
         }
-    }
-
-    // ─────────────────────────────────────────────────────────────────────────
-    // TC_OV08 — "Bed Occupancy" chart visible (scrolled into view)
-    //           div.card-title → "Bed Occupancy"
-    // ─────────────────────────────────────────────────────────────────────────
-    @Test
-    public void TC_OV08_overview_bed_occupancy_chart() {
-        new AdminOverview(driver);
-
-        By cardTitles = By.cssSelector("div.card div.card-title");
-        w().until(ExpectedConditions.visibilityOfElementLocated(cardTitles));
 
         // Scroll to render below-fold cards
         ((JavascriptExecutor) driver)
@@ -330,22 +227,9 @@ public class AdminOverviewTest extends BaseAdminTest {
         w().until(driver -> driver.findElements(cardTitles).stream()
                 .anyMatch(e -> e.getText().trim().equals("Bed Occupancy")));
 
-        boolean found = driver.findElements(cardTitles).stream()
+        boolean found2 = driver.findElements(cardTitles).stream()
                 .anyMatch(e -> e.getText().trim().equals("Bed Occupancy"));
-        assertTrue(found, "'Bed Occupancy' card-title not found");
-    }
-
-    // ─────────────────────────────────────────────────────────────────────────
-    // TC_OV09 — "Revenue Trend" chart visible
-    //           div.card-title → "Revenue Trend"
-    //           div.card-sub   → "Monthly · 2026"
-    // ─────────────────────────────────────────────────────────────────────────
-    @Test
-    public void TC_OV09_overview_revenue_trend_chart() {
-        new AdminOverview(driver);
-
-        By cardTitles = By.cssSelector("div.card div.card-title");
-        w().until(ExpectedConditions.visibilityOfElementLocated(cardTitles));
+        assertTrue(found2, "'Bed Occupancy' card-title not found");
 
         ((JavascriptExecutor) driver)
                 .executeScript("window.scrollTo(0, document.body.scrollHeight)");
@@ -353,9 +237,9 @@ public class AdminOverviewTest extends BaseAdminTest {
         w().until(driver -> driver.findElements(cardTitles).stream()
                 .anyMatch(e -> e.getText().trim().equals("Revenue Trend")));
 
-        boolean titleFound = driver.findElements(cardTitles).stream()
+        boolean titleFound2 = driver.findElements(cardTitles).stream()
                 .anyMatch(e -> e.getText().trim().equals("Revenue Trend"));
-        assertTrue(titleFound, "'Revenue Trend' card-title not found");
+        assertTrue(titleFound2, "'Revenue Trend' card-title not found");
 
         By cardSubs = By.cssSelector("div.card div.card-sub");
         boolean subFound = driver.findElements(cardSubs).stream()
@@ -363,14 +247,21 @@ public class AdminOverviewTest extends BaseAdminTest {
         assertTrue(subFound, "Revenue Trend card-sub containing '2026' not found");
     }
 
-    // ─────────────────────────────────────────────────────────────────────────
-    // TC_OV10 — "Hospital Branch Map" card + map pins visible
-    //           div.card-title → "Hospital Branch Map"
-    //           div.map-container div.map-pin → ≥1 pin
-    // ─────────────────────────────────────────────────────────────────────────
-    @Test
-    public void TC_OV10_overview_hospital_branch_map() {
-        new AdminOverview(driver);
+    // Merged TC084 + TC_OV10 + TC_OV11
+    @Test(groups = {"regression"})
+    public void TC084_OV10_OV11_admin_overview_map_and_ai_insights() {
+        AdminOverview admin = new AdminOverview(driver).open(loggedInUserId);
+        assertTrue(admin.isLoaded());
+
+        w().until(ExpectedConditions.visibilityOfElementLocated(admin.hospitalBranchMap));
+        assertTrue(driver.findElements(admin.hospitalBranchMap).size() > 0,
+                "Hospital Branch Map should be visible on Overview");
+
+        // Map pins must be present
+        By mapPins = By.cssSelector("div.map-container div.map-pin");
+        w().until(ExpectedConditions.numberOfElementsToBeMoreThan(mapPins, 0));
+        assertTrue(driver.findElements(mapPins).size() > 0,
+                "No div.map-pin found inside div.map-container");
 
         By cardTitles = By.cssSelector("div.card div.card-title");
         w().until(ExpectedConditions.visibilityOfElementLocated(cardTitles));
@@ -385,18 +276,9 @@ public class AdminOverviewTest extends BaseAdminTest {
                 .anyMatch(e -> e.getText().trim().equals("Hospital Branch Map"));
         assertTrue(titleFound, "'Hospital Branch Map' card-title not found");
 
-        By mapPins = By.cssSelector("div.map-container div.map-pin");
-        w().until(ExpectedConditions.numberOfElementsToBeMoreThan(mapPins, 0));
-        assertTrue(driver.findElements(mapPins).size() > 0, "No map-pin found");
-    }
-
-    // ─────────────────────────────────────────────────────────────────────────
-    // TC_OV11 — AI System Insights panel visible with content
-    //           div.ai-panel → div.ai-title + div.ai-insights-grid div.ai-insight
-    // ─────────────────────────────────────────────────────────────────────────
-    @Test
-    public void TC_OV11_overview_ai_system_insights() {
-        new AdminOverview(driver).open(loggedInUserId);
+        By mapPins2 = By.cssSelector("div.map-container div.map-pin");
+        w().until(ExpectedConditions.numberOfElementsToBeMoreThan(mapPins2, 0));
+        assertTrue(driver.findElements(mapPins2).size() > 0, "No map-pin found");
 
         // Scroll to bottom — AI panel is below the fold
         ((JavascriptExecutor) driver)
@@ -428,8 +310,9 @@ public class AdminOverviewTest extends BaseAdminTest {
         }
     }
 
-    @Test
-    public void TC_OV12_overview_notification_panel() {
+    // Merged TC_OV12 + TC_OV13 + TC_OV14 + TC_OV15
+    @Test(groups = {"regression"})
+    public void TC_OV12_OV15_admin_overview_notifications_and_profile() {
         new AdminOverview(driver).open(loggedInUserId);
 
         // Wait for page to fully load
@@ -441,13 +324,6 @@ public class AdminOverviewTest extends BaseAdminTest {
         w().until(ExpectedConditions.presenceOfElementLocated(notifBell));
         assertTrue(driver.findElements(notifBell).size() > 0,
                 "Notification bell div.tb-notif not found in topbar");
-    }
-    // ─────────────────────────────────────────────────────────────────────────
-// TC_OV13 — Notification panel body has items or empty state
-// ─────────────────────────────────────────────────────────────────────────
-    @Test
-    public void TC_OV13_overview_notification_item_content() {
-        new AdminOverview(driver).open(loggedInUserId);
 
         By panelBody = By.cssSelector("div.notif-panel-body");
         w().until(ExpectedConditions.presenceOfElementLocated(panelBody));
@@ -460,14 +336,6 @@ public class AdminOverviewTest extends BaseAdminTest {
 
         assertTrue(items.size() > 0 || emptyState.size() > 0,
                 "Notification panel body has no content");
-    }
-
-    // ─────────────────────────────────────────────────────────────────────────
-// TC_OV14 — Admin sidebar profile info visible
-// ─────────────────────────────────────────────────────────────────────────
-    @Test
-    public void TC_OV14_overview_admin_profile_info() {
-        new AdminOverview(driver).open(loggedInUserId);
 
         By adminName = By.cssSelector("div.sb-admin-name");
         w().until(ExpectedConditions.visibilityOfElementLocated(adminName));
@@ -478,14 +346,6 @@ public class AdminOverviewTest extends BaseAdminTest {
         w().until(ExpectedConditions.visibilityOfElementLocated(adminRole));
         assertEquals(driver.findElement(adminRole).getText().trim(),
                 "Admin", "Admin role text mismatch");
-    }
-
-    // ─────────────────────────────────────────────────────────────────────────
-// TC_OV15 — Logout button visible in sidebar
-// ─────────────────────────────────────────────────────────────────────────
-    @Test
-    public void TC_OV15_overview_logout_button() {
-        new AdminOverview(driver).open(loggedInUserId);
 
         By logout = By.cssSelector("span.sf-label");
         w().until(ExpectedConditions.visibilityOfElementLocated(logout));

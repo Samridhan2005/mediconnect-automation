@@ -25,9 +25,9 @@ public class PatientHealthOverviewTest extends BasePatientTest {
         assertTrue(dash.isLoaded(), "User should land on Patient Health Overview dashboard");
     }
 
-    // TC017 — Patient Dashboard UI validation
+    // Merged TC017 + TC130 + TC131 + TC132
     @Test(groups = {"regression"})
-    public void TC017_patient_dashboard_ui_validation() {
+    public void TC017_130_132_patient_dashboard_header_and_sidebar() {
         PatientHealthOverview dash = new PatientHealthOverview(driver);
         assertTrue(dash.isLoaded(), "Health Overview should be the default home screen");
 
@@ -57,11 +57,29 @@ public class PatientHealthOverviewTest extends BasePatientTest {
                 "Health Score circular indicator missing");
         assertTrue(driver.findElements(dash.summaryTiles).size() >= 4,
                 "FRD: 4 summary tiles required");
+
+        // TC130 — Page header shows title + current date sub-line
+        assertTrue(driver.findElements(dash.pageTitle).size() > 0,
+                "Page title 'Health Overview' should be visible");
+        assertTrue(driver.findElements(dash.pageSubDate).size() > 0,
+                "Page header should display the current date (e.g., 'Wednesday, May 20, 2026')");
+
+        // TC131 — Top-right shows blood group chip and notification bell
+        assertTrue(driver.findElements(dash.bloodGroupHeaderChip).size() > 0,
+                "Blood group chip (e.g., 'Blood group: O+') should be visible in the top-right");
+        assertTrue(driver.findElements(dash.notificationBell).size() > 0,
+                "Notification bell should be visible in the top-right");
+
+        // TC132 — Sidebar profile block shows Patient ID and Age
+        assertTrue(driver.findElements(dash.sidebarPatientId).size() > 0,
+                "Sidebar profile block should display the Patient ID (e.g., 'PT-0052')");
+        assertTrue(driver.findElements(dash.sidebarPatientAge).size() > 0,
+                "Sidebar profile block should display the patient's age (e.g., 'Age 36')");
     }
 
-    // TC018 — Summary Tiles navigation via "View all" links
+    // Merged TC018 + TC133 + TC134
     @Test(groups = {"regression"})
-    public void TC018_summary_tiles_navigation() {
+    public void TC018_133_134_patient_summary_tiles_and_banner() {
         PatientHealthOverview dash = new PatientHealthOverview(driver);
         List<WebElement> viewAllLinks = driver.findElements(dash.tileLinks);
         assertTrue(viewAllLinks.size() >= 1, "Each summary tile should have a 'View all' / 'All' link");
@@ -69,11 +87,29 @@ public class PatientHealthOverviewTest extends BasePatientTest {
         wait.until(d -> !d.getCurrentUrl().matches(".*/patient/\\d+/dashboard$"));
         assertTrue(!driver.getCurrentUrl().matches(".*/patient/\\d+/dashboard$"),
                 "Clicking a tile link should navigate away from the dashboard");
+
+        // TC133 — Top banner has Age/Gender, Blood Group, and Next Appt chips
+        assertTrue(driver.findElements(dash.bannerAgeGenderChip).size() > 0,
+                "Top banner should display Age + Gender chip");
+        assertTrue(driver.findElements(dash.bannerBloodGroupChip).size() > 0,
+                "Top banner should display Blood Group chip");
+        assertTrue(driver.findElements(dash.bannerNextApptChip).size() > 0,
+                "Top banner should display 'Next appt:' chip");
+
+        // TC134 — Each of the 4 summary tiles renders its sub-label
+        assertTrue(driver.findElements(dash.tileSubLabelNext).size() > 0,
+                "Upcoming Appointments tile should show 'Next: ...' sub-label");
+        assertTrue(driver.findElements(dash.tileSubLabelPending).size() > 0,
+                "Pending Lab Reports tile should show 'Pending review' sub-label");
+        assertTrue(driver.findElements(dash.tileSubLabelOnSchedule).size() > 0,
+                "Active Prescriptions tile should show 'All on schedule' sub-label");
+        assertTrue(driver.findElements(dash.tileSubLabelUrgent).size() > 0,
+                "Unread Notifications tile should show '... urgent' sub-label");
     }
 
-    // TC019 — Upcoming Appointments section on dashboard
+    // Merged TC019 + TC135
     @Test(groups = {"regression"})
-    public void TC019_upcoming_appointments_section() {
+    public void TC019_135_upcoming_appointments_and_health_score() {
         WebElement section = wait.until(d -> {
             List<WebElement> sections = d.findElements(By.xpath(
                     "//div[contains(concat(' ',normalize-space(@class),' '),' card ')]" +
@@ -86,11 +122,18 @@ public class PatientHealthOverviewTest extends BasePatientTest {
         assertTrue(section.isDisplayed(), "Upcoming Appointments card should be visible");
         assertTrue(driver.findElements(By.xpath("//*[contains(normalize-space(),'View all')]")).size() >= 1,
                 "FRD: 'View all' hyperlink should be visible");
+
+        // TC135 — Health Score ring shows a qualitative label (Good / Fair / Excellent / Poor)
+        PatientHealthOverview dash = new PatientHealthOverview(driver);
+        assertTrue(driver.findElements(dash.healthScoreRing).size() > 0,
+                "Health Score circular ring should be visible");
+        assertTrue(driver.findElements(dash.healthScoreLabel).size() > 0,
+                "Health Score should display a qualitative label (Good / Fair / Excellent / Poor)");
     }
 
-    // TC020 — Health Vitals Panel
+    // Merged TC020 + TC136 + TC137
     @Test(groups = {"regression"})
-    public void TC020_health_vitals_panel() {
+    public void TC020_136_137_patient_health_vitals_and_activity() {
         assertTrue(driver.findElements(By.xpath(
                         "//*[contains(text(),'Health Vitals') or contains(text(),'Vitals')]")).size() > 0,
                 "Health Vitals panel title should be visible");
@@ -99,24 +142,38 @@ public class PatientHealthOverviewTest extends BasePatientTest {
                 "Blood Pressure reading should be visible");
         assertTrue(driver.findElements(By.xpath("//*[contains(text(),'bpm')]")).size() > 0,
                 "Heart Rate value (bpm) should be visible");
+
+        // TC136 — Health Vitals shows all 4 metrics: BP, Heart Rate, Blood Glucose, BMI + Last updated timestamp
+        PatientHealthOverview dash = new PatientHealthOverview(driver);
+        assertTrue(driver.findElements(dash.vitalsBloodPressure).size() > 0,
+                "Health Vitals: Blood Pressure metric should be visible");
+        assertTrue(driver.findElements(dash.vitalsHeartRate).size() > 0,
+                "Health Vitals: Heart Rate metric should be visible");
+        assertTrue(driver.findElements(dash.vitalsBloodGlucose).size() > 0,
+                "Health Vitals: Blood Glucose metric should be visible");
+        assertTrue(driver.findElements(dash.vitalsBmi).size() > 0,
+                "Health Vitals: BMI metric should be visible");
+        assertTrue(driver.findElements(dash.vitalsLastUpdated).size() > 0,
+                "Health Vitals should show a 'Last updated [date]' timestamp");
+
+        // TC137 — Recent Activity section is rendered
+        assertTrue(driver.findElements(dash.recentActivitySection).size() > 0,
+                "'Recent Activity' section should be visible on the dashboard");
     }
 
-    // TC021 — Today's Medicines + Notifications panels
+    // Merged TC021 + TC022 + TC138
     // FIX: contains(text(),...) is too strict — it doesn't traverse children. Use
     // contains(normalize-space(.),...) so a title nested inside a <span> or icon still matches.
     @Test(groups = {"regression"})
-    public void TC021_medicines_and_notifications_panels() {
+    public void TC021_022_138_patient_medicines_notifications_and_ai() {
         assertTrue(driver.findElements(By.xpath(
                         "//*[contains(normalize-space(.),\"Today's Medicines\") or contains(normalize-space(.),\"Today’s Medicines\")]")).size() > 0,
                 "Today's Medicines panel title should be visible");
         assertTrue(driver.findElements(By.xpath(
                         "//*[contains(normalize-space(.),'Notifications')]")).size() > 0,
                 "Notifications panel should be visible");
-    }
 
-    // TC022 — AI Health Assistant widget on dashboard
-    @Test(groups = {"regression"})
-    public void TC022_ai_widget_validation() {
+        // TC022 — AI Health Assistant widget on dashboard
         PatientHealthOverview dash = new PatientHealthOverview(driver);
         // The AI CTA itself counts as the widget — broaden the locator.
         boolean widgetVisible = driver.findElements(dash.aiWidget).size() > 0
@@ -130,109 +187,7 @@ public class PatientHealthOverviewTest extends BasePatientTest {
         assertTrue(driver.findElements(dash.aiChipBookAppointment).size() > 0,
                 "Quick action chip 'Book appointment' missing");
 
-        driver.findElement(dash.openAiAssistantCta).click();
-        wait.until(d -> d.getCurrentUrl().matches(".*/patient/\\d+/ai.*"));
-        assertTrue(driver.getCurrentUrl().matches(".*/patient/\\d+/ai.*"),
-                "Open AI Assistant should navigate to AI Health Assistant page");
-    }
-
-    // ============== Extended coverage — TC130..TC139 ==============
-
-    // TC130 — Page header shows title + current date sub-line
-    @Test(groups = {"regression"})
-    public void TC130_page_header_has_title_and_date() {
-        PatientHealthOverview dash = new PatientHealthOverview(driver);
-        assertTrue(driver.findElements(dash.pageTitle).size() > 0,
-                "Page title 'Health Overview' should be visible");
-        assertTrue(driver.findElements(dash.pageSubDate).size() > 0,
-                "Page header should display the current date (e.g., 'Wednesday, May 20, 2026')");
-    }
-
-    // TC131 — Top-right shows blood group chip and notification bell
-    @Test(groups = {"regression"})
-    public void TC131_top_right_blood_group_and_notification_bell() {
-        PatientHealthOverview dash = new PatientHealthOverview(driver);
-        assertTrue(driver.findElements(dash.bloodGroupHeaderChip).size() > 0,
-                "Blood group chip (e.g., 'Blood group: O+') should be visible in the top-right");
-        assertTrue(driver.findElements(dash.notificationBell).size() > 0,
-                "Notification bell should be visible in the top-right");
-    }
-
-    // TC132 — Sidebar profile block shows Patient ID and Age
-    @Test(groups = {"regression"})
-    public void TC132_sidebar_profile_shows_patient_id_and_age() {
-        PatientHealthOverview dash = new PatientHealthOverview(driver);
-        assertTrue(driver.findElements(dash.sidebarPatientId).size() > 0,
-                "Sidebar profile block should display the Patient ID (e.g., 'PT-0052')");
-        assertTrue(driver.findElements(dash.sidebarPatientAge).size() > 0,
-                "Sidebar profile block should display the patient's age (e.g., 'Age 36')");
-    }
-
-    // TC133 — Top banner has Age/Gender, Blood Group, and Next Appt chips
-    @Test(groups = {"regression"})
-    public void TC133_top_banner_has_three_info_chips() {
-        PatientHealthOverview dash = new PatientHealthOverview(driver);
-        assertTrue(driver.findElements(dash.bannerAgeGenderChip).size() > 0,
-                "Top banner should display Age + Gender chip");
-        assertTrue(driver.findElements(dash.bannerBloodGroupChip).size() > 0,
-                "Top banner should display Blood Group chip");
-        assertTrue(driver.findElements(dash.bannerNextApptChip).size() > 0,
-                "Top banner should display 'Next appt:' chip");
-    }
-
-    // TC134 — Each of the 4 summary tiles renders its sub-label
-    @Test(groups = {"regression"})
-    public void TC134_summary_tile_sub_labels_visible() {
-        PatientHealthOverview dash = new PatientHealthOverview(driver);
-        assertTrue(driver.findElements(dash.tileSubLabelNext).size() > 0,
-                "Upcoming Appointments tile should show 'Next: ...' sub-label");
-        assertTrue(driver.findElements(dash.tileSubLabelPending).size() > 0,
-                "Pending Lab Reports tile should show 'Pending review' sub-label");
-        assertTrue(driver.findElements(dash.tileSubLabelOnSchedule).size() > 0,
-                "Active Prescriptions tile should show 'All on schedule' sub-label");
-        assertTrue(driver.findElements(dash.tileSubLabelUrgent).size() > 0,
-                "Unread Notifications tile should show '... urgent' sub-label");
-    }
-
-    // TC135 — Health Score ring shows a qualitative label (Good / Fair / Excellent / Poor)
-    @Test(groups = {"regression"})
-    public void TC135_health_score_qualitative_label_visible() {
-        PatientHealthOverview dash = new PatientHealthOverview(driver);
-        assertTrue(driver.findElements(dash.healthScoreRing).size() > 0,
-                "Health Score circular ring should be visible");
-        assertTrue(driver.findElements(dash.healthScoreLabel).size() > 0,
-                "Health Score should display a qualitative label (Good / Fair / Excellent / Poor)");
-    }
-
-    // TC136 — Health Vitals shows all 4 metrics: BP, Heart Rate, Blood Glucose, BMI + Last updated timestamp
-    @Test(groups = {"regression"})
-    public void TC136_health_vitals_all_four_metrics() {
-        PatientHealthOverview dash = new PatientHealthOverview(driver);
-        assertTrue(driver.findElements(dash.vitalsBloodPressure).size() > 0,
-                "Health Vitals: Blood Pressure metric should be visible");
-        assertTrue(driver.findElements(dash.vitalsHeartRate).size() > 0,
-                "Health Vitals: Heart Rate metric should be visible");
-        assertTrue(driver.findElements(dash.vitalsBloodGlucose).size() > 0,
-                "Health Vitals: Blood Glucose metric should be visible");
-        assertTrue(driver.findElements(dash.vitalsBmi).size() > 0,
-                "Health Vitals: BMI metric should be visible");
-        assertTrue(driver.findElements(dash.vitalsLastUpdated).size() > 0,
-                "Health Vitals should show a 'Last updated [date]' timestamp");
-    }
-
-    // TC137 — Recent Activity section is rendered
-    @Test(groups = {"regression"})
-    public void TC137_recent_activity_section_visible() {
-        PatientHealthOverview dash = new PatientHealthOverview(driver);
-        assertTrue(driver.findElements(dash.recentActivitySection).size() > 0,
-                "'Recent Activity' section should be visible on the dashboard");
-    }
-
-    // TC138 — AI Health Assistant widget shows the 'Online' status badge
-    @Test(groups = {"regression"})
-    public void TC138_ai_assistant_online_status_visible() {
-        PatientHealthOverview dash = new PatientHealthOverview(driver);
-
+        // TC138 — AI Health Assistant widget shows the 'Online' status badge
         // AI Assistant widget sits below the fold — scroll so Angular renders it before asserting.
         ((org.openqa.selenium.JavascriptExecutor) driver)
                 .executeScript("window.scrollTo(0, document.body.scrollHeight);");
@@ -243,21 +198,14 @@ public class PatientHealthOverviewTest extends BasePatientTest {
                 "AI Health Assistant widget title should be visible");
         assertTrue(driver.findElements(dash.aiAssistantOnline).size() > 0,
                 "AI Health Assistant widget should display 'Online' status badge");
+
+        driver.findElement(dash.openAiAssistantCta).click();
+        wait.until(d -> d.getCurrentUrl().matches(".*/patient/\\d+/ai.*"));
+        assertTrue(driver.getCurrentUrl().matches(".*/patient/\\d+/ai.*"),
+                "Open AI Assistant should navigate to AI Health Assistant page");
     }
 
-    // TC139 — BUG-002 regression guard: greeting and sidebar must NOT contain 'null null'
-    // (Indicates the patient record's firstName/lastName are null in the database.)
-    @Test(groups = {"regression"})
-    public void TC139_no_null_null_in_greeting_or_sidebar() {
-        // Find any element whose visible text contains 'null null' on the dashboard.
-        int nullNullCount = driver.findElements(By.xpath(
-                "//*[contains(normalize-space(),'null null')]")).size();
-        assertTrue(nullNullCount == 0,
-                "Greeting / sidebar / profile should never render 'null null'. " +
-                "Found " + nullNullCount + " element(s) containing 'null null' — " +
-                "indicates the patient record has null firstName/lastName fields (BUG-002).");
-    }
-
+    // Merged TC074 + TC139
     // TC074 — Patient Sign Out
     // The new deployment's patient sidebar may not show a "Sign Out" text link;
     // sign-out may be reachable only via a profile/hamburger menu. Accept either:
@@ -265,7 +213,17 @@ public class PatientHealthOverviewTest extends BasePatientTest {
     //   b) clicking the hamburger / profile icon exposes a sign-out option.
     // If neither exists the test fails with a clear FRD-vs-UI gap message.
     @Test(groups = {"regression"})
-    public void TC074_patient_sign_out() {
+    public void TC074_139_patient_signout_and_no_nulls() {
+        // TC139 — BUG-002 regression guard: greeting and sidebar must NOT contain 'null null'
+        // (Indicates the patient record's firstName/lastName are null in the database.)
+        // Find any element whose visible text contains 'null null' on the dashboard.
+        int nullNullCount = driver.findElements(By.xpath(
+                "//*[contains(normalize-space(),'null null')]")).size();
+        assertTrue(nullNullCount == 0,
+                "Greeting / sidebar / profile should never render 'null null'. " +
+                "Found " + nullNullCount + " element(s) containing 'null null' — " +
+                "indicates the patient record has null firstName/lastName fields (BUG-002).");
+
         List<WebElement> signOut = driver.findElements(By.xpath(
                 "//*[normalize-space()='Sign Out' or normalize-space()='Sign out' " +
                 "or normalize-space()='Logout' or normalize-space()='Log out']"));
@@ -289,4 +247,4 @@ public class PatientHealthOverviewTest extends BasePatientTest {
         assertTrue(driver.getCurrentUrl().contains("/login") || driver.getCurrentUrl().endsWith("/"),
                 "User should be redirected to /login or landing page after sign out");
     }
-} 
+}

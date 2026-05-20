@@ -53,13 +53,9 @@ public class AdminRevenueBillingTest extends BaseAdminTest {
                 driver.getCurrentUrl().replaceAll(".*/admin/(\\d+)/.*", "$1"));
     }
 
-    // ─────────────────────────────────────────────────────────────────────────
-    // TC060 — Page header "Revenue & Billing" and subtitle visible
-    // ─────────────────────────────────────────────────────────────────────────
-
-    // TC060 — Revenue & Billing UI (double-quoted xpath handles apostrophe in "Today's Revenue")
+    // Merged TC060 + TC061 + TC062 + TC063
     @Test(groups = {"regression"})
-    public void TC060_admin_revenue_billing_ui() {
+    public void TC060_063_admin_revenue_ui_and_tile_labels() {
         AdminRevenueBilling page = new AdminRevenueBilling(driver).open(loggedInUserId);
 
         By titleLocator = By.cssSelector("div.tb-title");
@@ -74,14 +70,6 @@ public class AdminRevenueBillingTest extends BaseAdminTest {
         assertEquals(driver.findElement(subLocator).getText().trim(),
                 "Financial performance & billing management",
                 "Subtitle text mismatch");
-    }
-
-    // ─────────────────────────────────────────────────────────────────────────
-    // TC061 — All four summary tile labels visible (div.stat-label)
-    // ─────────────────────────────────────────────────────────────────────────
-    @Test
-    public void TC061_admin_revenue_summary_tile_labels() {
-        new AdminRevenueBilling(driver).open(loggedInUserId);
 
         By statLabel = By.cssSelector("div.stat-label");
         w().until(ExpectedConditions.visibilityOfElementLocated(statLabel));
@@ -94,17 +82,6 @@ public class AdminRevenueBillingTest extends BaseAdminTest {
             assertTrue(found.contains(expected),
                     "Tile label '" + expected + "' missing. Found: " + found);
         }
-    }
-
-    // ─────────────────────────────────────────────────────────────────────────
-    // TC062 — Tile numeric values present and numeric (div.stat-val)
-    // ─────────────────────────────────────────────────────────────────────────
-    // ─────────────────────────────────────────────────────────────────────────
-// TC062 — Tile values are present and non-empty (div.stat-val)
-// ─────────────────────────────────────────────────────────────────────────
-    @Test
-    public void TC062_admin_revenue_tile_values_numeric() {
-        new AdminRevenueBilling(driver).open(loggedInUserId);
 
         By statVal = By.cssSelector("div.stat-val");
         w().until(ExpectedConditions.visibilityOfElementLocated(statVal));
@@ -116,33 +93,24 @@ public class AdminRevenueBillingTest extends BaseAdminTest {
             String text = v.getText().trim();
             assertFalse(text.isEmpty(), "div.stat-val is blank");
         }
-    }
-    // ─────────────────────────────────────────────────────────────────────────
-    // TC063 — Tile sub-labels visible (div.stat-sub)
-    // ─────────────────────────────────────────────────────────────────────────
-    @Test
-    public void TC063_admin_revenue_tile_sub_labels() {
-        new AdminRevenueBilling(driver).open(loggedInUserId);
 
         By statSub = By.cssSelector("div.stat-sub");
         w().until(ExpectedConditions.visibilityOfElementLocated(statSub));
 
-        List<String> found = driver.findElements(statSub)
+        List<String> foundSubs = driver.findElements(statSub)
                 .stream().map(e -> e.getText().trim()).toList();
 
         for (String expected : List.of(
                 "All time", "Approved appointments",
                 "Awaiting confirmation", "Needs review")) {
-            assertTrue(found.contains(expected),
-                    "Sub-label '" + expected + "' missing. Found: " + found);
+            assertTrue(foundSubs.contains(expected),
+                    "Sub-label '" + expected + "' missing. Found: " + foundSubs);
         }
     }
 
-    // ─────────────────────────────────────────────────────────────────────────
-    // TC064 — Total Appointments tile (div.stat.teal) full validation
-    // ─────────────────────────────────────────────────────────────────────────
-    @Test
-    public void TC064_admin_revenue_total_appointments_tile() {
+    // Merged TC064 + TC065 + TC066 + TC067
+    @Test(groups = {"regression"})
+    public void TC064_067_admin_revenue_individual_tiles() {
         new AdminRevenueBilling(driver).open(loggedInUserId);
 
         By teal = By.cssSelector("div.stat.teal");
@@ -160,75 +128,49 @@ public class AdminRevenueBillingTest extends BaseAdminTest {
 
         assertEquals(tile.findElement(By.cssSelector("div.stat-sub")).getText().trim(),
                 "All time", "Sub-label mismatch");
-    }
-
-    // ─────────────────────────────────────────────────────────────────────────
-    // TC065 — Confirmed tile (div.stat.green) full validation
-    // ─────────────────────────────────────────────────────────────────────────
-    @Test
-    public void TC065_admin_revenue_confirmed_tile() {
-        new AdminRevenueBilling(driver).open(loggedInUserId);
 
         By green = By.cssSelector("div.stat.green");
         w().until(ExpectedConditions.visibilityOfElementLocated(green));
-        WebElement tile = driver.findElement(green);
+        WebElement tile2 = driver.findElement(green);
 
         // Label is "CONFIRMED" in all-caps
-        String labelText = tile.findElement(By.cssSelector("div.stat-label"))
+        String labelText2 = tile2.findElement(By.cssSelector("div.stat-label"))
                 .getText().trim().replace("\n", " ").replace("\r", " ")
                 .replaceAll("\\s+", " ").toUpperCase();
-        assertEquals(labelText, "CONFIRMED", "Label mismatch");
+        assertEquals(labelText2, "CONFIRMED", "Label mismatch");
 
-        assertFalse(tile.findElement(By.cssSelector("div.stat-val")).getText().trim().isEmpty(),
+        assertFalse(tile2.findElement(By.cssSelector("div.stat-val")).getText().trim().isEmpty(),
                 "Value is empty");
 
-        assertEquals(tile.findElement(By.cssSelector("div.stat-sub")).getText().trim(),
+        assertEquals(tile2.findElement(By.cssSelector("div.stat-sub")).getText().trim(),
                 "Approved appointments", "Sub-label mismatch");
-    }
-
-    // ─────────────────────────────────────────────────────────────────────────
-    // TC066 — Pending tile (div.stat.amber) full validation
-    // ─────────────────────────────────────────────────────────────────────────
-    @Test
-    public void TC066_admin_revenue_pending_tile() {
-        new AdminRevenueBilling(driver).open(loggedInUserId);
 
         By amber = By.cssSelector("div.stat.amber");
         w().until(ExpectedConditions.visibilityOfElementLocated(amber));
-        WebElement tile = driver.findElement(amber);
+        WebElement tile3 = driver.findElement(amber);
 
-        assertEquals(tile.findElement(By.cssSelector("div.stat-label")).getText().trim(),
+        assertEquals(tile3.findElement(By.cssSelector("div.stat-label")).getText().trim(),
                 "PENDING", "Label mismatch");
-        assertFalse(tile.findElement(By.cssSelector("div.stat-val")).getText().trim().isEmpty(),
+        assertFalse(tile3.findElement(By.cssSelector("div.stat-val")).getText().trim().isEmpty(),
                 "Value is empty");
-        assertEquals(tile.findElement(By.cssSelector("div.stat-sub")).getText().trim(),
+        assertEquals(tile3.findElement(By.cssSelector("div.stat-sub")).getText().trim(),
                 "Awaiting confirmation", "Sub-label mismatch");
-    }
-
-    // ─────────────────────────────────────────────────────────────────────────
-    // TC067 — Cancelled tile (div.stat.red) full validation
-    // ─────────────────────────────────────────────────────────────────────────
-    @Test
-    public void TC067_admin_revenue_cancelled_tile() {
-        new AdminRevenueBilling(driver).open(loggedInUserId);
 
         By red = By.cssSelector("div.stat.red");
         w().until(ExpectedConditions.visibilityOfElementLocated(red));
-        WebElement tile = driver.findElement(red);
+        WebElement tile4 = driver.findElement(red);
 
-        assertEquals(tile.findElement(By.cssSelector("div.stat-label")).getText().trim(),
+        assertEquals(tile4.findElement(By.cssSelector("div.stat-label")).getText().trim(),
                 "CANCELLED", "Label mismatch");
-        assertFalse(tile.findElement(By.cssSelector("div.stat-val")).getText().trim().isEmpty(),
+        assertFalse(tile4.findElement(By.cssSelector("div.stat-val")).getText().trim().isEmpty(),
                 "Value is empty");
-        assertEquals(tile.findElement(By.cssSelector("div.stat-sub")).getText().trim(),
+        assertEquals(tile4.findElement(By.cssSelector("div.stat-sub")).getText().trim(),
                 "Needs review", "Sub-label mismatch");
     }
 
-    // ─────────────────────────────────────────────────────────────────────────
-    // TC068 — "Appointments Over Time" chart section visible
-    // ─────────────────────────────────────────────────────────────────────────
-    @Test
-    public void TC068_admin_revenue_appointments_over_time_chart() {
+    // Merged TC068 + TC069 + TC070
+    @Test(groups = {"regression"})
+    public void TC068_070_admin_revenue_charts_and_ai() {
         new AdminRevenueBilling(driver).open(loggedInUserId);
 
         By cardHeaders = By.cssSelector("div.card div.card-header");
@@ -242,34 +184,14 @@ public class AdminRevenueBillingTest extends BaseAdminTest {
         w().until(ExpectedConditions.presenceOfElementLocated(chartPad));
         assertFalse(driver.findElements(chartPad).isEmpty(),
                 "div.chart-pad not found");
-    }
 
-    // ─────────────────────────────────────────────────────────────────────────
-    // TC069 — "Appointment Breakdown" chart section visible
-    // ─────────────────────────────────────────────────────────────────────────
-    @Test
-    public void TC069_admin_revenue_appointment_breakdown_chart() {
-        new AdminRevenueBilling(driver).open(loggedInUserId);
-
-        By cardHeaders = By.cssSelector("div.card div.card-header");
-        w().until(ExpectedConditions.visibilityOfElementLocated(cardHeaders));
-
-        boolean found = driver.findElements(cardHeaders).stream()
+        boolean found2 = driver.findElements(cardHeaders).stream()
                 .anyMatch(h -> h.getText().contains("Appointment Breakdown"));
-        assertTrue(found, "'Appointment Breakdown' card-header not found");
+        assertTrue(found2, "'Appointment Breakdown' card-header not found");
 
-        By chartPad = By.cssSelector("div.card div.chart-pad");
         w().until(ExpectedConditions.presenceOfElementLocated(chartPad));
         assertTrue(driver.findElements(chartPad).size() >= 2,
                 "Expected ≥2 chart-pads, found: " + driver.findElements(chartPad).size());
-    }
-
-    // ─────────────────────────────────────────────────────────────────────────
-    // TC070 — AI Appointment Insights section visible with content
-    // ─────────────────────────────────────────────────────────────────────────
-    @Test
-    public void TC070_admin_revenue_ai_insights_section() {
-        new AdminRevenueBilling(driver).open(loggedInUserId);
 
         By aiPanel = By.cssSelector("div.ai-panel.mb20");
         w().until(ExpectedConditions.visibilityOfElementLocated(aiPanel));
@@ -294,12 +216,9 @@ public class AdminRevenueBillingTest extends BaseAdminTest {
         }
     }
 
-    // ─────────────────────────────────────────────────────────────────────────
-    // TC071 — Recent Bills heading visible + table has data rows
-    // (kept from local branch — HEAD)
-    // ─────────────────────────────────────────────────────────────────────────
+    // Merged TC071 + TC072
     @Test(groups = {"regression"})
-    public void TC071_admin_revenue_recent_bills_table() {
+    public void TC071_072_admin_revenue_recent_bills_table() {
         AdminRevenueBilling page = new AdminRevenueBilling(driver).open(loggedInUserId);
 
         w().until(ExpectedConditions.visibilityOfElementLocated(page.recentBillsHeader));
@@ -310,32 +229,6 @@ public class AdminRevenueBillingTest extends BaseAdminTest {
         w().until(ExpectedConditions.presenceOfElementLocated(rows));
         assertTrue(driver.findElements(rows).size() > 0,
                 "Recent Bills table has no data rows");
-    }
-
-    // ─────────────────────────────────────────────────────────────────────────
-    // TC061b — Recent Bills + Insurance Claims tables both visible
-    // (kept from incoming branch — teammate added this. Renamed from TC061 to
-    //  TC061b because TC061_admin_revenue_summary_tile_labels above already
-    //  occupies the TC061 slot. The two TC061 tests cover distinct scenarios.)
-    // ─────────────────────────────────────────────────────────────────────────
-    @Test(groups = {"regression"})
-    public void TC061b_admin_revenue_bills_claims_tables() {
-        AdminRevenueBilling page = new AdminRevenueBilling(driver).open(loggedInUserId);
-
-        w().until(ExpectedConditions.visibilityOfElementLocated(page.recentBillsHeader));
-        assertTrue(driver.findElements(page.recentBillsHeader).size() > 0,
-                "Recent Bills table heading should be visible");
-        assertTrue(driver.findElements(page.insuranceClaimsHdr).size() > 0,
-                "Insurance Claims table heading should be visible");
-    }
-
-    // ─────────────────────────────────────────────────────────────────────────
-    // TC072 — Recent Bills column headers correct
-    //         Bill ID | Patient | Dept | Amount | Date | Due Date | Status
-    // ─────────────────────────────────────────────────────────────────────────
-    @Test
-    public void TC072_admin_revenue_recent_bills_columns() {
-        new AdminRevenueBilling(driver).open(loggedInUserId);
 
         By thLocator = By.cssSelector("table.tbl thead th");
         w().until(ExpectedConditions.visibilityOfElementLocated(thLocator));
@@ -355,5 +248,21 @@ public class AdminRevenueBillingTest extends BaseAdminTest {
                     "Column '" + col + "' not found. Found: " + headers);
         }
     }
-}
 
+    // ─────────────────────────────────────────────────────────────────────────
+    // TC061b — Recent Bills + Insurance Claims tables both visible
+    // (kept from incoming branch — teammate added this. Renamed from TC061 to
+    //  TC061b because TC061_admin_revenue_summary_tile_labels above already
+    //  occupies the TC061 slot. The two TC061 tests cover distinct scenarios.)
+    // ─────────────────────────────────────────────────────────────────────────
+    @Test(groups = {"regression"})
+    public void TC061b_admin_revenue_bills_claims_tables() {
+        AdminRevenueBilling page = new AdminRevenueBilling(driver).open(loggedInUserId);
+
+        w().until(ExpectedConditions.visibilityOfElementLocated(page.recentBillsHeader));
+        assertTrue(driver.findElements(page.recentBillsHeader).size() > 0,
+                "Recent Bills table heading should be visible");
+        assertTrue(driver.findElements(page.insuranceClaimsHdr).size() > 0,
+                "Insurance Claims table heading should be visible");
+    }
+}

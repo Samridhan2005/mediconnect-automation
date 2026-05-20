@@ -39,9 +39,9 @@ public class AdminAnalyticsTest extends BaseAdminTest {
         assertTrue(driver.findElements(locator).size() > 0, message);
     }
 
-    // TC062 — Page header, sub-label, and 4 summary tiles render
+    // Merged TC062 + TC063
     @Test(groups = {"regression"})
-    public void TC062_admin_analytics_insights_ui() {
+    public void TC062_063_admin_analytics_ui_and_filters() {
         AdminAnalytics page = new AdminAnalytics(driver).open(loggedInUserId);
 
         waitAndAssertVisible(page.pageHeader,
@@ -57,12 +57,6 @@ public class AdminAnalyticsTest extends BaseAdminTest {
                 "Summary tile 'Completion Rate' should be visible");
         waitAndAssertVisible(page.tileCancellationRate,
                 "Summary tile 'Cancellation Rate' should be visible");
-    }
-
-    // TC063 — Filter dropdowns visible (Period + Department + Hospital).
-    @Test(groups = {"regression"})
-    public void TC063_admin_analytics_filters() {
-        AdminAnalytics page = new AdminAnalytics(driver).open(loggedInUserId);
 
         // Wait for at least one dropdown to appear before counting.
         wait.until(d -> d.findElements(page.anyDropdown).size() > 0);
@@ -80,9 +74,9 @@ public class AdminAnalyticsTest extends BaseAdminTest {
                         ", hospital=" + hospitalHits + ", generic dropdowns=" + anyDropdownHits);
     }
 
-    // TC064 — Appointment Flow Heatmap is present, with Low → High legend
+    // Merged TC064 + TC065
     @Test(groups = {"regression"})
-    public void TC064_appointment_flow_heatmap_visible() {
+    public void TC064_065_admin_analytics_charts() {
         AdminAnalytics page = new AdminAnalytics(driver).open(loggedInUserId);
 
         waitAndAssertVisible(page.heatmap,
@@ -91,12 +85,6 @@ public class AdminAnalyticsTest extends BaseAdminTest {
                 "Heatmap 'Low' legend marker should be visible");
         waitAndAssertVisible(page.heatmapLegendHigh,
                 "Heatmap 'High' legend marker should be visible");
-    }
-
-    // TC065 — All four secondary charts render in the lower section
-    @Test(groups = {"regression"})
-    public void TC065_secondary_charts_render() {
-        AdminAnalytics page = new AdminAnalytics(driver).open(loggedInUserId);
 
         waitAndAssertVisible(page.bedOccupancyByHospitalChart,
                 "'Bed Occupancy by Hospital' chart should be visible");
@@ -140,9 +128,9 @@ public class AdminAnalyticsTest extends BaseAdminTest {
                 .selectByVisibleText(optionText);
     }
 
-    // TC066 — Period dropdown exposes the 4 expected time windows
+    // Merged TC066 + TC067 + TC068
     @Test(groups = {"regression"})
-    public void TC066_period_dropdown_has_expected_options() {
+    public void TC066_068_admin_analytics_dropdown_options() {
         AdminAnalytics page = new AdminAnalytics(driver).open(loggedInUserId);
         java.util.List<String> optionTexts = readDropdownOptions(page.periodSelect, "Last 7 Days");
 
@@ -150,37 +138,27 @@ public class AdminAnalyticsTest extends BaseAdminTest {
             assertTrue(optionTexts.contains(expected),
                     "Period dropdown should contain option '" + expected + "'. Actual options: " + optionTexts);
         }
-    }
 
-    // TC067 — Departments dropdown exposes medical specialty options
-    @Test(groups = {"regression"})
-    public void TC067_departments_dropdown_has_expected_options() {
-        AdminAnalytics page = new AdminAnalytics(driver).open(loggedInUserId);
-        java.util.List<String> optionTexts = readDropdownOptions(page.departmentSelect, "Cardiology");
+        java.util.List<String> optionTexts2 = readDropdownOptions(page.departmentSelect, "Cardiology");
 
         for (String expected : java.util.List.of("All Departments", "Cardiology", "Neurology",
                 "Pediatrics", "Orthopedics", "Oncology", "General Surgery")) {
-            assertTrue(optionTexts.contains(expected),
-                    "Departments dropdown should contain option '" + expected + "'. Actual: " + optionTexts);
+            assertTrue(optionTexts2.contains(expected),
+                    "Departments dropdown should contain option '" + expected + "'. Actual: " + optionTexts2);
         }
-    }
 
-    // TC068 — All Hospitals dropdown shows at least the seeded hospitals
-    @Test(groups = {"regression"})
-    public void TC068_hospitals_dropdown_has_expected_options() {
-        AdminAnalytics page = new AdminAnalytics(driver).open(loggedInUserId);
-        java.util.List<String> optionTexts = readDropdownOptions(page.hospitalSelect, "City General Hospital");
+        java.util.List<String> optionTexts3 = readDropdownOptions(page.hospitalSelect, "City General Hospital");
 
         for (String expected : java.util.List.of("All Hospitals", "City General Hospital",
                 "Apollo Medical Centre", "MediCare Specialty Hospital")) {
-            assertTrue(optionTexts.contains(expected),
-                    "Hospitals dropdown should contain option '" + expected + "'. Actual: " + optionTexts);
+            assertTrue(optionTexts3.contains(expected),
+                    "Hospitals dropdown should contain option '" + expected + "'. Actual: " + optionTexts3);
         }
     }
 
-    // TC069 — Changing the Period dropdown refreshes the dashboard data (charts still render after)
+    // Merged TC069 + TC070 + TC071
     @Test(groups = {"regression"})
-    public void TC069_changing_period_refreshes_dashboard() {
+    public void TC069_071_admin_analytics_filter_refresh() {
         AdminAnalytics page = new AdminAnalytics(driver).open(loggedInUserId);
 
         // Capture tile value BEFORE filter change
@@ -200,14 +178,8 @@ public class AdminAnalyticsTest extends BaseAdminTest {
 
         String afterValue = readPatientFlowValue(page);
         System.out.println("[TC069] Patient Flow before='" + beforeValue + "', after Last 7 Days='" + afterValue + "'");
-    }
 
-    // TC070 — Changing the Departments dropdown refreshes the dashboard data
-    @Test(groups = {"regression"})
-    public void TC070_changing_department_refreshes_dashboard() {
-        AdminAnalytics page = new AdminAnalytics(driver).open(loggedInUserId);
-
-        String beforeValue = readPatientFlowValue(page);
+        String beforeValue2 = readPatientFlowValue(page);
 
         selectFromDropdown(page.departmentSelect, "Cardiology");
 
@@ -218,16 +190,10 @@ public class AdminAnalyticsTest extends BaseAdminTest {
         waitAndAssertVisible(page.appointmentsByDeptChart,
                 "Appointments by Department chart should still render after Department filter change");
 
-        String afterValue = readPatientFlowValue(page);
-        System.out.println("[TC070] Patient Flow before='" + beforeValue + "', after Cardiology='" + afterValue + "'");
-    }
+        String afterValue2 = readPatientFlowValue(page);
+        System.out.println("[TC070] Patient Flow before='" + beforeValue2 + "', after Cardiology='" + afterValue2 + "'");
 
-    // TC071 — Changing the Hospitals dropdown refreshes the dashboard data
-    @Test(groups = {"regression"})
-    public void TC071_changing_hospital_refreshes_dashboard() {
-        AdminAnalytics page = new AdminAnalytics(driver).open(loggedInUserId);
-
-        String beforeValue = readPatientFlowValue(page);
+        String beforeValue3 = readPatientFlowValue(page);
 
         selectFromDropdown(page.hospitalSelect, "City General Hospital");
 
@@ -238,8 +204,8 @@ public class AdminAnalyticsTest extends BaseAdminTest {
         waitAndAssertVisible(page.bedOccupancyByHospitalChart,
                 "Bed Occupancy by Hospital chart should still render after Hospital filter change");
 
-        String afterValue = readPatientFlowValue(page);
-        System.out.println("[TC071] Patient Flow before='" + beforeValue + "', after City General Hospital='" + afterValue + "'");
+        String afterValue3 = readPatientFlowValue(page);
+        System.out.println("[TC071] Patient Flow before='" + beforeValue3 + "', after City General Hospital='" + afterValue3 + "'");
     }
 
     // Helper — read the Patient Flow tile's numeric value, return "" if not yet rendered.

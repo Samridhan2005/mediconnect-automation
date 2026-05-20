@@ -15,7 +15,7 @@ public class PatientRegisterTest extends UiBaseTest {
 
     // TP001 — Successful patient registration logs the user in and lands on the patient dashboard.
     // Verification: URL matches /patient/{id}/... AND the patient's name is visible on the dashboard.
-    @Test
+    @Test(groups = {"regression"})
     public void TP001_patient_registration_lands_on_patient_dashboard() {
         long unique = System.currentTimeMillis();
         String firstName = "Auto";

@@ -1,7 +1,6 @@
 package com.cts.mfrp.mediconnect.ui.tests;
 
 import com.cts.mfrp.mediconnect.ui.base.UiBaseTest;
-import com.cts.mfrp.mediconnect.ui.pages.auth.AdminLogin;
 import com.cts.mfrp.mediconnect.ui.pages.auth.Login;
 import com.cts.mfrp.mediconnect.utils.ConfigReader;
 import org.testng.annotations.Test;
@@ -51,10 +50,9 @@ public class LoginTest extends UiBaseTest {
         assertEquals(login.getHeading(), "Welcome Back");
     }
 
-    // TC003 — /login has exactly two role tabs: Patient Login and Doctor Login.
-    // Admin login is on a separate page at /admin/login (not a tab on /login).
-    @Test(groups = {"regression"})
-    public void TC003_role_selector_tabs_switch_form() {
+    // Merged TC003 + TC014
+    @Test(groups = {"sanity", "regression"})
+    public void TC003_014_login_role_selector_tabs() {
         Login login = new Login(driver).open();
 
         // Patient tab should be visible and selectable
@@ -73,6 +71,14 @@ public class LoginTest extends UiBaseTest {
         // Admin login is at /admin/login, NOT a tab on /login — verify no Admin tab exists here
         assertTrue(driver.findElements(By.xpath("//button[normalize-space()='Admin Login']")).isEmpty(),
                 "There should be no 'Admin Login' tab on /login (admin login lives at /admin/login)");
+
+        login.selectDoctorTab();
+        assertTrue(login.isDoctorTabActive(),  "Doctor tab should be active");
+        assertFalse(login.isPatientTabActive(), "Patient tab should NOT be active simultaneously");
+
+        login.selectPatientTab();
+        assertTrue(login.isPatientTabActive(), "Patient tab should be active");
+        assertFalse(login.isDoctorTabActive(), "Doctor tab should NOT be active simultaneously");
     }
 
     // TC004 — Doctor role selector + email format + masked password
@@ -93,9 +99,9 @@ public class LoginTest extends UiBaseTest {
         assertTrue(login.isPasswordMasked(), "Password field should be of type 'password' (masked)");
     }
 
-    // TC005 — Forgot Password link
+    // Merged TC005 + TC005a + TC005b + TC005c + TC005d
     @Test(groups = {"regression"})
-    public void TC005_forgot_password_link_is_present_and_clickable() {
+    public void TC005_005d_forgot_password_flow() {
         Login login = new Login(driver).open();
         assertTrue(login.isForgotLinkVisible(), "Forgot Password link should be displayed");
 
@@ -104,17 +110,7 @@ public class LoginTest extends UiBaseTest {
         // We just verify the click did not error and the page is still reachable.
         assertTrue(driver.getCurrentUrl().contains("/login") || driver.getCurrentUrl().contains("#"),
                 "Forgot Password should not navigate off-app");
-    }
 
-    // ============== Deeper Forgot Password tests ==============
-    // These verify that clicking Forgot Password actually opens a reset flow
-    // (not just a '#' anchor placeholder). They will FAIL until the dev team
-    // implements a real reset page/modal — that failure is the documented gap.
-
-    // TC005a — Clicking Forgot Password opens a real reset page or modal
-    @Test(groups = {"regression"})
-    public void TC005a_forgot_password_opens_real_reset_flow() {
-        Login login = new Login(driver).open();
         login.clickForgotPassword();
         try { Thread.sleep(800); } catch (InterruptedException ignored) {}
 
@@ -138,12 +134,7 @@ public class LoginTest extends UiBaseTest {
                 "URL=" + driver.getCurrentUrl() +
                 ", resetHeadingFound=" + resetHeading +
                 ", extraEmailFieldFound=" + newEmailField);
-    }
 
-    // TC005b — Reset form exposes an email input
-    @Test(groups = {"regression"})
-    public void TC005b_forgot_password_reset_form_has_email_field() {
-        Login login = new Login(driver).open();
         login.clickForgotPassword();
         try { Thread.sleep(800); } catch (InterruptedException ignored) {}
 
@@ -153,12 +144,7 @@ public class LoginTest extends UiBaseTest {
         // OR the reset form replaces the login form entirely (still at least one input visible).
         assertTrue(emailInputs.size() >= 1,
                 "Reset form should expose an email input. Found " + emailInputs.size());
-    }
 
-    // TC005c — Submitting reset form with empty email is rejected
-    @Test(groups = {"regression"})
-    public void TC005c_forgot_password_empty_email_is_rejected() {
-        Login login = new Login(driver).open();
         login.clickForgotPassword();
         try { Thread.sleep(800); } catch (InterruptedException ignored) {}
 
@@ -187,36 +173,31 @@ public class LoginTest extends UiBaseTest {
                            || driver.getCurrentUrl().contains("forgot");
         assertTrue(errorShown || stillOnPage,
                 "Submitting an empty reset form should either show an error or keep the user on the reset page");
-    }
 
-    // TC005d — Submitting reset form with valid email shows a confirmation
-    @Test(groups = {"regression"})
-    public void TC005d_forgot_password_valid_email_shows_confirmation() {
-        Login login = new Login(driver).open();
         login.clickForgotPassword();
         try { Thread.sleep(800); } catch (InterruptedException ignored) {}
 
         // Type into any visible email-style input
-        List<WebElement> emailInputs = driver.findElements(By.cssSelector(
+        List<WebElement> emailInputs2 = driver.findElements(By.cssSelector(
                 "input[type='email'], input[placeholder*='email' i], input[name*='email' i]"));
-        if (emailInputs.isEmpty()) {
+        if (emailInputs2.isEmpty()) {
             assertTrue(false,
                     "Reset form should expose an email input — none found. Forgot Password flow appears unimplemented.");
         }
-        emailInputs.get(emailInputs.size() - 1).clear();
-        emailInputs.get(emailInputs.size() - 1).sendKeys("rajesh.sharma@gmail.com");
+        emailInputs2.get(emailInputs2.size() - 1).clear();
+        emailInputs2.get(emailInputs2.size() - 1).sendKeys("rajesh.sharma@gmail.com");
 
         // Click any Submit/Send/Reset button
-        List<WebElement> submit = driver.findElements(By.xpath(
+        List<WebElement> submit2 = driver.findElements(By.xpath(
                 "//button[contains(translate(normalize-space(),'srbk','SRBK'),'SUBMIT')" +
                 " or contains(translate(normalize-space(),'srbk','SRBK'),'SEND')" +
                 " or contains(translate(normalize-space(),'srbk','SRBK'),'RESET')" +
                 " or contains(translate(normalize-space(),'srbk','SRBK'),'RECOVER')]"));
-        if (submit.isEmpty()) {
+        if (submit2.isEmpty()) {
             assertTrue(false,
                     "Reset form should expose a submit button (Submit/Send/Reset). None was found.");
         }
-        submit.get(0).click();
+        submit2.get(0).click();
         try { Thread.sleep(1200); } catch (InterruptedException ignored) {}
 
         // Confirmation cues — any one is acceptable:
@@ -251,19 +232,6 @@ public class LoginTest extends UiBaseTest {
         // The page should still be on /login (form did not submit / was rejected)
         assertTrue(driver.getCurrentUrl().contains(Login.PATH),
                 "After invalid submit user should remain on /login");
-    }
-
-    // TC014 — Role selector negative: only one tab can be active at a time
-    @Test(groups = {"sanity", "regression"})
-    public void TC014_only_one_role_tab_active_at_a_time() {
-        Login login = new Login(driver).open();
-        login.selectDoctorTab();
-        assertTrue(login.isDoctorTabActive(),  "Doctor tab should be active");
-        assertFalse(login.isPatientTabActive(), "Patient tab should NOT be active simultaneously");
-
-        login.selectPatientTab();
-        assertTrue(login.isPatientTabActive(), "Patient tab should be active");
-        assertFalse(login.isDoctorTabActive(), "Doctor tab should NOT be active simultaneously");
     }
 
     // TC072 — Invalid credentials show server-side error

@@ -28,11 +28,9 @@ import static org.testng.Assert.assertTrue;
  */
 public class AdminSupplyChainTest extends BaseAdminTest {
 
-    // ---------------- TC058 — Top section + AI insights ----------------
-
-    /** TC058 — Page header + 4 summary tiles + AI Supply Insights panel. */
+    // Merged TC058 + TC058a + TC058b + TC058c
     @Test(groups = {"regression"})
-    public void TC058_admin_supply_chain_ui_ai_insights() {
+    public void TC058_058a_058c_admin_supply_chain_ui_and_header_buttons() {
         AdminSupplyChain page = new AdminSupplyChain(driver).open(loggedInUserId);
         page.waitForTilesGrid();
 
@@ -43,24 +41,12 @@ public class AdminSupplyChainTest extends BaseAdminTest {
         }
         assertTrue(driver.findElements(page.aiInsightsHeading).size() > 0,
                 "AI Supply Insights panel should be visible");
-    }
 
-    // ---------------- TC058a — Header action buttons ----------------
-
-    /** TC058a — "+ New Order" and "Export CSV" buttons are visible. */
-    @Test(groups = {"regression"})
-    public void TC058a_supply_chain_header_action_buttons_visible() {
-        AdminSupplyChain page = new AdminSupplyChain(driver).open(loggedInUserId);
         assertTrue(driver.findElements(page.newOrderBtn).size() > 0,
                 "'+ New Order' button should be visible in the top-right");
         assertTrue(driver.findElements(page.exportCsvBtn).size() > 0,
                 "'Export CSV' button should be visible in the top-right");
-    }
 
-    /** TC058b — Clicking "+ New Order" opens a modal/form to create a purchase order. */
-    @Test(groups = {"regression"})
-    public void TC058b_supply_chain_new_order_button_opens_modal() {
-        AdminSupplyChain page = new AdminSupplyChain(driver).open(loggedInUserId);
         page.clickNewOrder();
         // Wait up to 30s for a modal / form to render
         new WebDriverWait(driver, Duration.ofSeconds(30))
@@ -69,12 +55,7 @@ public class AdminSupplyChainTest extends BaseAdminTest {
         boolean modalOpened = driver.findElements(By.cssSelector("[class*='modal'], form")).size() > 0
                 || driver.findElements(By.xpath("//*[contains(normalize-space(),'New Order') and (self::h1 or self::h2 or self::h3)]")).size() > 0;
         assertTrue(modalOpened, "Clicking '+ New Order' should open a creation modal or form");
-    }
 
-    /** TC058c — Clicking "Export CSV" triggers an export — at minimum the button doesn't error. */
-    @Test(groups = {"regression"})
-    public void TC058c_supply_chain_export_csv_clickable() {
-        AdminSupplyChain page = new AdminSupplyChain(driver).open(loggedInUserId);
         assertTrue(driver.findElements(page.exportCsvBtn).size() > 0,
                 "'Export CSV' button must be present");
         page.clickExportCsv();
@@ -84,11 +65,9 @@ public class AdminSupplyChainTest extends BaseAdminTest {
                 "Page should remain on Supply Chain Management after clicking Export CSV");
     }
 
-    // ---------------- TC058d — Charts ----------------
-
-    /** TC058d — Drug Usage Trend chart + legend (4 drugs) are visible. */
+    // Merged TC058d + TC058e + TC058f
     @Test(groups = {"regression"})
-    public void TC058d_drug_usage_trend_chart_and_legend() {
+    public void TC058d_058f_admin_supply_chain_charts_and_ai() {
         AdminSupplyChain page = new AdminSupplyChain(driver).open(loggedInUserId);
         page.waitForCharts();
 
@@ -103,13 +82,6 @@ public class AdminSupplyChainTest extends BaseAdminTest {
             assertTrue(driver.findElements(By.xpath("//*[normalize-space()='" + day + "']")).size() > 0,
                     "Day-of-week label missing on Drug Usage Trend X-axis: " + day);
         }
-    }
-
-    /** TC058e — Stock Consumption donut chart + legend (3 categories) are visible. */
-    @Test(groups = {"regression"})
-    public void TC058e_stock_consumption_donut_chart_and_legend() {
-        AdminSupplyChain page = new AdminSupplyChain(driver).open(loggedInUserId);
-        page.waitForCharts();
 
         assertTrue(driver.findElements(page.stockConsumptionHdr).size() > 0,
                 "'Stock Consumption' chart heading should be visible");
@@ -117,14 +89,7 @@ public class AdminSupplyChainTest extends BaseAdminTest {
             assertTrue(driver.findElements(By.xpath("//*[contains(normalize-space(),'" + cat + "')]")).size() > 0,
                     "Stock Consumption legend missing: " + cat);
         }
-    }
 
-    // ---------------- TC058f — AI Supply Insights ----------------
-
-    /** TC058f — AI Supply Insights heading + "Predictive analytics" badge. */
-    @Test(groups = {"regression"})
-    public void TC058f_ai_supply_insights_block() {
-        AdminSupplyChain page = new AdminSupplyChain(driver).open(loggedInUserId);
         new WebDriverWait(driver, Duration.ofSeconds(45))
                 .until(d -> d.findElements(page.aiInsightsHeading).size() > 0);
 
@@ -134,11 +99,9 @@ public class AdminSupplyChainTest extends BaseAdminTest {
                 "'Predictive analytics' badge should be visible");
     }
 
-    // ---------------- TC059 — Inventory section ----------------
-
-    /** TC059 — Inventory table columns + filter tabs. */
+    // Merged TC059 + TC059a
     @Test(groups = {"regression"})
-    public void TC059_admin_supply_chain_inventory_table() {
+    public void TC059_059a_admin_supply_chain_inventory_heading() {
         AdminSupplyChain page = new AdminSupplyChain(driver).open(loggedInUserId);
         page.waitForInventoryTable();
 
@@ -153,13 +116,6 @@ public class AdminSupplyChainTest extends BaseAdminTest {
                                     "'ABCDEFGHIJKLMNOPQRSTUVWXYZ'),'" + col + "')]")).size() > 0,
                     "Inventory table column missing: " + col);
         }
-    }
-
-    /** TC059a — Inventory heading + items count subtitle visible. */
-    @Test(groups = {"regression"})
-    public void TC059a_inventory_heading_and_count() {
-        AdminSupplyChain page = new AdminSupplyChain(driver).open(loggedInUserId);
-        page.waitForInventoryTable();
 
         assertTrue(driver.findElements(page.inventoryHeading).size() > 0,
                 "'Inventory' heading should be visible");
@@ -167,9 +123,9 @@ public class AdminSupplyChainTest extends BaseAdminTest {
                 "Item count subtitle (e.g. '27 items') should be visible");
     }
 
-    /** TC059b — Switching the "Low Stock" filter keeps the table responsive (no crash). */
+    // Merged TC059b + TC059c + TC059d + TC059e + TC059f
     @Test(groups = {"regression"})
-    public void TC059b_inventory_filter_low_stock() {
+    public void TC059b_059f_admin_supply_chain_inventory_filters_search_badges() {
         AdminSupplyChain page = new AdminSupplyChain(driver).open(loggedInUserId);
         page.waitForInventoryTable();
 
@@ -179,26 +135,12 @@ public class AdminSupplyChainTest extends BaseAdminTest {
         boolean ok = driver.findElements(page.inventoryTable).size() > 0
                 || driver.findElements(By.xpath("//*[contains(normalize-space(),'No items') or contains(normalize-space(),'No data')]")).size() > 0;
         assertTrue(ok, "After Low Stock filter, table or empty-state should remain visible");
-    }
-
-    /** TC059c — Switching the "Expiring" filter keeps the table responsive. */
-    @Test(groups = {"regression"})
-    public void TC059c_inventory_filter_expiring() {
-        AdminSupplyChain page = new AdminSupplyChain(driver).open(loggedInUserId);
-        page.waitForInventoryTable();
 
         page.clickFilterExpiring();
         try { Thread.sleep(1500); } catch (InterruptedException ignored) {}
-        boolean ok = driver.findElements(page.inventoryTable).size() > 0
+        boolean ok2 = driver.findElements(page.inventoryTable).size() > 0
                 || driver.findElements(By.xpath("//*[contains(normalize-space(),'No items') or contains(normalize-space(),'No data')]")).size() > 0;
-        assertTrue(ok, "After Expiring filter, table or empty-state should remain visible");
-    }
-
-    /** TC059d — "All" filter restores the full inventory list. */
-    @Test(groups = {"regression"})
-    public void TC059d_inventory_filter_all_restores() {
-        AdminSupplyChain page = new AdminSupplyChain(driver).open(loggedInUserId);
-        page.waitForInventoryTable();
+        assertTrue(ok2, "After Expiring filter, table or empty-state should remain visible");
 
         page.clickFilterLowStock();
         try { Thread.sleep(1500); } catch (InterruptedException ignored) {}
@@ -207,13 +149,6 @@ public class AdminSupplyChainTest extends BaseAdminTest {
 
         assertTrue(driver.findElements(page.tableRows).size() > 0,
                 "After clicking 'All', the inventory table should show at least one row");
-    }
-
-    /** TC059e — Inventory search bar filters rows in real time. */
-    @Test(groups = {"regression"})
-    public void TC059e_inventory_search_filter() {
-        AdminSupplyChain page = new AdminSupplyChain(driver).open(loggedInUserId);
-        page.waitForInventoryTable();
 
         List<WebElement> search = driver.findElements(page.searchItemsInput);
         if (!search.isEmpty()) {
@@ -223,13 +158,6 @@ public class AdminSupplyChainTest extends BaseAdminTest {
             assertTrue(driver.findElements(page.inventoryTable).size() > 0,
                     "Inventory table should remain visible after typing in the search bar");
         }
-    }
-
-    /** TC059f — Status badges (OK) are present in the STATUS column. */
-    @Test(groups = {"regression"})
-    public void TC059f_inventory_status_badge_ok() {
-        AdminSupplyChain page = new AdminSupplyChain(driver).open(loggedInUserId);
-        page.waitForInventoryTable();
 
         new WebDriverWait(driver, Duration.ofSeconds(45))
                 .until(d -> d.findElements(page.statusBadgeOk).size() > 0

@@ -1,0 +1,88 @@
+TC ID,Module,Page/Feature,Description,Test Type,Group,Status
+TC003_014_login_role_selector_tabs,Authentication,Login,Role selector tabs switch form + only one tab active,UI,regression,To Be Added
+TC005_005d_forgot_password_flow,Authentication,Login,"Forgot Password link, reset form, empty email rejected, valid email shows confirmation",UI,regression,To Be Added
+home_url_loads_and_hero_visible,Landing,Home,Landing page loads MediConnect site + hero h1 heading visible,UI,"sanity, regression",To Be Added
+home_shows_all_ctas,Landing,Home,"All CTAs visible: header (Admin Portal, Get Started), hero, and CTA section buttons",UI,regression,To Be Added
+home_get_started_routes_to_login,Landing,Home,Header and Hero Get Started buttons both route to /login,UI,regression,To Be Added
+home_admin_portal_routes_to_admin_login,Landing,Home,Header and Hero Admin Portal buttons both route to /admin/login,UI,regression,To Be Added
+TC017_019_admin_login_ui_and_password_masking,Admin,AdminLogin,Page UI elements visible + password field masked by default + visibility toggle works,UI,regression,To Be Added
+TC020_021_admin_login_empty_and_invalid_format,Admin,AdminLogin,Empty fields show error + invalid email format rejected,UI,regression,To Be Added
+TC022_024_admin_login_wrong_credentials,Admin,AdminLogin,Wrong email + wrong password + both wrong credentials show error,UI,regression,To Be Added
+TC025_026_admin_login_back_home_and_register_links,Admin,AdminLogin,Back to Home link navigates home + Create admin account link navigates to register,UI,regression,To Be Added
+admin_register_page_loads_and_back_link,Admin,AdminRegister,Admin register page loads + Back-to-login link visible,UI,regression,To Be Added
+admin_register_form_fields_and_submit,Admin,AdminRegister,Register form has basic fields + submit button,UI,regression,To Be Added
+TC054_055_admin_patient_management_ui_and_tiles,Admin,AdminPatients,Patient Management header visible + Management UI + summary tile labels visible,UI,"sanity, regression",To Be Added
+TC056_060_admin_patient_tile_values,Admin,AdminPatients,Tile values non-empty + Total Patients/Inpatients/Outpatients Today/Critical Cases tiles render,UI,regression,To Be Added
+TC061_066_admin_patient_table_and_pagination,Admin,AdminPatients,Tabs visible (Inpatients/Outpatients) + Patient List card title + table columns + rows + pagination label + search input,UI,regression,To Be Added
+TC051_OV01_OV02_admin_overview_ui_and_filters,Admin,AdminOverview,System Overview page UI + page title/subtitle + Period and Hospital filter chips,UI,"sanity, regression",To Be Added
+TC052_OV03_OV05_admin_overview_stat_tiles,Admin,AdminOverview,Filters (Period + All Hospitals) + all stat tile labels + tile values non-empty + tile sub-labels,UI,regression,To Be Added
+TC_OV06_OV09_admin_overview_charts,Admin,AdminOverview,"Appointment Inflow + Disease Distribution + Bed Occupancy + Revenue Trend charts all render",UI,regression,To Be Added
+TC084_OV10_OV11_admin_overview_map_and_ai_insights,Admin,AdminOverview,Hospital Branch Map visible + AI System Insights panel visible,UI,regression,To Be Added
+TC_OV12_OV15_admin_overview_notifications_and_profile,Admin,AdminOverview,Notification panel + notification item content + admin profile info + logout button visible,UI,regression,To Be Added
+TC062_063_admin_analytics_ui_and_filters,Admin,AdminAnalytics,Analytics page header + tiles + filter dropdowns visible,UI,regression,To Be Added
+TC064_065_admin_analytics_charts,Admin,AdminAnalytics,Appointment Flow Heatmap + secondary charts render,UI,regression,To Be Added
+TC066_068_admin_analytics_dropdown_options,Admin,AdminAnalytics,Period + Departments + Hospitals dropdown options validated,UI,regression,To Be Added
+TC069_071_admin_analytics_filter_refresh,Admin,AdminAnalytics,Changing Period/Department/Hospital filter refreshes dashboard,UI,regression,To Be Added
+Admin_AppointmentsValidation,Admin,AdminAppointments,Filter table + Recent Appointments + All Appointments table all available,UI,regression,To Be Added
+TC057_057a_057b_admin_diagnostics_tabs_and_tiles,Admin,AdminDiagnostics,"Diagnostics tabs visible (Lab Reports/Radiology/Imaging) + tab switching works + 4 summary tiles (Total Reports/Pending Review/Abnormal Flags/Imaging Requests)",UI,regression,To Be Added
+TC057c_057d_admin_diagnostics_filters_and_search,Admin,AdminDiagnostics,Lab Reports filters (search input + status dropdown) + table columns + search filter behavior,UI,regression,To Be Added
+TC057e_057f_057g_admin_diagnostics_actions_badges_ai,Admin,AdminDiagnostics,Per-row action buttons (View/AI Explain/Upload Result) + status badges (Ready/Abnormal/Pending) + AI Report Summary panel,UI,regression,To Be Added
+TC058_058a_058c_admin_supply_chain_ui_and_header_buttons,Admin,AdminSupplyChain,"Supply Chain page UI + header action buttons + New Order modal opens + Export CSV clickable",UI,regression,To Be Added
+TC058d_058f_admin_supply_chain_charts_and_ai,Admin,AdminSupplyChain,Drug Usage Trend chart + Stock Consumption donut chart + AI Supply Insights block,UI,regression,To Be Added
+TC059_059a_admin_supply_chain_inventory_heading,Admin,AdminSupplyChain,Inventory table visible + inventory heading and item count,UI,regression,To Be Added
+TC059b_059f_admin_supply_chain_inventory_filters_search_badges,Admin,AdminSupplyChain,"Inventory filters (Low Stock/Expiring/All) + search filter + status badges present",UI,regression,To Be Added
+TC053_077_admin_hospitals_ui_and_occupancy,Admin,AdminHospitals,Hospitals page UI + occupancy colour coding,UI,regression,To Be Added
+TC087_089_admin_add_hospital_modal_and_submit,Admin,AdminHospitals,Add Hospital button opens modal + submit creates new row,UI,regression,To Be Added
+TC088_091_admin_hospitals_row_data_and_details,Admin,AdminHospitals,Every hospital row has non-empty name + Details button reveals expanded view,UI,regression,To Be Added
+TC090_092_admin_hospitals_edit_modal_and_save,Admin,AdminHospitals,Edit button opens prefilled modal + Save Changes persists update,UI,regression,To Be Added
+TC093_094_095_admin_telemedicine_ui_and_sections,Admin,AdminTelemedicine,Telemedicine header + 4 summary tiles + Doctor Availability/Today's Video Appointments/Session Records sections,UI,regression,To Be Added
+TC097_098_admin_telemedicine_schedule_modal,Admin,AdminTelemedicine,Schedule Session button opens modal + modal has all expected fields (Doctor/Patient/Date/Time/Type/Notes),UI,regression,To Be Added
+TC060_063_admin_revenue_ui_and_tile_labels,Admin,AdminRevenueBilling,Revenue & Billing page UI + summary tile labels + tile values numeric + tile sub-labels,UI,regression,To Be Added
+TC064_067_admin_revenue_individual_tiles,Admin,AdminRevenueBilling,Total Appointments + Confirmed + Pending + Cancelled tiles all render,UI,regression,To Be Added
+TC068_070_admin_revenue_charts_and_ai,Admin,AdminRevenueBilling,Appointments Over Time chart + Appointment Breakdown chart + AI Appointment Insights section,UI,regression,To Be Added
+TC071_072_admin_revenue_recent_bills_table,Admin,AdminRevenueBilling,Recent Bills heading visible + Recent Bills table has expected columns,UI,regression,To Be Added
+TC007_010_doctor_dashboard_header_and_nav,Doctor,DoctorDashboard,Dashboard page title + sidebar nav links + hospital selector + notification bell with numeric badge,UI,"sanity, regression",To Be Added
+TC012_012a_doctor_dashboard_todays_appointments,Doctor,DoctorDashboard,Today's Appointments section visible + appointment row data validation,UI,regression,To Be Added
+TC013_073_doctor_dashboard_consultations_and_signout,Doctor,DoctorDashboard,Upcoming Consultations section with Join button + Sign Out button visible,UI,regression,To Be Added
+TC075_075a_075b_doctor_dashboard_side_sections,Doctor,DoctorDashboard,Bed availability + Lab reports + Supply chain alerts sections all render,UI,regression,To Be Added
+TC039_A01_A04_doctor_appointments_header_and_buttons,Doctor,DoctorAppointments,Page header + title 'Appointments' + subtitle + Calendar view button + New Appointment button,UI,"sanity, regression",To Be Added
+TC040_A05_A08_doctor_appointments_tabs_and_stat_cards,Doctor,DoctorAppointments,Tab bar (Today active/Upcoming/Past) + stat card labels/values/sub-labels,UI,regression,To Be Added
+TC_A09_A10_A13_doctor_appointments_toolbar_columns_pagination,Doctor,DoctorAppointments,Toolbar filters (search/2 selects/date picker) + table columns + pagination label,UI,regression,To Be Added
+TC078_A11_A12_A14_doctor_appointments_rows_and_detail_panel,Doctor,DoctorAppointments,Appointments table has rows + row data validation + detail panel opens on row click,UI,regression,To Be Added
+TC048_AN01_AN04_analytics_header_and_filter,Doctor,DoctorAnalytics,Time period filter + page title 'Analytics' + subtitle + Export button + range select options,UI,regression,To Be Added
+TC_AN05_AN07_analytics_stat_cards,Doctor,DoctorAnalytics,Stat card labels + values + sub-labels all visible,UI,regression,To Be Added
+TC_AN08_AN13_analytics_charts_and_diagnoses,Doctor,DoctorAnalytics,Appointments over time + types donut + per month chart + top diagnoses + charts grid has cards,UI,regression,To Be Added
+TC049_SC01_SC04_doctor_supply_chain_ui_and_header_buttons,Doctor,DoctorSupplyChain,Supply Chain page UI + tile labels + title 'Supply Chain' + subtitle + Export + Add item buttons,UI,regression,To Be Added
+TC081_SC08_doctor_supply_chain_filters_and_toolbar,Doctor,DoctorSupplyChain,Low Stock filter present + toolbar (search + 2 dropdowns),UI,regression,To Be Added
+TC_SC05_SC07_supply_chain_stat_cards,Doctor,DoctorSupplyChain,Stat card labels + values + sub-labels (Total items/Low stock/Categories/Orders pending),UI,regression,To Be Added
+TC_SC09_SC13_supply_chain_table_and_pagination,Doctor,DoctorSupplyChain,Table columns + rows + row data + pagination label + pagination buttons,UI,regression,To Be Added
+TC_T01_T03_telemedicine_header_elements,Doctor,DoctorTelemedicine,Page title 'Telemedicine' + subtitle + Schedule session button,UI,regression,To Be Added
+TC_T04_T06_telemedicine_stat_cards,Doctor,DoctorTelemedicine,Stat card labels (Live now/Today's video/This week/Avg duration) + values + sub-labels,UI,regression,To Be Added
+TC_T07_T13_telemedicine_sections_and_past_table,Doctor,DoctorTelemedicine,Live & Upcoming section + empty state + Past sessions section + table columns + rows + row data + past card,UI,regression,To Be Added
+TC017_130_132_patient_dashboard_header_and_sidebar,Patient,PatientHealthOverview,Dashboard UI + page header with title/date + top-right blood group/bell + sidebar profile (patient ID/age),UI,regression,To Be Added
+TC018_133_134_patient_summary_tiles_and_banner,Patient,PatientHealthOverview,Summary tiles navigation + top banner info chips + summary tile sub-labels,UI,regression,To Be Added
+TC019_135_upcoming_appointments_and_health_score,Patient,PatientHealthOverview,Upcoming Appointments section + Health Score qualitative label,UI,regression,To Be Added
+TC020_136_137_patient_health_vitals_and_activity,Patient,PatientHealthOverview,Health Vitals panel + all 4 metrics + Recent Activity section,UI,regression,To Be Added
+TC021_022_138_patient_medicines_notifications_and_ai,Patient,PatientHealthOverview,Medicines + notifications panels + AI Health Assistant widget + online status,UI,regression,To Be Added
+TC074_139_patient_signout_and_no_nulls,Patient,PatientHealthOverview,Patient sign-out + no null/null values anywhere (BUG-002 check),UI,regression,To Be Added
+TC023_150_152_patient_appointments_ui_header_sidebar,Patient,PatientAppointments,Appointments page UI + sub-label + top-right chips/menu + sidebar profile,UI,regression,To Be Added
+TC024_156_patient_appointments_cards_or_empty_state,Patient,PatientAppointments,Appointment cards or empty state + empty-state message when no appointments,UI,regression,To Be Added
+TC025_026_027_patient_book_appointment_flow,Patient,PatientAppointments,Book Appointment modal UI + mandatory field validation + successful booking flow,UI,regression,To Be Added
+TC153_154_155_patient_appointments_banner_and_tabs,Patient,PatientAppointments,Consultation banner with Book Now + Upcoming tab with count + tab switching,UI,regression,To Be Added
+TC030_082_158_159_patient_lab_reports_ui_and_banner,Patient,PatientLabReports,Lab Reports page UI + alert banner persistence + sub-label + top-right chip/bell,UI,regression,To Be Added
+TC160_164_patient_lab_reports_ai_panel,Patient,PatientLabReports,AI Report Explanation panel + help text + suggested question chips + Ask input/send + AI disclaimer,UI,regression,To Be Added
+TC165_166_patient_lab_reports_sidebar_and_no_nulls,Patient,PatientLabReports,Sidebar profile (patient ID/age) + no null/null anywhere (BUG-002),UI,regression,To Be Added
+TC028_167_168_patient_medical_records_ui_and_header,Patient,PatientMedicalRecords,Medical Records UI + sub-label + top-right chip/bell,UI,regression,To Be Added
+TC029_172_patient_medical_records_search,Patient,PatientMedicalRecords,Search filters records + search input always visible,UI,regression,To Be Added
+TC169_170_171_patient_medical_records_panels_and_empty_state,Patient,PatientMedicalRecords,Two-panel layout + left panel empty state when no records + right panel default state,UI,regression,To Be Added
+TC173_174_patient_medical_records_sidebar_and_no_nulls,Patient,PatientMedicalRecords,Sidebar profile + no null/null anywhere (BUG-002),UI,regression,To Be Added
+TC033_035_036_patient_reminders_ui_header,Patient,PatientReminder,Medicine Reminders UI + sub-label + top-right chip/bell,UI,regression,To Be Added
+TC037_038_patient_reminders_stat_tiles,Patient,PatientReminder,All 4 stat tile labels + stat tile sub-labels,UI,regression,To Be Added
+TC039_040_041_patient_reminders_schedule_and_prescriptions,Patient,PatientReminder,Today's Schedule section with date + All Prescriptions section + empty states when no data,UI,regression,To Be Added
+TC032_076_175_176_patient_telemedicine_ui_and_header,Patient,PatientTelemedicine,Telemedicine page UI + sessions or empty + sub-label + top-right chip/bell,UI,regression,To Be Added
+TC177_180_patient_telemedicine_sections_and_empty_state,Patient,PatientTelemedicine,Upcoming empty state + Scheduled Sessions + Past Sessions sections + empty-state messages,UI,regression,To Be Added
+TC181_182_patient_telemedicine_sidebar_and_no_nulls,Patient,PatientTelemedicine,Sidebar profile + no null/null anywhere (BUG-002),UI,regression,To Be Added
+TC035_036_183_185_patient_ai_assistant_ui_and_modes,Patient,PatientAiAssistant,AI Assistant page UI + mode switching + sub-label + top-right chip/bell + mode section sub-labels,UI,regression,To Be Added
+TC079_186_187_patient_ai_emergency_and_context,Patient,PatientAiAssistant,Emergency Note persistent + YOUR CONTEXT section + AI greeting bubble visible,UI,regression,To Be Added
+TC188_189_patient_ai_ask_input_and_disclaimer,Patient,PatientAiAssistant,Ask input + send button + AI disclaimer visible,UI,regression,To Be Added
+TC190_191_patient_ai_quick_actions_and_common_questions,Patient,PatientAiAssistant,QUICK ACTIONS section + COMMON QUESTIONS section visible,UI,regression,To Be Added

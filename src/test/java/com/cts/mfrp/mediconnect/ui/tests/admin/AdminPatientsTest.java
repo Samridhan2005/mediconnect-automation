@@ -68,12 +68,16 @@ public class AdminPatientsTest extends BaseAdminTest {
                 driver.getCurrentUrl().replaceAll(".*/admin/(\\d+)/.*", "$1"));
     }
 
-    // ─────────────────────────────────────────────────────────────────────────
-    // TC054 — Patient Management page header visible
-    // ─────────────────────────────────────────────────────────────────────────
-    @Test
-    public void TC054_admin_patient_management_header() {
+    // Merged TC054 + TC054_admin_patient_management_header + TC055_admin_patient_summary_tile_labels
+    @Test(groups = {"sanity", "regression"})
+    public void TC054_055_admin_patient_management_ui_and_tiles() {
         AdminPatients page = new AdminPatients(driver).open(loggedInUserId);
+        assertTrue(driver.findElements(page.pageHeader).size() > 0);
+        for (String tab : List.of("Inpatients", "Outpatients")) {
+            assertTrue(driver.findElements(By.xpath(
+                            "//*[contains(normalize-space(),'" + tab + "')]")).size() > 0,
+                    "Tab missing: " + tab);
+        }
 
         // div.tb-title → "Patient Management"
         By titleLocator = By.cssSelector("div.tb-title");
@@ -83,15 +87,6 @@ public class AdminPatientsTest extends BaseAdminTest {
         assertTrue(title.isDisplayed(), "div.tb-title not visible");
         assertEquals(title.getText().trim(), "Patient Management",
                 "Page title text mismatch");
-    }
-
-    // ─────────────────────────────────────────────────────────────────────────
-    // TC055 — All four summary tile labels visible (div.stat-label)
-    //         Total Patients | Inpatients | Outpatients Today | Critical Cases
-    // ─────────────────────────────────────────────────────────────────────────
-    @Test
-    public void TC055_admin_patient_summary_tile_labels() {
-        new AdminPatients(driver).open(loggedInUserId);
 
         By statLabel = By.cssSelector("div.stat-label");
         w().until(ExpectedConditions.visibilityOfElementLocated(statLabel));
@@ -106,11 +101,22 @@ public class AdminPatientsTest extends BaseAdminTest {
         }
     }
 
-    // ─────────────────────────────────────────────────────────────────────────
-    // TC056 — Tile values are non-empty (div.stat-val)
-    // ─────────────────────────────────────────────────────────────────────────
-    @Test
-    public void TC056_admin_patient_tile_values_not_empty() {
+    // TC055 — AI Summarize button on patient detail
+    @Test(groups = {"regression"})
+    public void TC055_admin_patient_ai_summarize() {
+        AdminPatients page = new AdminPatients(driver).open(loggedInUserId);
+        List<WebElement> viewBtn = driver.findElements(page.viewBtn);
+        if (!viewBtn.isEmpty()) {
+            viewBtn.get(0).click();
+            try { Thread.sleep(700); } catch (InterruptedException ignored) {}
+            assertTrue(driver.findElements(page.aiSummarizeBtn).size() > 0,
+                    "+ AI Summarize button should be visible");
+        }
+    }
+
+    // Merged TC056 + TC057 + TC058 + TC059 + TC060
+    @Test(groups = {"regression"})
+    public void TC056_060_admin_patient_tile_values() {
         new AdminPatients(driver).open(loggedInUserId);
 
         By statVal = By.cssSelector("div.stat-val");
@@ -122,14 +128,6 @@ public class AdminPatientsTest extends BaseAdminTest {
         for (WebElement v : values) {
             assertFalse(v.getText().trim().isEmpty(), "div.stat-val is blank");
         }
-    }
-
-    // ─────────────────────────────────────────────────────────────────────────
-    // TC057 — Total Patients tile (div.stat.blue) full validation
-    // ─────────────────────────────────────────────────────────────────────────
-    @Test
-    public void TC057_admin_patient_total_patients_tile() {
-        new AdminPatients(driver).open(loggedInUserId);
 
         By blue = By.cssSelector("div.stat.blue");
         w().until(ExpectedConditions.visibilityOfElementLocated(blue));
@@ -141,70 +139,44 @@ public class AdminPatientsTest extends BaseAdminTest {
                 "Value is empty");
         assertEquals(tile.findElement(By.cssSelector("div.stat-sub")).getText().trim(),
                 "All hospitals", "Sub-label mismatch");
-    }
-
-    // ─────────────────────────────────────────────────────────────────────────
-    // TC058 — Inpatients tile (div.stat.red) full validation
-    // ─────────────────────────────────────────────────────────────────────────
-    @Test
-    public void TC058_admin_patient_inpatients_tile() {
-        new AdminPatients(driver).open(loggedInUserId);
 
         By red = By.cssSelector("div.stat.red");
         w().until(ExpectedConditions.visibilityOfElementLocated(red));
-        WebElement tile = driver.findElement(red);
+        WebElement tile2 = driver.findElement(red);
 
-        assertEquals(tile.findElement(By.cssSelector("div.stat-label")).getText().trim(),
+        assertEquals(tile2.findElement(By.cssSelector("div.stat-label")).getText().trim(),
                 "Inpatients", "Label mismatch");
-        assertFalse(tile.findElement(By.cssSelector("div.stat-val")).getText().trim().isEmpty(),
+        assertFalse(tile2.findElement(By.cssSelector("div.stat-val")).getText().trim().isEmpty(),
                 "Value is empty");
-        assertEquals(tile.findElement(By.cssSelector("div.stat-sub")).getText().trim(),
+        assertEquals(tile2.findElement(By.cssSelector("div.stat-sub")).getText().trim(),
                 "Admitted", "Sub-label mismatch");
-    }
-
-    // ─────────────────────────────────────────────────────────────────────────
-    // TC059 — Outpatients Today tile (div.stat.teal) full validation
-    // ─────────────────────────────────────────────────────────────────────────
-    @Test
-    public void TC059_admin_patient_outpatients_tile() {
-        new AdminPatients(driver).open(loggedInUserId);
 
         By teal = By.cssSelector("div.stat.teal");
         w().until(ExpectedConditions.visibilityOfElementLocated(teal));
-        WebElement tile = driver.findElement(teal);
+        WebElement tile3 = driver.findElement(teal);
 
-        assertEquals(tile.findElement(By.cssSelector("div.stat-label")).getText().trim(),
+        assertEquals(tile3.findElement(By.cssSelector("div.stat-label")).getText().trim(),
                 "Outpatients Today", "Label mismatch");
-        assertFalse(tile.findElement(By.cssSelector("div.stat-val")).getText().trim().isEmpty(),
+        assertFalse(tile3.findElement(By.cssSelector("div.stat-val")).getText().trim().isEmpty(),
                 "Value is empty");
-        assertEquals(tile.findElement(By.cssSelector("div.stat-sub")).getText().trim(),
+        assertEquals(tile3.findElement(By.cssSelector("div.stat-sub")).getText().trim(),
                 "OPD visits", "Sub-label mismatch");
-    }
-
-    // ─────────────────────────────────────────────────────────────────────────
-    // TC060 — Critical Cases tile (div.stat.amber) full validation
-    // ─────────────────────────────────────────────────────────────────────────
-    @Test
-    public void TC060_admin_patient_critical_cases_tile() {
-        new AdminPatients(driver).open(loggedInUserId);
 
         By amber = By.cssSelector("div.stat.amber");
         w().until(ExpectedConditions.visibilityOfElementLocated(amber));
-        WebElement tile = driver.findElement(amber);
+        WebElement tile4 = driver.findElement(amber);
 
-        assertEquals(tile.findElement(By.cssSelector("div.stat-label")).getText().trim(),
+        assertEquals(tile4.findElement(By.cssSelector("div.stat-label")).getText().trim(),
                 "Critical Cases", "Label mismatch");
-        assertFalse(tile.findElement(By.cssSelector("div.stat-val")).getText().trim().isEmpty(),
+        assertFalse(tile4.findElement(By.cssSelector("div.stat-val")).getText().trim().isEmpty(),
                 "Value is empty");
-        assertEquals(tile.findElement(By.cssSelector("div.stat-sub")).getText().trim(),
+        assertEquals(tile4.findElement(By.cssSelector("div.stat-sub")).getText().trim(),
                 "ICU / HDU", "Sub-label mismatch");
     }
 
-    // ─────────────────────────────────────────────────────────────────────────
-    // TC061 — Tab bar visible with Inpatients (active) + Outpatients tabs
-    // ─────────────────────────────────────────────────────────────────────────
-    @Test
-    public void TC061_admin_patient_tabs_visible() {
+    // Merged TC061 + TC062 + TC063 + TC064 + TC065 + TC066
+    @Test(groups = {"regression"})
+    public void TC061_066_admin_patient_table_and_pagination() {
         new AdminPatients(driver).open(loggedInUserId);
 
         By tabBar = By.cssSelector("div.tab-bar");
@@ -224,14 +196,6 @@ public class AdminPatientsTest extends BaseAdminTest {
                 "Inpatients tab not found. Found: " + tabTexts);
         assertTrue(tabTexts.stream().anyMatch(t -> t.contains("Outpatients")),
                 "Outpatients tab not found. Found: " + tabTexts);
-    }
-
-    // ─────────────────────────────────────────────────────────────────────────
-    // TC062 — Patient List card title visible
-    // ─────────────────────────────────────────────────────────────────────────
-    @Test
-    public void TC062_admin_patient_list_card_title() {
-        new AdminPatients(driver).open(loggedInUserId);
 
         By cardTitle = By.cssSelector("div.card-title");
         w().until(ExpectedConditions.visibilityOfElementLocated(cardTitle));
@@ -239,15 +203,6 @@ public class AdminPatientsTest extends BaseAdminTest {
         boolean found = driver.findElements(cardTitle).stream()
                 .anyMatch(e -> e.getText().trim().equalsIgnoreCase("Patient List"));
         assertTrue(found, "'Patient List' card title not found");
-    }
-
-    // ─────────────────────────────────────────────────────────────────────────
-    // TC063 — Patient table column headers correct
-    //         PATIENT | EMAIL | BLOOD GROUP | PHONE | STATUS | ACTION
-    // ─────────────────────────────────────────────────────────────────────────
-    @Test
-    public void TC063_admin_patient_table_columns() {
-        new AdminPatients(driver).open(loggedInUserId);
 
         By thLocator = By.cssSelector("table thead th");
         w().until(ExpectedConditions.visibilityOfElementLocated(thLocator));
@@ -265,28 +220,12 @@ public class AdminPatientsTest extends BaseAdminTest {
             assertTrue(headers.stream().anyMatch(h -> h.equals(col)),
                     "Column '" + col + "' not found. Found: " + headers);
         }
-    }
-
-    // ─────────────────────────────────────────────────────────────────────────
-    // TC064 — Patient table has data rows
-    // ─────────────────────────────────────────────────────────────────────────
-    @Test
-    public void TC064_admin_patient_table_has_rows() {
-        new AdminPatients(driver).open(loggedInUserId);
 
         By rows = By.cssSelector("table tbody tr");
         w().until(ExpectedConditions.numberOfElementsToBeMoreThan(rows, 0));
 
         assertTrue(driver.findElements(rows).size() > 0,
                 "Patient table has no data rows");
-    }
-
-    // ─────────────────────────────────────────────────────────────────────────
-    // TC065 — Pagination label shows "Showing X of Y patients"
-    // ─────────────────────────────────────────────────────────────────────────
-    @Test
-    public void TC065_admin_patient_pagination_label() {
-        new AdminPatients(driver).open(loggedInUserId);
 
         By paginationSpan = By.cssSelector("div.pagination span");
         w().until(ExpectedConditions.visibilityOfElementLocated(paginationSpan));
@@ -294,50 +233,11 @@ public class AdminPatientsTest extends BaseAdminTest {
         String text = driver.findElement(paginationSpan).getText().trim();
         assertTrue(text.matches("Showing \\d+ of \\d+ patients"),
                 "Pagination label format unexpected: '" + text + "'");
-    }
-
-    // ─────────────────────────────────────────────────────────────────────────
-    // TC066 — Search input is present
-    // ─────────────────────────────────────────────────────────────────────────
-    @Test
-    public void TC066_admin_patient_search_present() {
-        new AdminPatients(driver).open(loggedInUserId);
 
         By searchWrap = By.cssSelector("div.search-wrap");
         w().until(ExpectedConditions.visibilityOfElementLocated(searchWrap));
         assertTrue(driver.findElement(searchWrap).isDisplayed(),
                 "Search input container not visible");
-    }
-
-    // ─────────────────────────────────────────────────────────────────────────
-    // TC080 — Export CSV button present and enabled
-    // ─────────────────────────────────────────────────────────────────────────
-
-    // TC054 — Patient Management UI
-    // FIX: actual tab text contains a count, e.g. "Inpatients (55)" / "Outpatients (1)".
-    // Switched from normalize-space() equality to contains() so the count suffix doesn't break the match.
-    @Test(groups = {"sanity", "regression"})
-    public void TC054_admin_patient_management_ui() {
-        AdminPatients page = new AdminPatients(driver).open(loggedInUserId);
-        assertTrue(driver.findElements(page.pageHeader).size() > 0);
-        for (String tab : List.of("Inpatients", "Outpatients")) {
-            assertTrue(driver.findElements(By.xpath(
-                            "//*[contains(normalize-space(),'" + tab + "')]")).size() > 0,
-                    "Tab missing: " + tab);
-        }
-    }
-
-    // TC055 — AI Summarize button on patient detail
-    @Test(groups = {"regression"})
-    public void TC055_admin_patient_ai_summarize() {
-        AdminPatients page = new AdminPatients(driver).open(loggedInUserId);
-        List<WebElement> viewBtn = driver.findElements(page.viewBtn);
-        if (!viewBtn.isEmpty()) {
-            viewBtn.get(0).click();
-            try { Thread.sleep(700); } catch (InterruptedException ignored) {}
-            assertTrue(driver.findElements(page.aiSummarizeBtn).size() > 0,
-                    "+ AI Summarize button should be visible");
-        }
     }
 
     // TC080 — Export

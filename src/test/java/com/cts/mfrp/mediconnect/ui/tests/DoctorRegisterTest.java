@@ -14,7 +14,7 @@ public class DoctorRegisterTest extends UiBaseTest {
 
     // TD001 — Successful doctor registration logs the user in and lands on the doctor dashboard.
     // Verification: URL matches /doctor/{id}/... AND the doctor's name is visible on the dashboard.
-    @Test
+    @Test(groups = {"regression"})
     public void TD001_doctor_registration_lands_on_doctor_dashboard() {
         long unique = System.currentTimeMillis();
         String firstName = "Auto";

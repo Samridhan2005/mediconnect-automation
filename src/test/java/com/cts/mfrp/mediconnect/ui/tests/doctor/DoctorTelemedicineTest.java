@@ -19,21 +19,6 @@ import static org.testng.Assert.assertTrue;
 /**
  * FRD: TC046 — Doctor Telemedicine page.
  * URL: /doctor/{id}/telemedicine
- *
- * DOM locators from browser inspection:
- *   div.tele-page                → page wrapper
- *   h1.page-title                → "Telemedicine"
- *   p.page-sub                   → "Video consultations via session URL"
- *   button.btn.btn-primary       → "Schedule session"
- *   div.stats-row div.stat-card  → 4 stat cards
- *   div.stat-label               → Live now | Today's video | This week | Avg. duration
- *   div.stat-val                 → numeric value
- *   span.stat-sub                → Active session | 0 remaining | ↑ 18% vs last | Per session
- *   div.section-title            → "Live & Upcoming" | "Past sessions"
- *   div.empty-state p            → "No upcoming sessions today."
- *   div.past-card div.table-wrap → past sessions table container
- *   table thead th               → PATIENT | DATE | DURATION | REASON | STATUS
- *   table tbody tr               → past session rows
  */
 public class DoctorTelemedicineTest extends BaseDoctorTest {
 
@@ -43,9 +28,7 @@ public class DoctorTelemedicineTest extends BaseDoctorTest {
         return new WebDriverWait(driver, WAIT);
     }
 
-    // ─────────────────────────────────────────────────────────────────────────
-    // TC046 — Telemedicine UI + session management
-    // ─────────────────────────────────────────────────────────────────────────
+    // TC046 — Telemedicine UI + session management (full overview)
     @Test(groups = {"regression"})
     public void TC046_doctor_telemedicine_ui() {
         DoctorTelemedicine page = new DoctorTelemedicine(driver).open(loggedInUserId);
@@ -124,45 +107,24 @@ public class DoctorTelemedicineTest extends BaseDoctorTest {
                 "'+ Schedule session' button should be visible");
     }
 
-    // ─────────────────────────────────────────────────────────────────────────
-    // TC_T01 — Page title "Telemedicine" visible
-    // ─────────────────────────────────────────────────────────────────────────
-    @Test
-    public void TC_T01_telemedicine_page_title() {
+    // TC_T01_T03 — Page title, subtitle, schedule session button (merged TC_T01 + TC_T02 + TC_T03)
+    @Test(groups = {"regression"})
+    public void TC_T01_T03_telemedicine_header_elements() {
         new DoctorTelemedicine(driver).open(loggedInUserId);
 
         By title = By.cssSelector("h1.page-title");
         w().until(ExpectedConditions.visibilityOfElementLocated(title));
-
         assertEquals(driver.findElement(title).getText().trim(),
                 "Telemedicine", "Page title mismatch");
-    }
-
-    // ─────────────────────────────────────────────────────────────────────────
-    // TC_T02 — Page subtitle visible
-    // ─────────────────────────────────────────────────────────────────────────
-    @Test
-    public void TC_T02_telemedicine_page_subtitle() {
-        new DoctorTelemedicine(driver).open(loggedInUserId);
 
         By sub = By.cssSelector("p.page-sub");
         w().until(ExpectedConditions.visibilityOfElementLocated(sub));
-
         assertEquals(driver.findElement(sub).getText().trim(),
                 "Video consultations via session URL",
                 "Page subtitle mismatch");
-    }
-
-    // ─────────────────────────────────────────────────────────────────────────
-    // TC_T03 — "Schedule session" button present and enabled
-    // ─────────────────────────────────────────────────────────────────────────
-    @Test
-    public void TC_T03_telemedicine_schedule_session_button() {
-        new DoctorTelemedicine(driver).open(loggedInUserId);
 
         By scheduleBtn = By.cssSelector("button.btn.btn-primary");
         w().until(ExpectedConditions.visibilityOfElementLocated(scheduleBtn));
-
         WebElement btn = driver.findElement(scheduleBtn);
         assertTrue(btn.isDisplayed(), "Schedule session button not visible");
         assertTrue(btn.getText().trim().contains("Schedule session"),
@@ -170,128 +132,86 @@ public class DoctorTelemedicineTest extends BaseDoctorTest {
         assertTrue(btn.isEnabled(), "Schedule session button is disabled");
     }
 
-    // ─────────────────────────────────────────────────────────────────────────
-    // TC_T04 — All four stat card labels visible
-    // ─────────────────────────────────────────────────────────────────────────
-    @Test
-    public void TC_T04_telemedicine_stat_card_labels() {
+    // TC_T04_T06 — Stat card labels, values, sub-labels (merged TC_T04 + TC_T05 + TC_T06)
+    @Test(groups = {"regression"})
+    public void TC_T04_T06_telemedicine_stat_cards() {
         new DoctorTelemedicine(driver).open(loggedInUserId);
 
         By statLabel = By.cssSelector("div.stats-row div.stat-label");
         w().until(ExpectedConditions.visibilityOfElementLocated(statLabel));
 
-        List<String> found = driver.findElements(statLabel)
+        List<String> foundLabels = driver.findElements(statLabel)
                 .stream().map(e -> e.getText().trim()).toList();
 
         for (String expected : List.of(
                 "Live now", "Today's video", "This week", "Avg. duration")) {
-            assertTrue(found.contains(expected),
-                    "Stat label '" + expected + "' missing. Found: " + found);
+            assertTrue(foundLabels.contains(expected),
+                    "Stat label '" + expected + "' missing. Found: " + foundLabels);
         }
-    }
-
-    // ─────────────────────────────────────────────────────────────────────────
-    // TC_T05 — Stat card values are non-empty
-    // ─────────────────────────────────────────────────────────────────────────
-    @Test
-    public void TC_T05_telemedicine_stat_card_values() {
-        new DoctorTelemedicine(driver).open(loggedInUserId);
 
         By statVal = By.cssSelector("div.stats-row div.stat-val");
         w().until(ExpectedConditions.visibilityOfElementLocated(statVal));
-
         List<WebElement> values = driver.findElements(statVal);
         assertFalse(values.isEmpty(), "No div.stat-val found");
-
         for (WebElement v : values) {
             assertFalse(v.getText().trim().isEmpty(), "div.stat-val is blank");
         }
-    }
-
-    // ─────────────────────────────────────────────────────────────────────────
-    // TC_T06 — Stat card sub-labels visible
-    // ─────────────────────────────────────────────────────────────────────────
-    @Test
-    public void TC_T06_telemedicine_stat_card_sub_labels() {
-        new DoctorTelemedicine(driver).open(loggedInUserId);
 
         By statSub = By.cssSelector("div.stats-row span.stat-sub");
         w().until(ExpectedConditions.visibilityOfElementLocated(statSub));
-
-        List<String> found = driver.findElements(statSub)
+        List<String> foundSubs = driver.findElements(statSub)
                 .stream().map(e -> e.getText().trim()).toList();
-
         for (String expected : List.of("Active session", "remaining", "Per session")) {
-            assertTrue(found.stream().anyMatch(t -> t.contains(expected)),
-                    "Sub-label containing '" + expected + "' missing. Found: " + found);
+            assertTrue(foundSubs.stream().anyMatch(t -> t.contains(expected)),
+                    "Sub-label containing '" + expected + "' missing. Found: " + foundSubs);
         }
     }
 
-    // ─────────────────────────────────────────────────────────────────────────
-    // TC_T07 — "Live & Upcoming" section title visible
-    // ─────────────────────────────────────────────────────────────────────────
-    @Test
-    public void TC_T07_telemedicine_live_upcoming_section() {
+    // TC_T07_T13 — Live/Upcoming + Past sessions sections, table columns, rows, data
+    //              (merged TC_T07 + TC_T08 + TC_T09 + TC_T10 + TC_T11 + TC_T12 + TC_T13)
+    @Test(groups = {"regression"})
+    public void TC_T07_T13_telemedicine_sections_and_past_table() {
         new DoctorTelemedicine(driver).open(loggedInUserId);
 
+        // TC_T07 — Live & Upcoming section title
         By sectionTitles = By.cssSelector("div.section-title");
         w().until(ExpectedConditions.visibilityOfElementLocated(sectionTitles));
-
-        boolean found = driver.findElements(sectionTitles).stream()
+        boolean liveFound = driver.findElements(sectionTitles).stream()
                 .anyMatch(e -> e.getText().trim().equals("Live & Upcoming"));
-        assertTrue(found, "'Live & Upcoming' section-title not found");
-    }
+        assertTrue(liveFound, "'Live & Upcoming' section-title not found");
 
-    // ─────────────────────────────────────────────────────────────────────────
-    // TC_T08 — "Live & Upcoming" empty state message correct
-    // ─────────────────────────────────────────────────────────────────────────
-    @Test
-    public void TC_T08_telemedicine_live_upcoming_empty_state() {
-        new DoctorTelemedicine(driver).open(loggedInUserId);
-
+        // TC_T08 — Live & Upcoming empty state OR session rows
         By emptyState = By.cssSelector("div.empty-state");
         w().until(ExpectedConditions.presenceOfElementLocated(emptyState));
-
         List<WebElement> emptyEls = driver.findElements(
                 By.cssSelector("div.empty-state p"));
         List<WebElement> liveRows = driver.findElements(
                 By.cssSelector("div.live-row, div.session-row, div.consult-row"));
-
         assertTrue(emptyEls.size() > 0 || liveRows.size() > 0,
                 "Live & Upcoming must show empty state or session rows");
-
         if (!emptyEls.isEmpty()) {
             assertEquals(emptyEls.get(0).getText().trim(),
                     "No upcoming sessions today.",
                     "Empty state message mismatch");
         }
-    }
 
-    // ─────────────────────────────────────────────────────────────────────────
-    // TC_T09 — "Past sessions" section title visible
-    // ─────────────────────────────────────────────────────────────────────────
-    @Test
-    public void TC_T09_telemedicine_past_sessions_section() {
-        new DoctorTelemedicine(driver).open(loggedInUserId);
-
-        By sectionTitles = By.cssSelector("div.section-title");
-        w().until(ExpectedConditions.visibilityOfElementLocated(sectionTitles));
-
-        boolean found = driver.findElements(sectionTitles).stream()
+        // TC_T09 — Past sessions section title
+        boolean pastFound = driver.findElements(sectionTitles).stream()
                 .anyMatch(e -> e.getText().trim().equals("Past sessions"));
-        assertTrue(found, "'Past sessions' section-title not found");
-    }
+        assertTrue(pastFound, "'Past sessions' section-title not found");
 
-    // ─────────────────────────────────────────────────────────────────────────
-    // TC_T10 — Past sessions table column headers correct
-    // ─────────────────────────────────────────────────────────────────────────
-    @Test
-    public void TC_T10_telemedicine_past_sessions_columns() {
-        new DoctorTelemedicine(driver).open(loggedInUserId);
+        // TC_T13 — Past card and table-wrap visible
+        By pastCard = By.cssSelector("div.past-card");
+        w().until(ExpectedConditions.visibilityOfElementLocated(pastCard));
+        assertTrue(driver.findElement(pastCard).isDisplayed(),
+                "div.past-card not visible");
+        By tableWrap = By.cssSelector("div.past-card div.table-wrap");
+        assertTrue(driver.findElements(tableWrap).size() > 0,
+                "div.table-wrap not found inside div.past-card");
 
+        // TC_T10 — Past sessions table column headers
         By thLocator = By.cssSelector("div.past-card div.table-wrap table thead th");
         w().until(ExpectedConditions.visibilityOfElementLocated(thLocator));
-
         List<String> headers = driver.findElements(thLocator)
                 .stream()
                 .map(e -> e.getText().trim()
@@ -299,45 +219,24 @@ public class DoctorTelemedicineTest extends BaseDoctorTest {
                         .replaceAll("\\s+", " ")
                         .toUpperCase())
                 .toList();
-
         for (String col : List.of("PATIENT", "DATE", "DURATION", "REASON", "STATUS")) {
             assertTrue(headers.stream().anyMatch(h -> h.equals(col)),
                     "Column '" + col + "' not found. Found: " + headers);
         }
-    }
 
-    // ─────────────────────────────────────────────────────────────────────────
-    // TC_T11 — Past sessions table has data rows
-    // ─────────────────────────────────────────────────────────────────────────
-    @Test
-    public void TC_T11_telemedicine_past_sessions_has_rows() {
-        new DoctorTelemedicine(driver).open(loggedInUserId);
-
+        // TC_T11 — Past sessions table has data rows
         By rows = By.cssSelector("div.past-card div.table-wrap table tbody tr");
         w().until(ExpectedConditions.numberOfElementsToBeMoreThan(rows, 0));
-
-        assertTrue(driver.findElements(rows).size() > 0,
-                "Past sessions table has no data rows");
-    }
-
-    // ─────────────────────────────────────────────────────────────────────────
-    // TC_T12 — Past sessions row data validation
-    // ─────────────────────────────────────────────────────────────────────────
-    @Test
-    public void TC_T12_telemedicine_past_sessions_row_data() {
-        new DoctorTelemedicine(driver).open(loggedInUserId);
-
-        By rows = By.cssSelector("div.past-card div.table-wrap table tbody tr");
-        w().until(ExpectedConditions.numberOfElementsToBeMoreThan(rows, 0));
-
         List<WebElement> dataRows = driver.findElements(rows);
-        int rowsToCheck = Math.min(3, dataRows.size());
+        assertTrue(dataRows.size() > 0, "Past sessions table has no data rows");
 
+        // TC_T12 — Past sessions row data validation
+        int rowsToCheck = Math.min(3, dataRows.size());
         for (int i = 0; i < rowsToCheck; i++) {
             List<WebElement> cells = dataRows.get(i)
                     .findElements(By.cssSelector("td"));
             assertTrue(cells.size() >= 4,
-                    "Row " + i + " should have ≥4 columns, found: " + cells.size());
+                    "Row " + i + " should have >=4 columns, found: " + cells.size());
 
             assertFalse(cells.get(0).getText().trim().isEmpty(),
                     "Row " + i + " PATIENT is empty");
@@ -353,23 +252,5 @@ public class DoctorTelemedicineTest extends BaseDoctorTest {
                             .stream().anyMatch(status::contains),
                     "Row " + i + " STATUS unexpected: '" + status + "'");
         }
-    }
-
-    // ─────────────────────────────────────────────────────────────────────────
-    // TC_T13 — Past sessions card and table-wrap visible
-    // ─────────────────────────────────────────────────────────────────────────
-    @Test
-    public void TC_T13_telemedicine_past_card_visible() {
-        new DoctorTelemedicine(driver).open(loggedInUserId);
-
-        By pastCard = By.cssSelector("div.past-card");
-        w().until(ExpectedConditions.visibilityOfElementLocated(pastCard));
-
-        assertTrue(driver.findElement(pastCard).isDisplayed(),
-                "div.past-card not visible");
-
-        By tableWrap = By.cssSelector("div.past-card div.table-wrap");
-        assertTrue(driver.findElements(tableWrap).size() > 0,
-                "div.table-wrap not found inside div.past-card");
     }
 }

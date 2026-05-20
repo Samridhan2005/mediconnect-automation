@@ -24,35 +24,14 @@ public class AdminRegisterTest extends UiBaseTest {
         wait.until(d -> d.getCurrentUrl().contains(PATH));
     }
 
+    // Merged admin_register_page_loads + admin_register_page_has_back_to_login_link
     @Test(groups = {"regression"})
-    public void admin_register_page_loads() {
+    public void admin_register_page_loads_and_back_link() {
         openRegisterPage();
         assertTrue(driver.getCurrentUrl().contains(PATH),
                 "Browser should be on /admin/register");
         assertTrue(driver.getTitle().toLowerCase().contains("mediconnect"),
                 "Tab title should still be MediConnect");
-    }
-
-    @Test(groups = {"regression"})
-    public void admin_register_form_has_basic_fields() {
-        openRegisterPage();
-        // Common register-form inputs: email + password at minimum
-        assertTrue(driver.findElements(By.cssSelector("input[type='email']")).size() > 0,
-                "Email input should be visible on register form");
-        assertTrue(driver.findElements(By.cssSelector("input[type='password']")).size() > 0,
-                "Password input should be visible on register form");
-    }
-
-    @Test(groups = {"regression"})
-    public void admin_register_form_has_submit_button() {
-        openRegisterPage();
-        assertTrue(driver.findElements(By.cssSelector("button[type='submit']")).size() > 0,
-                "Submit button should be present on the register form");
-    }
-
-    @Test(groups = {"regression"})
-    public void admin_register_page_has_back_to_login_link() {
-        openRegisterPage();
         // Look for any link/button that takes the user back to login
         assertTrue(driver.findElements(By.xpath(
                         "//a[contains(translate(normalize-space(),'BACK TO LOGINSIGNIN','back to loginsignin'),'login') " +
@@ -60,5 +39,18 @@ public class AdminRegisterTest extends UiBaseTest {
                 )).size() > 0
                 || driver.findElements(By.cssSelector("a.back-link")).size() > 0,
                 "There should be a way to navigate back to the admin login from the register page");
+    }
+
+    // Merged admin_register_form_has_basic_fields + admin_register_form_has_submit_button
+    @Test(groups = {"regression"})
+    public void admin_register_form_fields_and_submit() {
+        openRegisterPage();
+        // Common register-form inputs: email + password at minimum
+        assertTrue(driver.findElements(By.cssSelector("input[type='email']")).size() > 0,
+                "Email input should be visible on register form");
+        assertTrue(driver.findElements(By.cssSelector("input[type='password']")).size() > 0,
+                "Password input should be visible on register form");
+        assertTrue(driver.findElements(By.cssSelector("button[type='submit']")).size() > 0,
+                "Submit button should be present on the register form");
     }
 }
