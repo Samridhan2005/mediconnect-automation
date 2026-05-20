@@ -23,14 +23,14 @@ public class HospitalApiTest extends ApiBaseTest {
         hospitals = new HospitalEndpoints(spec);
     }
 
-    @Test(priority = 1)
+    @Test(groups = {"smoke", "sanity", "regression"}, priority = 1)
     public void getAll_shouldReturn200() {
         hospitals.getAll().then()
                 .statusCode(200)
                 .body("size()", greaterThanOrEqualTo(0));
     }
 
-    @Test(priority = 2)
+    @Test(groups = {"regression"}, priority = 2)
     public void getById_seedHospital_shouldReturnRecord() {
         hospitals.getById(SEED_HOSPITAL_ID).then()
                 .statusCode(200)
@@ -38,7 +38,7 @@ public class HospitalApiTest extends ApiBaseTest {
                 .body("hospitalName", notNullValue());
     }
 
-    @Test(priority = 3)
+    @Test(groups = {"sanity", "regression"}, priority = 3)
     public void create_shouldReturnCreatedRecord() {
         Hospital body = new Hospital()
                 .setHospitalName("Sunrise Hospital " + System.currentTimeMillis())
@@ -59,7 +59,7 @@ public class HospitalApiTest extends ApiBaseTest {
         createdId = response.jsonPath().getLong("hospitalId");
     }
 
-    @Test(priority = 4, dependsOnMethods = "create_shouldReturnCreatedRecord")
+    @Test(groups = {"sanity", "regression"}, priority = 4, dependsOnMethods = "create_shouldReturnCreatedRecord")
     public void update_shouldReflectChanges() {
         Hospital body = new Hospital()
                 .setHospitalName("Sunrise Hospital Updated")
@@ -75,7 +75,7 @@ public class HospitalApiTest extends ApiBaseTest {
                 .body("totalBeds", equalTo(200));
     }
 
-    @Test(priority = 5, dependsOnMethods = "create_shouldReturnCreatedRecord")
+    @Test(groups = {"sanity", "regression"}, priority = 5, dependsOnMethods = "create_shouldReturnCreatedRecord")
     public void delete_shouldReturnNoContent() {
         hospitals.delete(createdId).then()
                 .statusCode(deletedStatus());

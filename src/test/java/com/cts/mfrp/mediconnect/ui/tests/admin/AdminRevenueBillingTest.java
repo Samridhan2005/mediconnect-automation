@@ -58,6 +58,9 @@ public class AdminRevenueBillingTest extends BaseAdminTest {
     // ─────────────────────────────────────────────────────────────────────────
     @Test
     public void TC060_admin_revenue_billing_page_header() {
+    // TC060 — Revenue & Billing UI (double-quoted xpath handles apostrophe in "Today's Revenue")
+    @Test(groups = {"regression"})
+    public void TC060_admin_revenue_billing_ui() {
         AdminRevenueBilling page = new AdminRevenueBilling(driver).open(loggedInUserId);
 
         By titleLocator = By.cssSelector("div.tb-title");
@@ -297,6 +300,9 @@ public class AdminRevenueBillingTest extends BaseAdminTest {
     // ─────────────────────────────────────────────────────────────────────────
     @Test
     public void TC071_admin_revenue_recent_bills_table() {
+    // TC061 — Recent Bills + Insurance Claims tables
+    @Test(groups = {"regression"})
+    public void TC061_admin_revenue_bills_claims_tables() {
         AdminRevenueBilling page = new AdminRevenueBilling(driver).open(loggedInUserId);
 
         w().until(ExpectedConditions.visibilityOfElementLocated(page.recentBillsHeader));

@@ -18,7 +18,7 @@ import static org.testng.Assert.assertTrue;
 public class DoctorTelemedicineTest extends BaseDoctorTest {
 
     // TC046 — Telemedicine UI + session management
-    @Test
+    @Test(groups = {"regression"})
     public void TC046_doctor_telemedicine_ui() {
         DoctorTelemedicine page = new DoctorTelemedicine(driver).open(loggedInUserId);
         WebDriverWait wait     = new WebDriverWait(driver, Duration.ofSeconds(30));

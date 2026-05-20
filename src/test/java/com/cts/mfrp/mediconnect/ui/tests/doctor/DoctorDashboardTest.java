@@ -32,7 +32,7 @@ import static org.testng.Assert.assertTrue;
 public class DoctorDashboardTest extends BaseDoctorTest {
 
     // ── TC007 — Doctor Dashboard UI validation ───────────────────────────────
-    @Test
+    @Test(groups = {"sanity", "regression"})
     public void TC007_doctor_dashboard_ui_validation() {
         DoctorDashboard dash = new DoctorDashboard(driver);
         WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(20));
@@ -97,7 +97,7 @@ public class DoctorDashboardTest extends BaseDoctorTest {
     }
 
     // ── TC008 — Hospital selector dropdown functionality ─────────────────────
-    @Test
+    @Test(groups = {"regression"})
     public void TC008_hospital_selector_dropdown() {
         DoctorDashboard dash = new DoctorDashboard(driver);
         WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(20));
@@ -122,7 +122,7 @@ public class DoctorDashboardTest extends BaseDoctorTest {
     }
 
     // ── TC009 — Global Search textbox functionality ───────────────────────────
-    @Test
+    @Test(groups = {"regression"})
     public void TC009_global_search_textbox() {
         DoctorDashboard dash = new DoctorDashboard(driver);
         WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(20));
@@ -155,7 +155,7 @@ public class DoctorDashboardTest extends BaseDoctorTest {
     // ── TC010 — Notification bell + profile dropdown ──────────────────────────
     // ── TC010 — Notification bell + profile dropdown ──────────────────────────
     // TC010 — Notification bell + profile dropdown
-    @Test
+    @Test(groups = {"regression"})
     public void TC010_notification_bell_and_profile_dropdown() {
         DoctorDashboard dash = new DoctorDashboard(driver);
         WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(30));
@@ -218,7 +218,7 @@ public class DoctorDashboardTest extends BaseDoctorTest {
                 "Profile area should show Available status or Sign Out");
     }
     // ── TC011 — Stats summary card behaviour ─────────────────────────────────
-    @Test
+    @Test(groups = {"regression"})
     public void TC011_stats_summary_card() {
         DoctorDashboard dash = new DoctorDashboard(driver);
         WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(20));
@@ -265,7 +265,7 @@ public class DoctorDashboardTest extends BaseDoctorTest {
     // TC012 — Recent appointments list
     // TC012 — Recent appointments list
     // TC012 — Recent appointments list
-    @Test
+    @Test(groups = {"regression"})
     public void TC012_recent_appointments_list() {
         DoctorDashboard dash = new DoctorDashboard(driver);
         WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(30));
@@ -342,7 +342,7 @@ public class DoctorDashboardTest extends BaseDoctorTest {
 
     // ── TC013 — Upcoming consultations panel ──────────────────────────────────
     // TC013 — Upcoming consultations panel
-    @Test
+    @Test(groups = {"regression"})
     public void TC013_upcoming_consultant_panel() {
         DoctorDashboard dash = new DoctorDashboard(driver);
         WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(30));
@@ -384,7 +384,7 @@ public class DoctorDashboardTest extends BaseDoctorTest {
 
 
     // ── TC073 — Doctor Sign Out ───────────────────────────────────────────────
-    @Test
+    @Test(groups = {"regression"})
     public void TC073_doctor_sign_out() {
         DoctorDashboard dash = new DoctorDashboard(driver);
         WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(20));
@@ -398,7 +398,7 @@ public class DoctorDashboardTest extends BaseDoctorTest {
     }
 
     // ── TC075 — Bed availability + additional dashboard sections ─────────────
-    @Test
+    @Test(groups = {"regression"})
     public void TC075_bed_availability_and_dashboard_sections() {
         DoctorDashboard dash = new DoctorDashboard(driver);
         WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(20));

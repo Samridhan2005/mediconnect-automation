@@ -24,21 +24,21 @@ public class NotificationApiTest extends ApiBaseTest {
         notifications = new NotificationEndpoints(spec);
     }
 
-    @Test(priority = 1)
+    @Test(groups = {"sanity", "regression"}, priority = 1)
     public void getByUser_shouldReturnList() {
         notifications.getByUser(SEED_USER_ID).then()
                 .statusCode(200)
                 .body("size()", greaterThanOrEqualTo(0));
     }
 
-    @Test(priority = 2)
+    @Test(groups = {"regression"}, priority = 2)
     public void getUnreadByUser_shouldReturnList() {
         notifications.getUnreadByUser(SEED_USER_ID).then()
                 .statusCode(200)
                 .body("size()", greaterThanOrEqualTo(0));
     }
 
-    @Test(priority = 3)
+    @Test(groups = {"regression"}, priority = 3)
     public void create_reminder_shouldSucceed() {
         Notification body = new Notification()
                 .setUser(new UserRef(SEED_USER_ID))
@@ -58,7 +58,7 @@ public class NotificationApiTest extends ApiBaseTest {
         createdId = response.jsonPath().getLong("notificationId");
     }
 
-    @Test(priority = 4, dependsOnMethods = "create_reminder_shouldSucceed")
+    @Test(groups = {"regression"}, priority = 4, dependsOnMethods = "create_reminder_shouldSucceed")
     public void update_markAsRead_shouldReflectStatus() {
         Notification body = new Notification()
                 .setUser(new UserRef(SEED_USER_ID))
@@ -72,7 +72,7 @@ public class NotificationApiTest extends ApiBaseTest {
                 .body("isRead", equalTo(true));
     }
 
-    @Test(priority = 5, dependsOnMethods = "create_reminder_shouldSucceed")
+    @Test(groups = {"regression"}, priority = 5, dependsOnMethods = "create_reminder_shouldSucceed")
     public void delete_shouldReturnNoContent() {
         notifications.delete(createdId).then()
                 .statusCode(deletedStatus());

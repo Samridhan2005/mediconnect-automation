@@ -13,7 +13,7 @@ import static org.testng.Assert.assertTrue;
 public class AdminAppointmentsTest extends BaseAdminTest {
 
     // TC056 — Appointment management calendar + filters
-    @Test
+    @Test(groups = {"regression"})
     public void TC056_admin_appointment_calendar_filters() {
         AdminAppointments page = new AdminAppointments(driver).open(loggedInUserId);
         assertTrue(driver.findElements(page.pageHeader).size() > 0);
@@ -26,7 +26,7 @@ public class AdminAppointmentsTest extends BaseAdminTest {
     }
 
     // TC083 — New Appointment creation
-    @Test
+    @Test(groups = {"regression"})
     public void TC083_admin_new_appointment_creation() {
         AdminAppointments page = new AdminAppointments(driver).open(loggedInUserId);
         assertTrue(driver.findElements(page.newAppointmentBtn).size() > 0,

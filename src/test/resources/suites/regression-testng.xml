@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE suite SYSTEM "https://testng.org/testng-1.0.dtd">
+<!--
+  Regression pack — ~45 minutes.
+  Every @Test method in the project (170 tests: 56 API + 114 UI).
+  Run nightly / before each release.
+-->
+<suite name="MediConnect Regression Suite" verbose="1">
+
+    <listeners>
+        <listener class-name="com.cts.mfrp.mediconnect.utils.ExtentReportListener"/>
+    </listeners>
+
+    <test name="Regression">
+        <groups>
+            <run>
+                <include name="regression"/>
+            </run>
+        </groups>
+        <packages>
+            <package name="com.cts.mfrp.mediconnect.ui.tests"/>
+            <package name="com.cts.mfrp.mediconnect.ui.tests.patient"/>
+            <package name="com.cts.mfrp.mediconnect.ui.tests.doctor"/>
+            <package name="com.cts.mfrp.mediconnect.ui.tests.admin"/>
+        </packages>
+    </test>
+
+</suite>

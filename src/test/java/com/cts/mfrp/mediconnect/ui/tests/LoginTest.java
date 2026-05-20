@@ -21,7 +21,7 @@ import static org.testng.Assert.assertTrue;
 public class LoginTest extends UiBaseTest {
 
     // TC001 — URL validation
-    @Test
+    @Test(groups = {"smoke", "sanity", "regression"})
     public void TC001_url_loads_mediconnect() {
         // baseUrl is opened by UiBaseTest.@BeforeMethod
         assertEquals(driver.getTitle(), "MediConnect", "Tab title should be 'MediConnect'");
@@ -30,7 +30,7 @@ public class LoginTest extends UiBaseTest {
     }
 
     // TC002 — Login page UI validation
-    @Test
+    @Test(groups = {"smoke", "sanity", "regression"})
     public void TC002_login_page_shows_all_expected_elements() {
         Login login = new Login(driver).open();
 
@@ -49,7 +49,7 @@ public class LoginTest extends UiBaseTest {
     // TC003 — Strict FRD: expect THREE role tabs (Patient/Doctor/Admin) on /login.
     // Actual UI has only Patient + Doctor tabs; Admin is at /admin/login.
     // This test is EXPECTED TO FAIL — flagging the FRD-vs-implementation gap.
-    @Test
+    @Test(groups = {"regression"})
     public void TC003_role_selector_tabs_switch_form() {
         Login login = new Login(driver).open();
         login.selectPatientTab();
@@ -65,7 +65,7 @@ public class LoginTest extends UiBaseTest {
     }
 
     // TC004 — Doctor role selector + email format + masked password
-    @Test
+    @Test(groups = {"regression"})
     public void TC004_doctor_login_fields_and_validation() {
         Login login = new Login(driver).open();
         login.selectDoctorTab();
@@ -83,7 +83,7 @@ public class LoginTest extends UiBaseTest {
     }
 
     // TC005 — Forgot Password link
-    @Test
+    @Test(groups = {"regression"})
     public void TC005_forgot_password_link_is_present_and_clickable() {
         Login login = new Login(driver).open();
         assertTrue(login.isForgotLinkVisible(), "Forgot Password link should be displayed");
@@ -96,7 +96,7 @@ public class LoginTest extends UiBaseTest {
     }
 
     // TC006 — Login button: empty + invalid email behaviour
-    @Test
+    @Test(groups = {"regression"})
     public void TC006_login_button_validation_for_empty_and_invalid_inputs() {
         Login login = new Login(driver).open();
 
@@ -115,7 +115,7 @@ public class LoginTest extends UiBaseTest {
     }
 
     // TC014 — Role selector negative: only one tab can be active at a time
-    @Test
+    @Test(groups = {"sanity", "regression"})
     public void TC014_only_one_role_tab_active_at_a_time() {
         Login login = new Login(driver).open();
         login.selectDoctorTab();
@@ -128,7 +128,7 @@ public class LoginTest extends UiBaseTest {
     }
 
     // TC072 — Invalid credentials show server-side error
-    @Test
+    @Test(groups = {"sanity", "regression"})
     public void TC072_invalid_credentials_show_error() {
         Login login = new Login(driver).open();
         login.loginAs("wrong@user.com", "WrongPass123");
