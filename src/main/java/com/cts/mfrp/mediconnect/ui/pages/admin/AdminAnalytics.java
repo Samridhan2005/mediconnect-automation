@@ -15,10 +15,11 @@ public class AdminAnalytics extends BasePage {
     public final By pageHeader       = By.xpath("//*[contains(normalize-space(),'Analytics & Insights')]");
     public final By subLabel         = By.xpath("//*[contains(normalize-space(),'Clinical performance')]");
 
-    // Page exposes native <select> dropdowns whose options contain the period / department keywords.
-    public final By periodSelect     = By.xpath("//select[option[contains(normalize-space(),'Last') or contains(normalize-space(),'days') or contains(normalize-space(),'Month')]]");
-    public final By departmentSelect = By.xpath("//select[option[contains(normalize-space(),'Department') or contains(normalize-space(),'Cardiology') or contains(normalize-space(),'All ')]]");
-    public final By hospitalSelect   = By.xpath("//select[option[contains(normalize-space(),'Hospital') or contains(normalize-space(),'All Hospitals')]]");
+    // Page exposes three native <select> dropdowns. Each is identified by an option text
+    // that is UNIQUE to that dropdown (so locators don't cross-match).
+    public final By periodSelect     = By.xpath("//select[option[normalize-space()='Last 7 Days']]");
+    public final By departmentSelect = By.xpath("//select[option[normalize-space()='Cardiology']]");
+    public final By hospitalSelect   = By.xpath("//select[option[normalize-space()='City General Hospital']]");
     // Generic fallback — any dropdown on the page.
     public final By anyDropdown      = By.cssSelector("select, [role='combobox'], [class*='dropdown']");
 

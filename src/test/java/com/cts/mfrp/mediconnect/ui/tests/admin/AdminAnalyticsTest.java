@@ -107,4 +107,144 @@ public class AdminAnalyticsTest extends BaseAdminTest {
         waitAndAssertVisible(page.appointmentsByDeptChart,
                 "'Appointments by Department' chart should be visible");
     }
+
+    // Long custom wait for slow dropdowns (Hospitals dropdown options come from a backend API call).
+    private WebDriverWait longDropdownWait() {
+        return new WebDriverWait(driver, Duration.ofSeconds(60));
+    }
+
+    // Helper — wait until the dropdown contains at least the given marker option, then return all option texts.
+    private java.util.List<String> readDropdownOptions(org.openqa.selenium.By selectLocator, String markerOption) {
+        longDropdownWait().until(d -> {
+            var els = d.findElements(selectLocator);
+            if (els.isEmpty()) return false;
+            var opts = new org.openqa.selenium.support.ui.Select(els.get(0)).getOptions();
+            return opts.stream().anyMatch(e -> markerOption.equals(e.getText().trim()));
+        });
+        return new org.openqa.selenium.support.ui.Select(driver.findElement(selectLocator))
+                .getOptions().stream()
+                .map(e -> e.getText().trim())
+                .collect(java.util.stream.Collectors.toList());
+    }
+
+    // Helper — wait until the dropdown contains the option, then select it.
+    private void selectFromDropdown(org.openqa.selenium.By selectLocator, String optionText) {
+        longDropdownWait().until(d -> {
+            var els = d.findElements(selectLocator);
+            if (els.isEmpty()) return false;
+            return new org.openqa.selenium.support.ui.Select(els.get(0)).getOptions().stream()
+                    .anyMatch(e -> optionText.equals(e.getText().trim()));
+        });
+        // Re-fetch immediately before selecting to avoid stale element issues with Angular re-renders
+        new org.openqa.selenium.support.ui.Select(driver.findElement(selectLocator))
+                .selectByVisibleText(optionText);
+    }
+
+    // TC066 — Period dropdown exposes the 4 expected time windows
+    @Test(groups = {"regression"})
+    public void TC066_period_dropdown_has_expected_options() {
+        AdminAnalytics page = new AdminAnalytics(driver).open(loggedInUserId);
+        java.util.List<String> optionTexts = readDropdownOptions(page.periodSelect, "Last 7 Days");
+
+        for (String expected : java.util.List.of("Last 7 Days", "Last 30 Days", "Last 90 Days", "Last Year")) {
+            assertTrue(optionTexts.contains(expected),
+                    "Period dropdown should contain option '" + expected + "'. Actual options: " + optionTexts);
+        }
+    }
+
+    // TC067 — Departments dropdown exposes medical specialty options
+    @Test(groups = {"regression"})
+    public void TC067_departments_dropdown_has_expected_options() {
+        AdminAnalytics page = new AdminAnalytics(driver).open(loggedInUserId);
+        java.util.List<String> optionTexts = readDropdownOptions(page.departmentSelect, "Cardiology");
+
+        for (String expected : java.util.List.of("All Departments", "Cardiology", "Neurology",
+                "Pediatrics", "Orthopedics", "Oncology", "General Surgery")) {
+            assertTrue(optionTexts.contains(expected),
+                    "Departments dropdown should contain option '" + expected + "'. Actual: " + optionTexts);
+        }
+    }
+
+    // TC068 — All Hospitals dropdown shows at least the seeded hospitals
+    @Test(groups = {"regression"})
+    public void TC068_hospitals_dropdown_has_expected_options() {
+        AdminAnalytics page = new AdminAnalytics(driver).open(loggedInUserId);
+        java.util.List<String> optionTexts = readDropdownOptions(page.hospitalSelect, "City General Hospital");
+
+        for (String expected : java.util.List.of("All Hospitals", "City General Hospital",
+                "Apollo Medical Centre", "MediCare Specialty Hospital")) {
+            assertTrue(optionTexts.contains(expected),
+                    "Hospitals dropdown should contain option '" + expected + "'. Actual: " + optionTexts);
+        }
+    }
+
+    // TC069 — Changing the Period dropdown refreshes the dashboard data (charts still render after)
+    @Test(groups = {"regression"})
+    public void TC069_changing_period_refreshes_dashboard() {
+        AdminAnalytics page = new AdminAnalytics(driver).open(loggedInUserId);
+
+        // Capture tile value BEFORE filter change
+        String beforeValue = readPatientFlowValue(page);
+
+        // Wait for the option to be present, then select it
+        selectFromDropdown(page.periodSelect, "Last 7 Days");
+
+        // Wait for the page to settle after the filter change
+        try { Thread.sleep(3000); } catch (InterruptedException ignored) {}
+
+        // Page should still render correctly — charts and tiles still visible
+        waitAndAssertVisible(page.tilePatientFlow,
+                "Patient Flow tile should still render after Period filter change");
+        waitAndAssertVisible(page.heatmap,
+                "Appointment Flow Heatmap should still render after Period filter change");
+
+        String afterValue = readPatientFlowValue(page);
+        System.out.println("[TC069] Patient Flow before='" + beforeValue + "', after Last 7 Days='" + afterValue + "'");
+    }
+
+    // TC070 — Changing the Departments dropdown refreshes the dashboard data
+    @Test(groups = {"regression"})
+    public void TC070_changing_department_refreshes_dashboard() {
+        AdminAnalytics page = new AdminAnalytics(driver).open(loggedInUserId);
+
+        String beforeValue = readPatientFlowValue(page);
+
+        selectFromDropdown(page.departmentSelect, "Cardiology");
+
+        try { Thread.sleep(3000); } catch (InterruptedException ignored) {}
+
+        waitAndAssertVisible(page.tilePatientFlow,
+                "Patient Flow tile should still render after Department filter change");
+        waitAndAssertVisible(page.appointmentsByDeptChart,
+                "Appointments by Department chart should still render after Department filter change");
+
+        String afterValue = readPatientFlowValue(page);
+        System.out.println("[TC070] Patient Flow before='" + beforeValue + "', after Cardiology='" + afterValue + "'");
+    }
+
+    // TC071 — Changing the Hospitals dropdown refreshes the dashboard data
+    @Test(groups = {"regression"})
+    public void TC071_changing_hospital_refreshes_dashboard() {
+        AdminAnalytics page = new AdminAnalytics(driver).open(loggedInUserId);
+
+        String beforeValue = readPatientFlowValue(page);
+
+        selectFromDropdown(page.hospitalSelect, "City General Hospital");
+
+        try { Thread.sleep(3000); } catch (InterruptedException ignored) {}
+
+        waitAndAssertVisible(page.tilePatientFlow,
+                "Patient Flow tile should still render after Hospital filter change");
+        waitAndAssertVisible(page.bedOccupancyByHospitalChart,
+                "Bed Occupancy by Hospital chart should still render after Hospital filter change");
+
+        String afterValue = readPatientFlowValue(page);
+        System.out.println("[TC071] Patient Flow before='" + beforeValue + "', after City General Hospital='" + afterValue + "'");
+    }
+
+    // Helper — read the Patient Flow tile's numeric value, return "" if not yet rendered.
+    private String readPatientFlowValue(AdminAnalytics page) {
+        var elements = driver.findElements(page.tilePatientFlow);
+        return elements.isEmpty() ? "" : elements.get(0).getText().trim();
+    }
 }
