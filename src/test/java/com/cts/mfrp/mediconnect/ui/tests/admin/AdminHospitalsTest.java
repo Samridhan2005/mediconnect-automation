@@ -199,5 +199,21 @@ public class AdminHospitalsTest extends BaseAdminTest {
             assertTrue(!name.isEmpty(),
                     "Row " + (i + 1) + " in the Hospitals table has a blank Hospital Name");
         }
+        List<WebElement> totbed=driver.findElements(page.totalbedcount);
+        List<WebElement> availbed=driver.findElements(page.availbedcount);
+
+        for(int i=0;i<totbed.size();i++){
+            String t1=totbed.get(i).getText();
+            int s1=Integer.parseInt(t1);
+            assertTrue(s1<1,"total beds cannot be negative");
+
+            String t2=availbed.get(i).getText();
+            int s2=Integer.parseInt(t2);
+            assertTrue(s2<1,"available beds cannot be negative");
+
+            assertTrue(s1>s2,"Available beds cant be greater than Total beds");
+
+        }
+
     }
 }

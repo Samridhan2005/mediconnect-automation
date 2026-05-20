@@ -16,6 +16,8 @@ public class AdminHospitals extends BasePage {
     public final By occupancyCells    = By.cssSelector("td[class*='occupancy']");
     public final By addHospitalButton = By.xpath("//button[contains(normalize-space(),'Add Hospital')]");
     public final By hospitalNameCells = By.xpath("//table//tr/td[1]");
+    public final By totalbedcount=By.xpath("//table/tbody/tr/td[3]");
+    public final By availbedcount=By.xpath("//table/tbody/tr/td[4]");
     // Add-Hospital modal — identified by its close button (class btn-ghost btn-sm).
     // The modal itself has no class="modal"; it uses inline styles only.
     // We match by class combination because the close-icon character (×) may vary

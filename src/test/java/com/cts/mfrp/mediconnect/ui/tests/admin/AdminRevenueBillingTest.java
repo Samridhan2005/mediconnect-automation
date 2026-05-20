@@ -296,11 +296,10 @@ public class AdminRevenueBillingTest extends BaseAdminTest {
 
     // ─────────────────────────────────────────────────────────────────────────
     // TC071 — Recent Bills heading visible + table has data rows
+    // (kept from local branch — HEAD)
     // ─────────────────────────────────────────────────────────────────────────
-
-    // TC061 — Recent Bills + Insurance Claims tables
     @Test(groups = {"regression"})
-    public void TC061_admin_revenue_bills_claims_tables() {
+    public void TC071_admin_revenue_recent_bills_table() {
         AdminRevenueBilling page = new AdminRevenueBilling(driver).open(loggedInUserId);
 
         w().until(ExpectedConditions.visibilityOfElementLocated(page.recentBillsHeader));
@@ -311,6 +310,23 @@ public class AdminRevenueBillingTest extends BaseAdminTest {
         w().until(ExpectedConditions.presenceOfElementLocated(rows));
         assertTrue(driver.findElements(rows).size() > 0,
                 "Recent Bills table has no data rows");
+    }
+
+    // ─────────────────────────────────────────────────────────────────────────
+    // TC061b — Recent Bills + Insurance Claims tables both visible
+    // (kept from incoming branch — teammate added this. Renamed from TC061 to
+    //  TC061b because TC061_admin_revenue_summary_tile_labels above already
+    //  occupies the TC061 slot. The two TC061 tests cover distinct scenarios.)
+    // ─────────────────────────────────────────────────────────────────────────
+    @Test(groups = {"regression"})
+    public void TC061b_admin_revenue_bills_claims_tables() {
+        AdminRevenueBilling page = new AdminRevenueBilling(driver).open(loggedInUserId);
+
+        w().until(ExpectedConditions.visibilityOfElementLocated(page.recentBillsHeader));
+        assertTrue(driver.findElements(page.recentBillsHeader).size() > 0,
+                "Recent Bills table heading should be visible");
+        assertTrue(driver.findElements(page.insuranceClaimsHdr).size() > 0,
+                "Insurance Claims table heading should be visible");
     }
 
     // ─────────────────────────────────────────────────────────────────────────

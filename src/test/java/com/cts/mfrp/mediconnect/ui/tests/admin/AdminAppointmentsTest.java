@@ -224,4 +224,12 @@ public class AdminAppointmentsTest extends BaseAdminTest {
         assertTrue(!page.isModalOpen(),
                 "Modal should close after clicking Cancel");
     }
+
+    @Test
+    public void Admin_AppointmentsValidation(){
+        AdminAppointments page=new AdminAppointments(driver).open(loggedInUserId);
+        assertTrue(driver.findElements(page.filter).size() > 0,"Filter table not available");
+        assertTrue(driver.findElements(page.recentAppointments).size() > 0,"Recent Appointments window not available");
+        assertTrue(driver.findElements(page.app).size() > 0,"Appointments table not available");
+    }
 }
