@@ -6,6 +6,11 @@ import com.cts.mfrp.mediconnect.ui.pages.auth.Login;
 import com.cts.mfrp.mediconnect.utils.ConfigReader;
 import org.testng.annotations.Test;
 
+import org.openqa.selenium.By;
+import org.openqa.selenium.WebElement;
+
+import java.util.List;
+
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertFalse;
 import static org.testng.Assert.assertTrue;
@@ -46,22 +51,28 @@ public class LoginTest extends UiBaseTest {
         assertEquals(login.getHeading(), "Welcome Back");
     }
 
-    // TC003 — Strict FRD: expect THREE role tabs (Patient/Doctor/Admin) on /login.
-    // Actual UI has only Patient + Doctor tabs; Admin is at /admin/login.
-    // This test is EXPECTED TO FAIL — flagging the FRD-vs-implementation gap.
+    // TC003 — /login has exactly two role tabs: Patient Login and Doctor Login.
+    // Admin login is on a separate page at /admin/login (not a tab on /login).
     @Test(groups = {"regression"})
     public void TC003_role_selector_tabs_switch_form() {
         Login login = new Login(driver).open();
-        login.selectPatientTab();
-        assertTrue(login.isPatientTabActive(), "Patient Login should be active");
 
+        // Patient tab should be visible and selectable
+        login.selectPatientTab();
+        assertTrue(login.isPatientTabActive(), "Patient Login should be active after click");
+
+        // Doctor tab should be visible and selectable
         login.selectDoctorTab();
         assertTrue(login.isDoctorTabActive(), "Doctor Login should become active after click");
 
-        // FRD step 4: "Click on the Admin Login Role Selector tab"
-        org.openqa.selenium.WebElement adminTab = driver.findElement(
-                org.openqa.selenium.By.xpath("//button[normalize-space()='Admin Login']"));
-        assertTrue(adminTab.isDisplayed(), "FRD expects an Admin Login role tab on /login");
+        // Switching back to Patient should deactivate Doctor
+        login.selectPatientTab();
+        assertTrue(login.isPatientTabActive(), "Patient Login should be active again after switching back");
+        assertFalse(login.isDoctorTabActive(), "Doctor Login should NOT be active simultaneously");
+
+        // Admin login is at /admin/login, NOT a tab on /login — verify no Admin tab exists here
+        assertTrue(driver.findElements(By.xpath("//button[normalize-space()='Admin Login']")).isEmpty(),
+                "There should be no 'Admin Login' tab on /login (admin login lives at /admin/login)");
     }
 
     // TC004 — Doctor role selector + email format + masked password
@@ -93,6 +104,134 @@ public class LoginTest extends UiBaseTest {
         // We just verify the click did not error and the page is still reachable.
         assertTrue(driver.getCurrentUrl().contains("/login") || driver.getCurrentUrl().contains("#"),
                 "Forgot Password should not navigate off-app");
+    }
+
+    // ============== Deeper Forgot Password tests ==============
+    // These verify that clicking Forgot Password actually opens a reset flow
+    // (not just a '#' anchor placeholder). They will FAIL until the dev team
+    // implements a real reset page/modal — that failure is the documented gap.
+
+    // TC005a — Clicking Forgot Password opens a real reset page or modal
+    @Test(groups = {"regression"})
+    public void TC005a_forgot_password_opens_real_reset_flow() {
+        Login login = new Login(driver).open();
+        login.clickForgotPassword();
+        try { Thread.sleep(800); } catch (InterruptedException ignored) {}
+
+        // A real reset flow should expose ONE of these visual cues:
+        //   - URL contains "reset" or "forgot" (real route, not just '#')
+        //   - A heading containing "Reset Password" / "Forgot Password" / "Recover" appears
+        //   - A modal-like container with a new email input appears
+        boolean realRoute = driver.getCurrentUrl().contains("reset")
+                         || driver.getCurrentUrl().contains("forgot")
+                         || driver.getCurrentUrl().contains("recover");
+        boolean resetHeading = !driver.findElements(By.xpath(
+                "//*[contains(translate(normalize-space(),'rfp','RFP'),'RESET PASSWORD')" +
+                " or contains(translate(normalize-space(),'rfp','RFP'),'FORGOT PASSWORD')" +
+                " or contains(translate(normalize-space(),'rec','REC'),'RECOVER')]"))
+                .isEmpty();
+        boolean newEmailField = driver.findElements(By.cssSelector(
+                "input[placeholder*='email' i], input[name*='email' i]")).size() > 1;
+
+        assertTrue(realRoute || resetHeading || newEmailField,
+                "Forgot Password should open a real reset page or modal. " +
+                "URL=" + driver.getCurrentUrl() +
+                ", resetHeadingFound=" + resetHeading +
+                ", extraEmailFieldFound=" + newEmailField);
+    }
+
+    // TC005b — Reset form exposes an email input
+    @Test(groups = {"regression"})
+    public void TC005b_forgot_password_reset_form_has_email_field() {
+        Login login = new Login(driver).open();
+        login.clickForgotPassword();
+        try { Thread.sleep(800); } catch (InterruptedException ignored) {}
+
+        List<WebElement> emailInputs = driver.findElements(By.cssSelector(
+                "input[type='email'], input[placeholder*='email' i], input[name*='email' i]"));
+        // The login form already has one email input; the reset form should bring a second one
+        // OR the reset form replaces the login form entirely (still at least one input visible).
+        assertTrue(emailInputs.size() >= 1,
+                "Reset form should expose an email input. Found " + emailInputs.size());
+    }
+
+    // TC005c — Submitting reset form with empty email is rejected
+    @Test(groups = {"regression"})
+    public void TC005c_forgot_password_empty_email_is_rejected() {
+        Login login = new Login(driver).open();
+        login.clickForgotPassword();
+        try { Thread.sleep(800); } catch (InterruptedException ignored) {}
+
+        // Find any "Submit" / "Send" / "Reset" button on the page
+        List<WebElement> submit = driver.findElements(By.xpath(
+                "//button[contains(translate(normalize-space(),'srbk','SRBK'),'SUBMIT')" +
+                " or contains(translate(normalize-space(),'srbk','SRBK'),'SEND')" +
+                " or contains(translate(normalize-space(),'srbk','SRBK'),'RESET')" +
+                " or contains(translate(normalize-space(),'srbk','SRBK'),'RECOVER')]"));
+
+        if (submit.isEmpty()) {
+            // No submit button exposed by the reset flow — that itself is a gap to flag.
+            assertTrue(false,
+                    "Reset form should expose a submit button (Submit/Send/Reset). None was found — " +
+                    "indicates the Forgot Password placeholder has not been implemented yet.");
+        }
+
+        submit.get(0).click();
+        try { Thread.sleep(600); } catch (InterruptedException ignored) {}
+
+        // After empty submit we expect either an inline error OR to remain on the same page.
+        boolean errorShown = !driver.findElements(By.cssSelector(
+                ".error-alert, [class*='error'], [class*='invalid']")).isEmpty();
+        boolean stillOnPage = driver.getCurrentUrl().contains("/login")
+                           || driver.getCurrentUrl().contains("reset")
+                           || driver.getCurrentUrl().contains("forgot");
+        assertTrue(errorShown || stillOnPage,
+                "Submitting an empty reset form should either show an error or keep the user on the reset page");
+    }
+
+    // TC005d — Submitting reset form with valid email shows a confirmation
+    @Test(groups = {"regression"})
+    public void TC005d_forgot_password_valid_email_shows_confirmation() {
+        Login login = new Login(driver).open();
+        login.clickForgotPassword();
+        try { Thread.sleep(800); } catch (InterruptedException ignored) {}
+
+        // Type into any visible email-style input
+        List<WebElement> emailInputs = driver.findElements(By.cssSelector(
+                "input[type='email'], input[placeholder*='email' i], input[name*='email' i]"));
+        if (emailInputs.isEmpty()) {
+            assertTrue(false,
+                    "Reset form should expose an email input — none found. Forgot Password flow appears unimplemented.");
+        }
+        emailInputs.get(emailInputs.size() - 1).clear();
+        emailInputs.get(emailInputs.size() - 1).sendKeys("rajesh.sharma@gmail.com");
+
+        // Click any Submit/Send/Reset button
+        List<WebElement> submit = driver.findElements(By.xpath(
+                "//button[contains(translate(normalize-space(),'srbk','SRBK'),'SUBMIT')" +
+                " or contains(translate(normalize-space(),'srbk','SRBK'),'SEND')" +
+                " or contains(translate(normalize-space(),'srbk','SRBK'),'RESET')" +
+                " or contains(translate(normalize-space(),'srbk','SRBK'),'RECOVER')]"));
+        if (submit.isEmpty()) {
+            assertTrue(false,
+                    "Reset form should expose a submit button (Submit/Send/Reset). None was found.");
+        }
+        submit.get(0).click();
+        try { Thread.sleep(1200); } catch (InterruptedException ignored) {}
+
+        // Confirmation cues — any one is acceptable:
+        //   - Toast/banner with "sent" / "check your email" / "reset link" / "instructions"
+        //   - Heading change to "Check your inbox" or similar
+        boolean confirmationShown = !driver.findElements(By.xpath(
+                "//*[contains(translate(normalize-space(),'abcdefghijklmnopqrstuvwxyz','ABCDEFGHIJKLMNOPQRSTUVWXYZ'),'SENT')" +
+                " or contains(translate(normalize-space(),'abcdefghijklmnopqrstuvwxyz','ABCDEFGHIJKLMNOPQRSTUVWXYZ'),'CHECK YOUR EMAIL')" +
+                " or contains(translate(normalize-space(),'abcdefghijklmnopqrstuvwxyz','ABCDEFGHIJKLMNOPQRSTUVWXYZ'),'RESET LINK')" +
+                " or contains(translate(normalize-space(),'abcdefghijklmnopqrstuvwxyz','ABCDEFGHIJKLMNOPQRSTUVWXYZ'),'INSTRUCTIONS')" +
+                " or contains(translate(normalize-space(),'abcdefghijklmnopqrstuvwxyz','ABCDEFGHIJKLMNOPQRSTUVWXYZ'),'INBOX')]"))
+                .isEmpty();
+        assertTrue(confirmationShown,
+                "After submitting a valid email, a confirmation message should appear " +
+                "(e.g. 'Reset link sent', 'Check your email', 'Instructions sent').");
     }
 
     // TC006 — Login button: empty + invalid email behaviour

@@ -167,4 +167,37 @@ public class AdminLoginTest extends UiBaseTest {
         assertTrue(driver.getCurrentUrl().contains("/admin/register"),
                 "Clicking 'Create admin account' should navigate to /admin/register");
     }
+
+    // ============== TC027 — Admin sign-out ==============
+    // Mirrors TC073 (doctor) and TC074 (patient). After clicking Logout in the
+    // sidebar, admin must be redirected away from /admin/{id}/... and land on
+    // /admin/login (or the landing page).
+    @Test(groups = {"smoke", "regression"})
+    public void TC027_admin_sign_out_redirects_to_login_or_landing() {
+        // Log in first — this class extends UiBaseTest, no auto-login.
+        new AdminLogin(driver).open()
+                .enterEmail(ConfigReader.get("admin.email"))
+                .enterPassword(ConfigReader.get("admin.password"))
+                .submit();
+
+        AdminOverview overview = new AdminOverview(driver);
+        wait.until(d -> overview.isLoaded());
+        assertTrue(driver.getCurrentUrl().matches(".*/admin/\\d+/overview$"),
+                "Pre-condition: admin should be logged in on /admin/{id}/overview");
+
+        // Click Logout in the sidebar
+        overview.sidebar().signOut();
+
+        // Wait for the URL to leave the authenticated admin area
+        wait.until(d -> !d.getCurrentUrl().matches(".*/admin/\\d+/.*"));
+
+        assertFalse(driver.getCurrentUrl().matches(".*/admin/\\d+/.*"),
+                "After logout, user should no longer be on an authenticated admin page. URL was: "
+                        + driver.getCurrentUrl());
+        assertTrue(driver.getCurrentUrl().contains("/login")
+                        || driver.getCurrentUrl().endsWith("/")
+                        || driver.getCurrentUrl().equals(ConfigReader.get("ui.baseUrl")),
+                "After logout, user should land on /admin/login or the home page. URL was: "
+                        + driver.getCurrentUrl());
+    }
 }

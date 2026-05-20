@@ -20,7 +20,9 @@ public class AdminSidebar extends BasePage {
     public final By navAnalytics        = By.xpath("//a[contains(@class,'ni') and normalize-space()='Analytics']");
 
     public final By adminControlLabel   = By.xpath("//*[contains(translate(normalize-space(),'admin control','ADMIN CONTROL'),'ADMIN CONTROL')]");
-    public final By signOutButton       = By.cssSelector("button.sb-logout, [class*='logout']");
+    // Logout is rendered as <div class="sb-foot"> containing an icon and <span>Logout</span>.
+    // It is NOT a <button> or <a>, so we target the clickable container by its class.
+    public final By signOutButton       = By.cssSelector("div.sb-foot");
     public final By activeNavLink       = By.cssSelector("a.ni.active");
 
     public AdminSidebar(WebDriver driver) {
