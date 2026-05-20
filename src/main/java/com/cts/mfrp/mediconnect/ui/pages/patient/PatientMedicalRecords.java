@@ -19,6 +19,26 @@ public class PatientMedicalRecords extends BasePage {
     public final By searchInput = By.cssSelector("input.search-input, input[placeholder*='Search' i]");
     public final By recordItems = By.cssSelector(".record-item");
 
+    // --- Extended locators ---
+
+    // Page header
+    public final By subLabel              = By.xpath("//*[contains(normalize-space(),'Your health history')]");
+    public final By hamburgerMenu         = By.cssSelector("button[class*='hamburger'], button[class*='menu-toggle'], [aria-label*='menu' i]");
+    public final By bloodGroupHeaderChip  = By.xpath("//*[contains(normalize-space(),'Blood group:') or contains(normalize-space(),'Blood Group:')]");
+    public final By notificationBell      = By.cssSelector("button[class*='notif'], button[class*='bell'], [aria-label*='notif' i]");
+
+    // Empty state messages
+    public final By emptyRecordsLeftMsg   = By.xpath("//*[normalize-space()='No records found']");
+    public final By selectRecordRightMsg  = By.xpath("//*[contains(normalize-space(),'Select a record to view details')]");
+
+    // Sidebar profile
+    public final By sidebarPatientId      = By.xpath(
+            "//*[contains(normalize-space(),'PT-') " +
+            "or contains(normalize-space(),'PT0') " +
+            "or contains(normalize-space(),'P-') " +
+            "or (contains(normalize-space(),'·') and contains(normalize-space(),'Age'))]");
+    public final By sidebarPatientAge     = By.xpath("//*[contains(normalize-space(),'Age ')]");
+
     public PatientMedicalRecords(WebDriver driver) {
         super(driver);
     }

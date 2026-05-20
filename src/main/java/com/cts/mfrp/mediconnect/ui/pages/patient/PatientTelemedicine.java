@@ -11,11 +11,37 @@ import org.openqa.selenium.support.ui.ExpectedConditions;
 public class PatientTelemedicine extends BasePage {
 
     public final By pageHeader      = By.xpath("//div[contains(@class,'tb-title')][normalize-space()='Telemedicine']");
-    public final By bookVideoBtn    = By.xpath("//button[normalize-space()='Book Video Call']");
+    public final By bookVideoBtn    = By.xpath("//button[contains(normalize-space(),'Book Video Call')]");
     public final By rescheduleBtn   = By.xpath("//button[contains(normalize-space(),'Reschedule')]");
     public final By cancelBtn       = By.xpath("//button[contains(normalize-space(),'Cancel')]");
     public final By sessionCards    = By.cssSelector(".card");
     public final By emptyState      = By.cssSelector(".table-empty");
+
+    // --- Extended locators ---
+
+    // Page header
+    public final By subLabel              = By.xpath("//*[contains(normalize-space(),'Connect with your doctor remotely')]");
+    public final By hamburgerMenu         = By.cssSelector("button[class*='hamburger'], button[class*='menu-toggle'], [aria-label*='menu' i]");
+    public final By bloodGroupHeaderChip  = By.xpath("//*[contains(normalize-space(),'Blood group:') or contains(normalize-space(),'Blood Group:')]");
+    public final By notificationBell      = By.cssSelector("button[class*='notif'], button[class*='bell'], [aria-label*='notif' i]");
+
+    // Upcoming consultation banner
+    public final By noUpcomingMsg         = By.xpath("//*[normalize-space()='No upcoming video consultations']");
+    public final By bookCallSubMessage    = By.xpath("//*[contains(normalize-space(),'Book a video call with your doctor below')]");
+
+    // Section headings + empty states
+    public final By scheduledHeading      = By.xpath("//*[normalize-space()='Scheduled Sessions']");
+    public final By noScheduledMsg        = By.xpath("//*[normalize-space()='No scheduled sessions.']");
+    public final By pastHeading           = By.xpath("//*[normalize-space()='Past Sessions']");
+    public final By noPastMsg             = By.xpath("//*[normalize-space()='No past sessions yet.']");
+
+    // Sidebar profile
+    public final By sidebarPatientId      = By.xpath(
+            "//*[contains(normalize-space(),'PT-') " +
+            "or contains(normalize-space(),'PT0') " +
+            "or contains(normalize-space(),'P-') " +
+            "or (contains(normalize-space(),'·') and contains(normalize-space(),'Age'))]");
+    public final By sidebarPatientAge     = By.xpath("//*[contains(normalize-space(),'Age ')]");
 
     public PatientTelemedicine(WebDriver driver) {
         super(driver);
