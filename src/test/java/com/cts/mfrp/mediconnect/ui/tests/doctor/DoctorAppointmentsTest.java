@@ -44,7 +44,6 @@ import static org.testng.Assert.assertTrue;
  */
 public class DoctorAppointmentsTest extends BaseDoctorTest {
 
-<<<<<<< HEAD
     private static final Duration WAIT = Duration.ofSeconds(60);
 
     private WebDriverWait w() {
@@ -57,13 +56,12 @@ public class DoctorAppointmentsTest extends BaseDoctorTest {
     @Test
     public void TC_A01_appointments_page_title() {
         new DoctorAppointments(driver).open(loggedInUserId);
-=======
     // TC039 — Appointments page UI
     @Test(groups = {"sanity", "regression"})
     public void TC039_doctor_appointments_list_ui() {
         DoctorAppointments page = new DoctorAppointments(driver).open(loggedInUserId);
         WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(10));
->>>>>>> f6db4cd54a4fe28abf6baffa2fcc3643cf12044c
+
 
         By title = By.cssSelector("h1.page-title");
         w().until(ExpectedConditions.visibilityOfElementLocated(title));
