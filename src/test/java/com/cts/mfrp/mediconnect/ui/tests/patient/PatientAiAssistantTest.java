@@ -53,4 +53,118 @@ public class PatientAiAssistantTest extends BasePatientTest {
         assertEquals(driver.findElements(page.emergencyClose).size(), 0,
                 "Emergency Note must not expose a close/dismiss control");
     }
+
+    // ============== Extended coverage — TC183..TC192 ==============
+
+    // TC183 — Page sub-label visible
+    @Test(groups = {"regression"})
+    public void TC183_sub_label_visible() {
+        PatientAiHealthAssistant page = new PatientAiHealthAssistant(driver).open(loggedInUserId);
+        assertTrue(driver.findElements(page.subLabel).size() > 0,
+                "Sub-label 'Your personal health guide' should be visible");
+    }
+
+    // TC184 — Top-right: blood group chip + notification bell + hamburger
+    @Test(groups = {"regression"})
+    public void TC184_top_right_chip_and_bell() {
+        PatientAiHealthAssistant page = new PatientAiHealthAssistant(driver).open(loggedInUserId);
+        assertTrue(driver.findElements(page.bloodGroupHeaderChip).size() > 0,
+                "Blood group chip should be visible in the top-right");
+        assertTrue(driver.findElements(page.notificationBell).size() > 0,
+                "Notification bell should be visible in the top-right");
+        assertTrue(driver.findElements(page.hamburgerMenu).size() > 0,
+                "Hamburger menu should be visible");
+    }
+
+    // TC185 — MODE section has all 4 mode sub-labels
+    @Test(groups = {"regression"})
+    public void TC185_mode_section_sub_labels() {
+        PatientAiHealthAssistant page = new PatientAiHealthAssistant(driver).open(loggedInUserId);
+        assertTrue(driver.findElements(page.modeHeading).size() > 0,
+                "'MODE' section heading should be visible in the left panel");
+        assertTrue(driver.findElements(page.modeAskAnything).size() > 0,
+                "General Chat mode sub-label 'Ask anything' should be visible");
+        assertTrue(driver.findElements(page.modeDescribeSymptoms).size() > 0,
+                "Symptom Checker mode sub-label 'Describe symptoms' should be visible");
+        assertTrue(driver.findElements(page.modeUnderstandResults).size() > 0,
+                "Report Explanation mode sub-label 'Understand your results' should be visible");
+        assertTrue(driver.findElements(page.modeAiAssistedBooking).size() > 0,
+                "Book Appointment mode sub-label 'AI-assisted booking' should be visible");
+    }
+
+    // TC186 — YOUR CONTEXT section visible with prescription and appointment info
+    @Test(groups = {"regression"})
+    public void TC186_your_context_section_visible() {
+        PatientAiHealthAssistant page = new PatientAiHealthAssistant(driver).open(loggedInUserId);
+        assertTrue(driver.findElements(page.yourContextHeading).size() > 0,
+                "'YOUR CONTEXT' section heading should be visible");
+        assertTrue(driver.findElements(page.contextPrescriptions).size() > 0,
+                "Context item showing 'X active prescriptions' should be visible");
+        assertTrue(driver.findElements(page.contextNextAppt).size() > 0,
+                "Context item showing 'Next appt:' should be visible");
+    }
+
+    // TC187 — AI greeting bubble visible on first load
+    @Test(groups = {"regression"})
+    public void TC187_ai_greeting_bubble_visible() {
+        PatientAiHealthAssistant page = new PatientAiHealthAssistant(driver).open(loggedInUserId);
+        assertTrue(driver.findElements(page.aiGreetingBubble).size() > 0,
+                "AI greeting message should be visible in the conversation area on first load");
+    }
+
+    // TC188 — Ask input field and send button visible
+    @Test(groups = {"regression"})
+    public void TC188_ask_input_and_send_button() {
+        PatientAiHealthAssistant page = new PatientAiHealthAssistant(driver).open(loggedInUserId);
+        assertTrue(driver.findElements(page.askInput).size() > 0,
+                "'Ask about your health, symptoms, or results...' input field should be visible");
+        assertTrue(driver.findElements(page.sendButton).size() > 0,
+                "Send button should be visible next to the Ask input");
+    }
+
+    // TC189 — AI disclaimer permanently visible
+    @Test(groups = {"regression"})
+    public void TC189_ai_disclaimer_visible() {
+        PatientAiHealthAssistant page = new PatientAiHealthAssistant(driver).open(loggedInUserId);
+        assertTrue(driver.findElements(page.aiDisclaimer).size() > 0,
+                "Disclaimer 'AI responses are for informational purposes only. Always consult your doctor for medical decisions.' should be visible");
+    }
+
+    // TC190 — Right panel: QUICK ACTIONS section with 3 action cards
+    @Test(groups = {"regression"})
+    public void TC190_quick_actions_section_visible() {
+        PatientAiHealthAssistant page = new PatientAiHealthAssistant(driver).open(loggedInUserId);
+        assertTrue(driver.findElements(page.quickActionsHeading).size() > 0,
+                "'QUICK ACTIONS' section heading should be visible in the right panel");
+        assertTrue(driver.findElements(page.quickSymptomChecker).size() > 0,
+                "Quick Action card 'Symptom Checker' should be visible");
+        assertTrue(driver.findElements(page.quickExplainLab).size() > 0,
+                "Quick Action card 'Explain My Lab Report' should be visible");
+        assertTrue(driver.findElements(page.quickBookAppt).size() > 0,
+                "Quick Action card 'Book Appointment' should be visible");
+    }
+
+    // TC191 — Right panel: COMMON QUESTIONS section visible
+    @Test(groups = {"regression"})
+    public void TC191_common_questions_section_visible() {
+        PatientAiHealthAssistant page = new PatientAiHealthAssistant(driver).open(loggedInUserId);
+        assertTrue(driver.findElements(page.commonQuestionsHead).size() > 0,
+                "'COMMON QUESTIONS' section heading should be visible in the right panel");
+    }
+
+    // TC192 — BUG-002 regression guard: 'Hello null!' / 'null null' should NEVER appear
+    @Test(groups = {"regression"})
+    public void TC192_no_null_in_greeting_or_anywhere() {
+        new PatientAiHealthAssistant(driver).open(loggedInUserId);
+
+        int nullNullCount = driver.findElements(
+                org.openqa.selenium.By.xpath("//*[contains(normalize-space(),'null null')]")).size();
+        int helloNullCount = driver.findElements(
+                org.openqa.selenium.By.xpath("//*[contains(normalize-space(),'Hello null')]")).size();
+
+        assertTrue(nullNullCount == 0 && helloNullCount == 0,
+                "Greeting / profile should never render 'null' as a name. " +
+                "Found 'null null'=" + nullNullCount + ", 'Hello null'=" + helloNullCount +
+                " — patient record has null firstName/lastName (BUG-002).");
+    }
 }

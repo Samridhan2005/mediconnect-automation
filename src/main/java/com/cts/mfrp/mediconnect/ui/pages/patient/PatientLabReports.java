@@ -19,6 +19,38 @@ public class PatientLabReports extends BasePage {
     public final By aiPanel           = By.cssSelector(".ai-panel");
     public final By aiChips           = By.cssSelector(".ai-chip");
 
+    // --- Extended locators ---
+
+    // Page header
+    public final By subLabel              = By.xpath("//*[contains(normalize-space(),'Test results with AI-powered explanations')]");
+    public final By hamburgerMenu         = By.cssSelector("button[class*='hamburger'], button[class*='menu-toggle'], [aria-label*='menu' i]");
+    public final By bloodGroupHeaderChip  = By.xpath("//*[contains(normalize-space(),'Blood group:') or contains(normalize-space(),'Blood Group:')]");
+    public final By notificationBell      = By.cssSelector("button[class*='notif'], button[class*='bell'], [aria-label*='notif' i]");
+
+    // AI Report Explanation panel — always present on the page
+    public final By aiPanelTitle          = By.xpath("//*[normalize-space()='AI Report Explanation']");
+    public final By aiPanelPoweredBy      = By.xpath("//*[contains(normalize-space(),'Powered by MediConnect AI')]");
+    public final By aiPanelHelpText       = By.xpath("//*[contains(normalize-space(),'Select a report and click') or contains(normalize-space(),'Ask AI to Explain')]");
+
+    // 4 suggested question chips
+    public final By chipLdl               = By.xpath("//button[normalize-space()='What is LDL cholesterol?']");
+    public final By chipLowerLdl          = By.xpath("//button[normalize-space()='How to lower LDL naturally?']");
+    public final By chipStatins           = By.xpath("//button[normalize-space()='What are statins?']");
+    public final By chipEcg               = By.xpath("//button[normalize-space()='Is my ECG result good?']");
+
+    // Ask input + send button + disclaimer
+    public final By askInput              = By.xpath("//input[contains(@placeholder,'Ask about your results') or contains(@placeholder,'results')]");
+    public final By askSendButton         = By.xpath("//button[contains(@class,'send') or contains(@aria-label,'Send') or contains(@aria-label,'send')]");
+    public final By aiDisclaimer          = By.xpath("//*[contains(normalize-space(),'AI explanations are educational only') or contains(normalize-space(),'Always consult your doctor')]");
+
+    // Sidebar profile
+    public final By sidebarPatientId      = By.xpath(
+            "//*[contains(normalize-space(),'PT-') " +
+            "or contains(normalize-space(),'PT0') " +
+            "or contains(normalize-space(),'P-') " +
+            "or (contains(normalize-space(),'·') and contains(normalize-space(),'Age'))]");
+    public final By sidebarPatientAge     = By.xpath("//*[contains(normalize-space(),'Age ')]");
+
     public PatientLabReports(WebDriver driver) {
         super(driver);
     }

@@ -39,6 +39,41 @@ public class PatientAppointments extends BasePage {
     public final By modalTimeField    = By.cssSelector("input[type='time']");
     public final By validationErrors  = By.xpath("//*[contains(translate(.,'REQUIRED','required'),'required') or contains(@class,'error') or contains(@class,'invalid')]");
 
+    // --- Extended locators ---
+
+    // Page header
+    public final By subLabel              = By.xpath("//*[contains(normalize-space(),'Manage & book consultations')]");
+    public final By hamburgerMenu         = By.cssSelector("button[class*='hamburger'], button[class*='menu-toggle'], [aria-label*='menu' i]");
+    public final By bloodGroupHeaderChip  = By.xpath("//*[contains(normalize-space(),'Blood group:') or contains(normalize-space(),'Blood Group:')]");
+    public final By notificationBell      = By.cssSelector("button[class*='notif'], button[class*='bell'], [aria-label*='notif' i]");
+
+    // Promotional consultation banner
+    public final By consultationBanner    = By.xpath("//*[contains(normalize-space(),'Need a consultation')]");
+    public final By bannerBookNowBtn      = By.xpath("//button[normalize-space()='Book Now']");
+
+    // Tab counts (Upcoming (0), Past, Cancelled)
+    public final By tabUpcomingWithCount  = By.xpath("//*[contains(normalize-space(),'Upcoming') and contains(normalize-space(),'(')]");
+
+    // Empty state
+    public final By emptyStateText        = By.xpath("//*[normalize-space()='No upcoming appointments']");
+    public final By emptyStateIcon        = By.cssSelector("svg[class*='calendar'], [class*='empty-icon']");
+
+    // Sidebar profile — accept any common patient-ID format (PT-xxxx, PT xxxx, P-xxxx, or just the bullet separator near "Age")
+    public final By sidebarPatientId      = By.xpath(
+            "//*[contains(normalize-space(),'PT-') " +
+            "or contains(normalize-space(),'PT0') " +
+            "or contains(normalize-space(),'P-') " +
+            "or (contains(normalize-space(),'·') and contains(normalize-space(),'Age'))]");
+    public final By sidebarPatientAge     = By.xpath("//*[contains(normalize-space(),'Age ')]");
+
+    /** Click a tab by its label (Upcoming / Past / Cancelled). */
+    public void clickTab(String label) {
+        By tab = By.xpath("//*[starts-with(normalize-space(),'" + label + "')]" +
+                "[contains(concat(' ',normalize-space(@class),' '),' tab ') or contains(@class,'tab')]");
+        WebElement el = wait.until(ExpectedConditions.elementToBeClickable(tab));
+        el.click();
+    }
+
     public PatientAppointments(WebDriver driver) {
         super(driver);
     }
