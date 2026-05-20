@@ -3,6 +3,7 @@ package com.cts.mfrp.mediconnect.ui.tests.doctor;
 import com.cts.mfrp.mediconnect.ui.pages.doctor.DoctorAnalytics;
 import com.cts.mfrp.mediconnect.ui.tests.base.BaseDoctorTest;
 import org.openqa.selenium.By;
+import org.openqa.selenium.JavascriptExecutor;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
@@ -42,7 +43,6 @@ import static org.testng.Assert.assertTrue;
  */
 public class DoctorAnalyticsTest extends BaseDoctorTest {
 
-<<<<<<< HEAD
     private static final Duration WAIT = Duration.ofSeconds(60);
 
     private WebDriverWait w() {
@@ -50,13 +50,9 @@ public class DoctorAnalyticsTest extends BaseDoctorTest {
     }
 
     // ─────────────────────────────────────────────────────────────────────────
-    // TC047 — Analytics page UI (original)
-    // ─────────────────────────────────────────────────────────────────────────
-    @Test
-=======
     // TC047 — Analytics page UI
+    // ─────────────────────────────────────────────────────────────────────────
     @Test(groups = {"regression"})
->>>>>>> f6db4cd54a4fe28abf6baffa2fcc3643cf12044c
     public void TC047_doctor_analytics_ui() {
         DoctorAnalytics page = new DoctorAnalytics(driver).open(loggedInUserId);
 
@@ -76,15 +72,10 @@ public class DoctorAnalyticsTest extends BaseDoctorTest {
         }
     }
 
-<<<<<<< HEAD
     // ─────────────────────────────────────────────────────────────────────────
-    // TC048 — Time period filter (original)
-    // ─────────────────────────────────────────────────────────────────────────
-    @Test
-=======
     // TC048 — Time period filter
+    // ─────────────────────────────────────────────────────────────────────────
     @Test(groups = {"regression"})
->>>>>>> f6db4cd54a4fe28abf6baffa2fcc3643cf12044c
     public void TC048_doctor_analytics_time_period_filter() {
         DoctorAnalytics page = new DoctorAnalytics(driver).open(loggedInUserId);
 
@@ -158,10 +149,8 @@ public class DoctorAnalyticsTest extends BaseDoctorTest {
         assertTrue(select.isEnabled(), "select.range-select is disabled");
 
         List<WebElement> options = select.findElements(By.tagName("option"));
-        assertTrue(options.size() > 0,
-                "range-select has no options");
+        assertTrue(options.size() > 0, "range-select has no options");
 
-        // At least one option must contain "days"
         boolean hasDaysOption = options.stream()
                 .anyMatch(o -> o.getText().toLowerCase().contains("days"));
         assertTrue(hasDaysOption,
@@ -246,7 +235,6 @@ public class DoctorAnalyticsTest extends BaseDoctorTest {
                 .anyMatch(e -> e.getText().trim().equals("Appointments over time"));
         assertTrue(found, "'Appointments over time' card-title not found");
 
-        // Canvas inside chart-wrap must be present
         By canvas = By.cssSelector("div.chart-wrap canvas");
         w().until(ExpectedConditions.presenceOfElementLocated(canvas));
         assertTrue(driver.findElements(canvas).size() > 0,
@@ -261,15 +249,13 @@ public class DoctorAnalyticsTest extends BaseDoctorTest {
     public void TC_AN09_analytics_appointments_over_time_subtitle() {
         new DoctorAnalytics(driver).open(loggedInUserId);
 
-        By cardSubs = By.cssSelector(
-                "div.charts-grid div.chart-card div.card-sub");
+        By cardSubs = By.cssSelector("div.charts-grid div.chart-card div.card-sub");
         w().until(ExpectedConditions.visibilityOfElementLocated(cardSubs));
 
         boolean found = driver.findElements(cardSubs).stream()
                 .anyMatch(e -> e.getText().trim()
                         .equals("In-person vs video · last 6 months"));
-        assertTrue(found,
-                "'In-person vs video · last 6 months' card-sub not found");
+        assertTrue(found, "'In-person vs video · last 6 months' card-sub not found");
     }
 
     // ─────────────────────────────────────────────────────────────────────────
@@ -282,21 +268,18 @@ public class DoctorAnalyticsTest extends BaseDoctorTest {
     public void TC_AN10_analytics_appointment_types_chart() {
         new DoctorAnalytics(driver).open(loggedInUserId);
 
-        By cardTitles = By.cssSelector(
-                "div.charts-grid div.chart-card div.card-title");
+        By cardTitles = By.cssSelector("div.charts-grid div.chart-card div.card-title");
         w().until(ExpectedConditions.visibilityOfElementLocated(cardTitles));
 
         boolean titleFound = driver.findElements(cardTitles).stream()
                 .anyMatch(e -> e.getText().trim().equals("Appointment types"));
         assertTrue(titleFound, "'Appointment types' card-title not found");
 
-        // Donut canvas
         By donutCanvas = By.cssSelector("div.donut-wrap canvas");
         w().until(ExpectedConditions.presenceOfElementLocated(donutCanvas));
         assertTrue(driver.findElements(donutCanvas).size() > 0,
                 "No canvas found in div.donut-wrap");
 
-        // Legend items — In-person and Video
         By legendItems = By.cssSelector("div.legend div.legend-item");
         w().until(ExpectedConditions.visibilityOfElementLocated(legendItems));
 
@@ -311,27 +294,24 @@ public class DoctorAnalyticsTest extends BaseDoctorTest {
 
     // ─────────────────────────────────────────────────────────────────────────
     // TC_AN11 — "Appointments per month" chart card visible
-    //           div.chart-card div.card-title → "Appointments per month"
+    //           Uses page-wide div.card-title — this card is outside charts-grid
     // ─────────────────────────────────────────────────────────────────────────
     @Test
     public void TC_AN11_analytics_appointments_per_month_chart() {
         new DoctorAnalytics(driver).open(loggedInUserId);
 
-        // Wait for page to render — anchor on charts-grid first card
         By chartsGrid = By.cssSelector("div.charts-grid div.chart-card div.card-title");
         w().until(ExpectedConditions.visibilityOfElementLocated(chartsGrid));
 
-        // Scroll to bottom — "Appointments per month" is below the fold
-        ((org.openqa.selenium.JavascriptExecutor) driver)
+        ((JavascriptExecutor) driver)
                 .executeScript("window.scrollTo(0, document.body.scrollHeight)");
 
-        // Use page-wide card-title selector — bottom cards are outside charts-grid
         By allCardTitles = By.cssSelector("div.card-title");
         w().until(ExpectedConditions.numberOfElementsToBeMoreThan(allCardTitles, 2));
 
-        // Wait specifically until "Appointments per month" text is present
         w().until(driver -> driver.findElements(allCardTitles).stream()
                 .anyMatch(e -> e.getText().trim().equals("Appointments per month")));
+
         boolean found = driver.findElements(allCardTitles).stream()
                 .anyMatch(e -> e.getText().trim().equals("Appointments per month"));
         assertTrue(found,
@@ -343,9 +323,7 @@ public class DoctorAnalyticsTest extends BaseDoctorTest {
     // ─────────────────────────────────────────────────────────────────────────
     // TC_AN12 — "Top diagnoses" section visible with rows
     //           div.diag-row → at least 1 row
-    //           div.diag-label → diagnosis name non-empty
-    //           div.diag-count → count non-empty
-    //           div.diag-bar   → bar element present
+    //           div.diag-label | div.diag-count | div.diag-bar non-empty
     // ─────────────────────────────────────────────────────────────────────────
     @Test
     public void TC_AN12_analytics_top_diagnoses_section() {
@@ -357,35 +335,28 @@ public class DoctorAnalyticsTest extends BaseDoctorTest {
         List<WebElement> rows = driver.findElements(diagRows);
         assertTrue(rows.size() > 0, "No div.diag-row found");
 
-        // Validate each diagnosis row
         for (int i = 0; i < rows.size(); i++) {
             WebElement row = rows.get(i);
 
-            // Label
             String label = row.findElement(
                     By.cssSelector("div.diag-label")).getText().trim();
-            assertFalse(label.isEmpty(),
-                    "diag-label is empty in row " + i);
+            assertFalse(label.isEmpty(), "diag-label is empty in row " + i);
 
-            // Bar
             List<WebElement> bar = row.findElements(
                     By.cssSelector("div.diag-bar-wrap div.diag-bar"));
-            assertTrue(bar.size() > 0,
-                    "No div.diag-bar found in row " + i);
+            assertTrue(bar.size() > 0, "No div.diag-bar found in row " + i);
 
-            // Count
             String count = row.findElement(
                     By.cssSelector("div.diag-count")).getText().trim();
-            assertFalse(count.isEmpty(),
-                    "diag-count is empty in row " + i);
+            assertFalse(count.isEmpty(), "diag-count is empty in row " + i);
             assertTrue(count.matches("\\d+"),
                     "diag-count not numeric in row " + i + ": '" + count + "'");
         }
     }
 
     // ─────────────────────────────────────────────────────────────────────────
-    // TC_AN13 — Charts grid has at least 3 chart cards
-    //           div.charts-grid div.chart-card → count ≥ 3
+    // TC_AN13 — Charts grid has at least 2 chart cards
+    //           div.charts-grid div.chart-card → count ≥ 2
     // ─────────────────────────────────────────────────────────────────────────
     @Test
     public void TC_AN13_analytics_charts_grid_has_cards() {
@@ -394,11 +365,9 @@ public class DoctorAnalyticsTest extends BaseDoctorTest {
         By chartCards = By.cssSelector("div.charts-grid div.chart-card");
         w().until(ExpectedConditions.numberOfElementsToBeMoreThan(chartCards, 0));
 
-        // Scroll to bottom to trigger lazy rendering of below-fold cards
-        ((org.openqa.selenium.JavascriptExecutor) driver)
+        ((JavascriptExecutor) driver)
                 .executeScript("window.scrollTo(0, document.body.scrollHeight)");
 
-        // Wait for cards to stabilise after scroll
         w().until(ExpectedConditions.numberOfElementsToBeMoreThan(chartCards, 1));
 
         int count = driver.findElements(chartCards).size();
