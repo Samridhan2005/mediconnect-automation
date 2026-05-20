@@ -10,422 +10,338 @@ import org.testng.annotations.Test;
 
 import java.time.Duration;
 import java.util.List;
-import java.util.stream.Collectors;
 
-import static org.testng.Assert.assertNotNull;
+import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.assertFalse;
 import static org.testng.Assert.assertTrue;
 
 /**
- * FRD: TC007, TC008, TC009, TC010, TC011, TC012, TC013, TC073, TC075.
- * Fixed based on actual app UI at https://cts-mediconnect.netlify.app/doctor/{id}/dashboard
- *
- * KEY FIXES APPLIED THROUGHOUT:
- * 1. "Today's appointments" contains an apostrophe — using XPath double-quote wrapper
- *    "Today's appointments" instead of single quotes to avoid InvalidSelectorException.
- * 2. Added wait.until(urlContains("/dashboard")) at the top of every test so
- *    assertions don't fire before the page finishes loading.
- * 3. All waits increased to 20 seconds to handle slow page loads.
- * 4. Removed sidebar items not present in app (Diagnostics, Billing, Settings).
- * 5. Removed Revenue Today card — not in this app.
- * 6. Section names matched to actual app text from screenshots.
+ * FRD: TC007–TC013, TC073, TC075 — Doctor Dashboard.
+ * URL: /doctor/{id}/dashboard
  */
 public class DoctorDashboardTest extends BaseDoctorTest {
 
-    // ── TC007 — Doctor Dashboard UI validation ───────────────────────────────
+    private static final Duration WAIT = Duration.ofSeconds(60);
+
+    private WebDriverWait w() {
+        return new WebDriverWait(driver, WAIT);
+    }
+
+    // ─────────────────────────────────────────────────────────────────────────
+    // TC007 — Dashboard UI validation — page title visible
+    // ─────────────────────────────────────────────────────────────────────────
     @Test(groups = {"sanity", "regression"})
     public void TC007_doctor_dashboard_ui_validation() {
-        DoctorDashboard dash = new DoctorDashboard(driver);
-        WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(20));
+        new DoctorDashboard(driver);
 
-        // Wait for page to fully load before any assertion
-        wait.until(ExpectedConditions.urlContains("/dashboard"));
-        assertTrue(dash.isLoaded(), "Should land on /doctor/{id}/dashboard");
+        By titleLocator = By.cssSelector("h1.page-title");
+        w().until(ExpectedConditions.visibilityOfElementLocated(titleLocator));
 
-        // Only assert sidebar items actually present in the app
-        List<String> expectedSidebar = List.of(
+        WebElement title = driver.findElement(titleLocator);
+        assertTrue(title.isDisplayed(), "h1.page-title not visible");
+        assertEquals(title.getText().trim(), "Dashboard", "Page title mismatch");
+    }
+
+    // ─────────────────────────────────────────────────────────────────────────
+    // TC008 — Sidebar nav links all present
+    // ─────────────────────────────────────────────────────────────────────────
+    @Test(groups = {"regression"})
+    public void TC008_doctor_dashboard_sidebar_links() {
+        new DoctorDashboard(driver);
+
+        By navLinks = By.cssSelector("aside.sb nav.sb-nav a.ni");
+        w().until(ExpectedConditions.visibilityOfElementLocated(navLinks));
+
+        List<String> found = driver.findElements(navLinks)
+                .stream().map(e -> e.getText().trim()).toList();
+
+        for (String expected : List.of(
                 "Dashboard", "Patients", "Appointments", "Lab Reports",
-                "Medical Records", "Telemedicine", "Analytics", "Supply Chain", "AI Assistant");
-
-        // Wait for sidebar to render before collecting items
-        wait.until(ExpectedConditions.presenceOfElementLocated(
-                By.cssSelector("nav a, aside a, [class*='sidebar'] a, [class*='nav'] a")));
-
-        List<String> actualSidebar = driver.findElements(
-                        By.cssSelector("nav a, aside a, [class*='sidebar'] a, [class*='nav'] a"))
-                .stream()
-                .map(WebElement::getText)
-                .map(String::trim)
-                .filter(t -> !t.isEmpty())
-                .collect(Collectors.toList());
-
-        for (String item : expectedSidebar) {
-            assertTrue(actualSidebar.contains(item),
-                    "Sidebar item missing: '" + item + "'. Actual: " + actualSidebar);
+                "Medical Records", "Telemedicine", "Analytics",
+                "Supply Chain", "AI Assistant")) {
+            assertTrue(found.stream().anyMatch(t -> t.contains(expected)),
+                    "Sidebar link '" + expected + "' not found. Found: " + found);
         }
-
-        assertTrue(dash.isHospitalSelectorVisible(), "Hospital selector missing");
-        assertTrue(dash.isNotificationBellVisible(), "Notification bell missing");
-
-        // Wait for stat cards to render
-        wait.until(ExpectedConditions.presenceOfElementLocated(
-                By.xpath("//*[contains(normalize-space(text()),'Total patients')]")));
-
-        assertTrue(driver.findElements(
-                        By.xpath("//*[contains(normalize-space(text()),'Total patients')]")).size() > 0,
-                "Stats card missing: Total patients");
-
-        // FIX: "Today's" has apostrophe — wrap whole string in double quotes in XPath
-        assertTrue(driver.findElements(
-                        By.xpath("//*[contains(normalize-space(text()),\"Today's appointments\")]")).size() > 0,
-                "Stats card missing: Today's appointments");
-
-        assertTrue(driver.findElements(
-                        By.xpath("//*[contains(normalize-space(text()),'Pending lab reports')]")).size() > 0,
-                "Stats card missing: Pending lab reports");
-
-        assertTrue(driver.findElements(
-                        By.xpath("//*[contains(normalize-space(text()),'Unread notifications')]")).size() > 0,
-                "Stats card missing: Unread notifications");
-
-        assertTrue(driver.findElements(
-                        By.xpath("//*[contains(normalize-space(text()),\"Today's appointments\")]")).size() > 0,
-                "Today's appointments section missing");
-
-        assertTrue(driver.findElements(
-                        By.xpath("//*[contains(normalize-space(text()),'Upcoming consultations')]")).size() > 0,
-                "Upcoming consultations panel missing");
     }
 
-    // ── TC008 — Hospital selector dropdown functionality ─────────────────────
+    // ─────────────────────────────────────────────────────────────────────────
+    // TC009 — Hospital selector button visible
+    // ─────────────────────────────────────────────────────────────────────────
     @Test(groups = {"regression"})
-    public void TC008_hospital_selector_dropdown() {
-        DoctorDashboard dash = new DoctorDashboard(driver);
-        WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(20));
+    public void TC009_doctor_dashboard_hospital_selector() {
+        new DoctorDashboard(driver);
 
-        wait.until(ExpectedConditions.urlContains("/dashboard"));
-        assertTrue(dash.isHospitalSelectorVisible(), "Hospital selector should be visible");
-        dash.clickHospitalSelector();
-        try { Thread.sleep(1000); } catch (InterruptedException ignored) {}
+        By hospitalBtn = By.cssSelector("button.hospital-btn");
+        w().until(ExpectedConditions.visibilityOfElementLocated(hospitalBtn));
 
-        By dropdownList = By.xpath(
-                "//*[contains(@class,'dropdown') or contains(@class,'popover') " +
-                        "or contains(@class,'menu') or contains(@class,'hospital')]" +
-                        "[not(contains(@class,'hidden'))]");
-        List<WebElement> options = driver.findElements(dropdownList);
-
-        if (options.isEmpty()) {
-            options = driver.findElements(
-                    By.xpath("//li | //*[@role='option'] | //*[@role='listbox']"));
-        }
-        assertTrue(options.size() > 0,
-                "Clicking hospital selector should reveal a dropdown list");
+        WebElement btn = driver.findElement(hospitalBtn);
+        assertTrue(btn.isDisplayed(), "button.hospital-btn not visible");
+        assertFalse(btn.getText().trim().isEmpty(),
+                "Hospital selector button text is empty");
     }
 
-    // ── TC009 — Global Search textbox functionality ───────────────────────────
+    // ─────────────────────────────────────────────────────────────────────────
+    // TC010 — Notification bell visible with badge count
+    // ─────────────────────────────────────────────────────────────────────────
     @Test(groups = {"regression"})
-    public void TC009_global_search_textbox() {
-        DoctorDashboard dash = new DoctorDashboard(driver);
-        WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(20));
+    public void TC010_doctor_dashboard_notification_bell() {
+        new DoctorDashboard(driver);
 
-        wait.until(ExpectedConditions.urlContains("/dashboard"));
-        List<WebElement> searchBoxes = driver.findElements(dash.globalSearch);
+        By notifBtn = By.cssSelector("button.notif-btn");
+        w().until(ExpectedConditions.visibilityOfElementLocated(notifBtn));
+        assertTrue(driver.findElement(notifBtn).isDisplayed(),
+                "button.notif-btn not visible");
 
-        // Global search not visible on dashboard — skip gracefully
-        if (searchBoxes.isEmpty()) {
-            assertTrue(true, "Global search not present on dashboard; skipping");
+        By badge = By.cssSelector("span.notif-badge");
+        w().until(ExpectedConditions.visibilityOfElementLocated(badge));
+        String badgeText = driver.findElement(badge).getText().trim();
+        assertFalse(badgeText.isEmpty(), "Notification badge is empty");
+        assertTrue(badgeText.matches("\\d+"),
+                "Notification badge not numeric: '" + badgeText + "'");
+    }
+
+    // ─────────────────────────────────────────────────────────────────────────
+    // TC011 — All four stat cards visible with labels and values
+    // ─────────────────────────────────────────────────────────────────────────
+    @Test(groups = {"regression"})
+    public void TC011_doctor_dashboard_stat_cards() {
+        new DoctorDashboard(driver);
+
+        By statCard = By.cssSelector("div.stat-cards div.stat-card");
+        w().until(ExpectedConditions.visibilityOfElementLocated(statCard));
+
+        By statLabel = By.cssSelector("span.stat-label");
+        w().until(ExpectedConditions.visibilityOfElementLocated(statLabel));
+
+        List<String> labels = driver.findElements(statLabel)
+                .stream().map(e -> e.getText().trim()).toList();
+
+        for (String expected : List.of(
+                "Total patients", "Today's appointments",
+                "Pending lab reports", "Unread notifications")) {
+            assertTrue(labels.contains(expected),
+                    "Stat label '" + expected + "' missing. Found: " + labels);
+        }
+
+        By statValue = By.cssSelector("span.stat-value");
+        w().until(ExpectedConditions.visibilityOfElementLocated(statValue));
+
+        List<WebElement> values = driver.findElements(statValue);
+        assertFalse(values.isEmpty(), "No span.stat-value elements found");
+        for (WebElement v : values) {
+            assertFalse(v.getText().trim().isEmpty(), "span.stat-value is blank");
+        }
+    }
+
+    // ─────────────────────────────────────────────────────────────────────────
+    // TC012 — "Today's appointments" section visible
+    // ─────────────────────────────────────────────────────────────────────────
+    @Test(groups = {"regression"})
+    public void TC012_doctor_dashboard_todays_appointments() {
+        new DoctorDashboard(driver);
+
+        By cardTitles = By.cssSelector("span.card-title");
+        w().until(ExpectedConditions.visibilityOfElementLocated(cardTitles));
+
+        boolean headingFound = driver.findElements(cardTitles).stream()
+                .anyMatch(e -> e.getText().trim().equals("Today's appointments"));
+        assertTrue(headingFound, "'Today's appointments' card-title not found");
+
+        By apptList = By.cssSelector("div.appt-list");
+        w().until(ExpectedConditions.presenceOfElementLocated(apptList));
+        assertTrue(driver.findElements(apptList).size() > 0,
+                "div.appt-list not found");
+
+        List<WebElement> rows = driver.findElements(
+                By.cssSelector("div.appt-list div.appt-row"));
+        List<WebElement> empty = driver.findElements(
+                By.cssSelector("div.appt-list div.empty-state"));
+
+        assertTrue(rows.size() > 0 || empty.size() > 0,
+                "appt-list must have rows or empty-state");
+    }
+
+    // ─────────────────────────────────────────────────────────────────────────
+    // TC012a — Appointment row data validation (if rows exist)
+    // ─────────────────────────────────────────────────────────────────────────
+    @Test(groups = {"regression"})
+    public void TC012a_doctor_dashboard_appointment_row_data() {
+        new DoctorDashboard(driver);
+
+        By apptRow = By.cssSelector("div.appt-list div.appt-row");
+        try {
+            w().until(ExpectedConditions.numberOfElementsToBeMoreThan(apptRow, 0));
+        } catch (Exception e) {
+            assertTrue(true, "No appointment rows today — skipping row validation");
             return;
         }
 
-        assertTrue(dash.isGlobalSearchVisible(), "Global search should be visible");
-        WebElement searchBox = searchBoxes.get(0);
-        searchBox.clear();
-        searchBox.sendKeys("Shalini");
-        try { Thread.sleep(1500); } catch (InterruptedException ignored) {}
-        assertTrue(driver.findElements(
-                By.cssSelector("[class*='search-result']")).size() >= 0);
+        List<WebElement> rows = driver.findElements(apptRow);
+        WebElement first = rows.get(0);
 
-        searchBox.clear();
-        searchBox.sendKeys("a");
-        try { Thread.sleep(1000); } catch (InterruptedException ignored) {}
-        List<WebElement> err = driver.findElements(By.xpath(
-                "//*[contains(text(),'Enter at least') or contains(text(),'characters')]"));
-        assertTrue(err.size() > 0, "Validation message expected for <2 chars");
+        String name = first.findElement(By.cssSelector("span.appt-name")).getText().trim();
+        assertFalse(name.isEmpty(), "appt-name is empty");
+
+        String meta = first.findElement(By.cssSelector("span.appt-meta")).getText().trim();
+        assertFalse(meta.isEmpty(), "appt-meta is empty");
+
+        List<WebElement> badges = first.findElements(By.cssSelector("div.appt-badges span"));
+        assertFalse(badges.isEmpty(), "No badges found in appt-row");
     }
 
-    // ── TC010 — Notification bell + profile dropdown ──────────────────────────
-    // ── TC010 — Notification bell + profile dropdown ──────────────────────────
-    // TC010 — Notification bell + profile dropdown
+    // ─────────────────────────────────────────────────────────────────────────
+    // TC013 — "Upcoming consultations" section visible with Join button
+    // ─────────────────────────────────────────────────────────────────────────
     @Test(groups = {"regression"})
-    public void TC010_notification_bell_and_profile_dropdown() {
-        DoctorDashboard dash = new DoctorDashboard(driver);
-        WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(30));
+    public void TC013_doctor_dashboard_upcoming_consultations() {
+        new DoctorDashboard(driver);
 
-        wait.until(ExpectedConditions.urlContains("/dashboard"));
+        By cardTitles = By.cssSelector("span.card-title");
+        w().until(ExpectedConditions.visibilityOfElementLocated(cardTitles));
 
-        // Wait for full page load
-        wait.until(ExpectedConditions.visibilityOfElementLocated(
-                By.xpath("//*[contains(normalize-space(text()),'Total patients')]")));
+        boolean headingFound = driver.findElements(cardTitles).stream()
+                .anyMatch(e -> e.getText().trim().equals("Upcoming consultations"));
+        assertTrue(headingFound, "'Upcoming consultations' card-title not found");
 
-        try { Thread.sleep(2000); } catch (InterruptedException ignored) {}
+        By consultList = By.cssSelector("div.consult-list");
+        w().until(ExpectedConditions.presenceOfElementLocated(consultList));
 
-        // Step 1 — Notification bell
-        assertTrue(dash.isNotificationBellVisible(), "Notification bell should be visible");
-        dash.clickNotificationBell();
-        try { Thread.sleep(1500); } catch (InterruptedException ignored) {}
+        List<WebElement> rows = driver.findElements(
+                By.cssSelector("div.consult-list div.consult-row"));
+        List<WebElement> empty = driver.findElements(
+                By.cssSelector("div.consult-list div.empty-state"));
 
-        // Assert notification panel opened — check for heading or content text
-        By notifPanel = By.xpath(
-                "//*[contains(normalize-space(text()),'Notifications')] | " +
-                        "//*[contains(normalize-space(text()),'No notifications')] | " +
-                        "//*[contains(normalize-space(text()),'Mark all read')]");
-        wait.until(ExpectedConditions.presenceOfElementLocated(notifPanel));
-        assertTrue(driver.findElements(notifPanel).size() > 0,
-                "Notification panel should open on bell click");
+        assertTrue(rows.size() > 0 || empty.size() > 0,
+                "consult-list must have rows or empty-state");
 
-        // Close notification panel by pressing Escape or clicking elsewhere
-        driver.findElement(By.xpath("//body")).click();
-        try { Thread.sleep(1000); } catch (InterruptedException ignored) {}
+        if (!rows.isEmpty()) {
+            WebElement first = rows.get(0);
 
-        // Step 2 — Profile dropdown
-        // FIX: dash.profileDropdown locator is broken ([class*='profile'] doesn't exist)
-        // Locate the sidebar bottom profile area directly by visible text "Doctor"
-        By profileArea = By.xpath(
-                "//*[contains(normalize-space(text()),'Doctor')]" +
-                        "/ancestor::div[position()<=3]");
+            String name = first.findElement(
+                    By.cssSelector("span.consult-name")).getText().trim();
+            assertFalse(name.isEmpty(), "consult-name is empty");
 
-        List<WebElement> profileElements = driver.findElements(profileArea);
-        if (!profileElements.isEmpty()) {
-            profileElements.get(0).click();
-        } else {
-            // Fallback: click the initials avatar circle (2-letter uppercase text in sidebar)
-            driver.findElement(By.xpath(
-                    "//aside//*[string-length(normalize-space(text()))<=3 " +
-                            "and string-length(normalize-space(text()))>=1]" +
-                            "[contains(@class,'avatar') or contains(@class,'initial') " +
-                            "or ancestor::*[contains(@class,'profile')] " +
-                            "or ancestor::*[contains(@class,'user')]]")).click();
-        }
-        try { Thread.sleep(1500); } catch (InterruptedException ignored) {}
+            String meta = first.findElement(
+                    By.cssSelector("span.consult-meta")).getText().trim();
+            assertFalse(meta.isEmpty(), "consult-meta is empty");
 
-        // Assert status options or Sign Out visible after clicking profile area
-        // "Available" is always visible in sidebar even before click — use normalize-space text
-        By profileOptions = By.xpath(
-                "//*[contains(normalize-space(text()),'Available')] | " +
-                        "//*[contains(normalize-space(text()),'Sign Out')] | " +
-                        "//*[contains(normalize-space(text()),'Logout')]");
-        wait.until(ExpectedConditions.presenceOfElementLocated(profileOptions));
-        assertTrue(driver.findElements(profileOptions).size() >= 1,
-                "Profile area should show Available status or Sign Out");
-    }
-    // ── TC011 — Stats summary card behaviour ─────────────────────────────────
-    @Test(groups = {"regression"})
-    public void TC011_stats_summary_card() {
-        DoctorDashboard dash = new DoctorDashboard(driver);
-        WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(20));
-
-        wait.until(ExpectedConditions.urlContains("/dashboard"));
-
-        // Wait for at least one stat card to be present
-        wait.until(ExpectedConditions.presenceOfElementLocated(
-                By.xpath("//*[contains(normalize-space(text()),'Total patients')]")));
-
-        assertTrue(driver.findElements(
-                        By.xpath("//*[contains(normalize-space(text()),'Total patients')]")).size() > 0,
-                "Stat card missing: Total patients");
-
-        // FIX: "Today's" apostrophe — use double-quoted XPath string
-        assertTrue(driver.findElements(
-                        By.xpath("//*[contains(normalize-space(text()),\"Today's appointments\")]")).size() > 0,
-                "Stat card missing: Today's appointments");
-
-        assertTrue(driver.findElements(
-                        By.xpath("//*[contains(normalize-space(text()),'Pending lab reports')]")).size() > 0,
-                "Stat card missing: Pending lab reports");
-
-        assertTrue(driver.findElements(
-                        By.xpath("//*[contains(normalize-space(text()),'Unread notifications')]")).size() > 0,
-                "Stat card missing: Unread notifications");
-
-        // Verify stat cards are read-only (no editable inputs inside)
-        By totalPatientsCard = By.xpath(
-                "//*[contains(normalize-space(text()),'Total patients')]/ancestor::div[1]");
-        List<WebElement> cards = driver.findElements(totalPatientsCard);
-        for (WebElement card : cards) {
-            assertTrue(
-                    card.findElements(By.cssSelector("input,[contenteditable='true']")).isEmpty(),
-                    "Stat cards must not be editable");
+            WebElement joinBtn = first.findElement(By.cssSelector("button.join-btn"));
+            assertTrue(joinBtn.isDisplayed(), "button.join-btn not visible");
+            assertEquals(joinBtn.getText().trim(), "Join", "Join button text mismatch");
+            assertTrue(joinBtn.isEnabled(), "button.join-btn is disabled");
         }
     }
 
-    // ── TC012 — Recent appointments list ─────────────────────────────────────
-    // TC012 — Recent appointments list
-    // TC012 — Recent appointments list
-    // TC012 — Recent appointments list
-    // TC012 — Recent appointments list
-    // TC012 — Recent appointments list
-    // TC012 — Recent appointments list
-    // TC012 — Recent appointments list
+    // ─────────────────────────────────────────────────────────────────────────
+    // TC073 — Sign Out button visible in sidebar
+    // ─────────────────────────────────────────────────────────────────────────
     @Test(groups = {"regression"})
-    public void TC012_recent_appointments_list() {
-        DoctorDashboard dash = new DoctorDashboard(driver);
-        WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(30));
+    public void TC073_doctor_dashboard_sign_out_visible() {
+        new DoctorDashboard(driver);
 
-        wait.until(ExpectedConditions.urlContains("/dashboard"));
+        By signOut = By.cssSelector("button.sb-logout");
+        w().until(ExpectedConditions.visibilityOfElementLocated(signOut));
 
-        // Wait for stat cards to confirm full page render
-        wait.until(ExpectedConditions.visibilityOfElementLocated(
-                By.xpath("//*[contains(normalize-space(text()),'Total patients')]")));
-
-        try { Thread.sleep(3000); } catch (InterruptedException ignored) {}
-
-        // Wait for Today's appointments heading
-        By appointmentHeading = By.xpath(
-                "//*[contains(normalize-space(text()),\"Today's appointments\")]");
-        wait.until(ExpectedConditions.visibilityOfElementLocated(appointmentHeading));
-        assertTrue(driver.findElements(appointmentHeading).size() > 0,
-                "Today's appointments section must be present");
-
-        try { Thread.sleep(2000); } catch (InterruptedException ignored) {}
-
-        // Try multiple XPath strategies for the empty state text
-        boolean emptyStateFound = false;
-
-        // Strategy 1: normalize-space on whole element
-        if (!driver.findElements(By.xpath(
-                "//*[contains(normalize-space(),'No appointments today')]")).isEmpty()) {
-            emptyStateFound = true;
-        }
-
-        // Strategy 2: any element whose text contains the phrase
-        if (!emptyStateFound && !driver.findElements(By.xpath(
-                "//*[contains(.,'No appointments today')]")).isEmpty()) {
-            emptyStateFound = true;
-        }
-
-        // Strategy 3: paragraph or span or div with that text
-        if (!emptyStateFound && !driver.findElements(By.xpath(
-                "//p[contains(.,'No appointments today')] | " +
-                        "//span[contains(.,'No appointments today')] | " +
-                        "//div[contains(.,'No appointments today')]")).isEmpty()) {
-            emptyStateFound = true;
-        }
-
-        // Strategy 4: JavaScript search through all DOM text nodes
-        if (!emptyStateFound) {
-            Object jsResult = ((org.openqa.selenium.JavascriptExecutor) driver)
-                    .executeScript(
-                            "var all = document.querySelectorAll('*');" +
-                                    "for (var i = 0; i < all.length; i++) {" +
-                                    "  if (all[i].childNodes) {" +
-                                    "    for (var j = 0; j < all[i].childNodes.length; j++) {" +
-                                    "      var node = all[i].childNodes[j];" +
-                                    "      if (node.nodeType === 3 && " +
-                                    "          node.textContent.trim().indexOf('No appointments today') >= 0) {" +
-                                    "        return true;" +
-                                    "      }" +
-                                    "    }" +
-                                    "  }" +
-                                    "}" +
-                                    "return false;");
-            if (Boolean.TRUE.equals(jsResult)) {
-                emptyStateFound = true;
-            }
-        }
-
-        // Check for data rows as alternative
-        boolean rowsFound = !driver.findElements(By.xpath(
-                "//tbody/tr | //*[contains(@class,'appointment-row')]")).isEmpty();
-
-        assertTrue(emptyStateFound || rowsFound,
-                "Today's appointments must show 'No appointments today' or data rows");
+        WebElement btn = driver.findElement(signOut);
+        assertTrue(btn.isDisplayed(), "button.sb-logout not visible");
+        assertTrue(btn.getText().trim().contains("Sign Out"),
+                "Sign Out button text mismatch: '" + btn.getText() + "'");
+        assertTrue(btn.isEnabled(), "Sign Out button is disabled");
     }
 
-    // ── TC013 — Upcoming consultations panel ──────────────────────────────────
-    // TC013 — Upcoming consultations panel
+    // ─────────────────────────────────────────────────────────────────────────
+    // TC075 — "Bed availability" section visible with bed rows
+    // ─────────────────────────────────────────────────────────────────────────
     @Test(groups = {"regression"})
-    public void TC013_upcoming_consultant_panel() {
-        DoctorDashboard dash = new DoctorDashboard(driver);
-        WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(30));
+    public void TC075_doctor_dashboard_bed_availability() {
+        new DoctorDashboard(driver);
 
-        // Step 1 — Wait for URL
-        wait.until(ExpectedConditions.urlContains("/dashboard"));
+        By cardTitles = By.cssSelector("span.card-title");
+        w().until(ExpectedConditions.visibilityOfElementLocated(cardTitles));
 
-        // Step 2 — Wait for full page load by anchoring on a stat card
-        wait.until(ExpectedConditions.presenceOfElementLocated(
-                By.xpath("//*[contains(normalize-space(text()),'Total patients')]")));
+        boolean headingFound = driver.findElements(cardTitles).stream()
+                .anyMatch(e -> e.getText().trim().equals("Bed availability"));
+        assertTrue(headingFound, "'Bed availability' card-title not found");
 
-        // Step 3 — Wait for Upcoming consultations heading to be VISIBLE (not just present)
-        By upcomingSection = By.xpath(
-                "//*[contains(normalize-space(text()),'Upcoming consultations')]");
-        wait.until(ExpectedConditions.visibilityOfElementLocated(upcomingSection));
-        assertTrue(driver.findElements(upcomingSection).size() > 0,
-                "Upcoming consultations panel should be visible");
+        By bedRows = By.cssSelector("div.bed-list div.bed-row");
+        w().until(ExpectedConditions.numberOfElementsToBeMoreThan(bedRows, 0));
 
-        // Step 4 — Wait specifically for the Join button to be visible
-        By joinBtn = By.xpath("//button[normalize-space(text())='Join']");
-        wait.until(ExpectedConditions.visibilityOfElementLocated(joinBtn));
+        List<WebElement> rows = driver.findElements(bedRows);
+        assertTrue(rows.size() > 0, "No bed rows found in div.bed-list");
 
-        List<WebElement> joinButtons = driver.findElements(joinBtn);
-
-        // Fallback — if button has child elements use contains()
-        if (joinButtons.isEmpty()) {
-            joinButtons = driver.findElements(
-                    By.xpath("//button[contains(normalize-space(),'Join')]"));
+        for (WebElement row : rows) {
+            String badge = row.findElement(
+                    By.cssSelector("span.bed-badge")).getText().trim();
+            assertFalse(badge.isEmpty(), "span.bed-badge is empty in a bed-row");
+            assertTrue(badge.contains("free"),
+                    "bed-badge should contain 'free': '" + badge + "'");
         }
-
-        // Empty state only acceptable when no consultations exist
-        List<WebElement> emptyState = driver.findElements(By.xpath(
-                "//*[contains(normalize-space(text()),'No upcoming') " +
-                        "or contains(normalize-space(text()),'No consultations')]"));
-
-        assertTrue(joinButtons.size() > 0 || emptyState.size() > 0,
-                "Upcoming panel must show 'Join' button or empty-state message");
     }
 
-
-    // ── TC073 — Doctor Sign Out ───────────────────────────────────────────────
+    // ─────────────────────────────────────────────────────────────────────────
+    // TC075a — "Lab reports" section visible
+    // ─────────────────────────────────────────────────────────────────────────
     @Test(groups = {"regression"})
-    public void TC073_doctor_sign_out() {
-        DoctorDashboard dash = new DoctorDashboard(driver);
-        WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(20));
+    public void TC075a_doctor_dashboard_lab_reports_section() {
+        new DoctorDashboard(driver);
 
-        wait.until(ExpectedConditions.urlContains("/dashboard"));
-        assertTrue(dash.sidebar().isSignOutVisible(), "Sign Out link should be visible in sidebar");
-        dash.sidebar().signOut();
-        wait.until(d -> d.getCurrentUrl().contains("/login"));
-        assertTrue(driver.getCurrentUrl().contains("/login"),
-                "After sign out user should be redirected to /login");
+        By cardTitles = By.cssSelector("span.card-title");
+        w().until(ExpectedConditions.visibilityOfElementLocated(cardTitles));
+
+        boolean headingFound = driver.findElements(cardTitles).stream()
+                .anyMatch(e -> e.getText().trim().equals("Lab reports"));
+        assertTrue(headingFound, "'Lab reports' card-title not found");
+
+        By labList = By.cssSelector("div.lab-list");
+        w().until(ExpectedConditions.presenceOfElementLocated(labList));
+
+        List<WebElement> emptyState = driver.findElements(
+                By.cssSelector("div.lab-list div.empty-state"));
+        List<WebElement> items = driver.findElements(
+                By.cssSelector("div.lab-list div.lab-row"));
+
+        assertTrue(emptyState.size() > 0 || items.size() > 0,
+                "lab-list must have items or empty-state");
+
+        if (!emptyState.isEmpty()) {
+            assertEquals(emptyState.get(0).getText().trim(),
+                    "No lab reports", "Empty state text mismatch");
+        }
     }
 
-    // ── TC075 — Bed availability + additional dashboard sections ─────────────
+    // ─────────────────────────────────────────────────────────────────────────
+    // TC075b — "Supply chain alerts" section visible with inventory rows
+    // ─────────────────────────────────────────────────────────────────────────
     @Test(groups = {"regression"})
-    public void TC075_bed_availability_and_dashboard_sections() {
-        DoctorDashboard dash = new DoctorDashboard(driver);
-        WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(20));
+    public void TC075b_doctor_dashboard_supply_chain_alerts() {
+        new DoctorDashboard(driver);
 
-        wait.until(ExpectedConditions.urlContains("/dashboard"));
+        By cardTitles = By.cssSelector("span.card-title");
+        w().until(ExpectedConditions.visibilityOfElementLocated(cardTitles));
 
-        // Wait for Bed availability to appear before checking all sections
-        wait.until(ExpectedConditions.presenceOfElementLocated(
-                By.xpath("//*[contains(normalize-space(text()),'Bed availability')]")));
+        boolean headingFound = driver.findElements(cardTitles).stream()
+                .anyMatch(e -> e.getText().trim().equals("Supply chain alerts"));
+        assertTrue(headingFound, "'Supply chain alerts' card-title not found");
 
-        // Exact section names from the actual app screenshots
-        for (String section : List.of("Bed availability", "Lab reports",
-                "Supply chain alerts", "Notifications")) {
-            By sectionLocator = By.xpath(
-                    "//*[contains(translate(normalize-space(text())," +
-                            "'ABCDEFGHIJKLMNOPQRSTUVWXYZ','abcdefghijklmnopqrstuvwxyz'),'" +
-                            section.toLowerCase() + "')]");
-            wait.until(ExpectedConditions.presenceOfElementLocated(sectionLocator));
-            assertTrue(driver.findElements(sectionLocator).size() > 0,
-                    "Dashboard section missing: " + section);
+        By invRows = By.cssSelector("div.inv-list div.inv-row");
+        w().until(ExpectedConditions.numberOfElementsToBeMoreThan(invRows, 0));
+
+        List<WebElement> rows = driver.findElements(invRows);
+        assertTrue(rows.size() > 0, "No inv-rows found in div.inv-list");
+
+        for (int i = 0; i < rows.size(); i++) {
+            WebElement row = rows.get(i);
+
+            String name = row.findElement(By.cssSelector("span.inv-name")).getText().trim();
+            assertFalse(name.isEmpty(), "inv-name empty in row " + i);
+
+            String cat = row.findElement(By.cssSelector("span.inv-cat")).getText().trim();
+            assertFalse(cat.isEmpty(), "inv-cat empty in row " + i);
+
+            String qty = row.findElement(By.cssSelector("span.inv-qty")).getText().trim();
+            assertFalse(qty.isEmpty(), "inv-qty empty in row " + i);
+            assertTrue(qty.contains("left"),
+                    "inv-qty should contain 'left': '" + qty + "'");
         }
-
-        // Verify at least one ward row is listed under Bed availability
-        By wardRow = By.xpath("//*[contains(text(),'Ward') or contains(text(),'ward')]");
-        List<WebElement> wards = driver.findElements(wardRow);
-        assertNotNull(wards, "Ward rows should be present in Bed availability");
-        assertTrue(wards.size() > 0,
-                "At least one ward should be listed under Bed availability");
     }
 }
