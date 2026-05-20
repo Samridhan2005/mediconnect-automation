@@ -56,8 +56,7 @@ public class AdminRevenueBillingTest extends BaseAdminTest {
     // ─────────────────────────────────────────────────────────────────────────
     // TC060 — Page header "Revenue & Billing" and subtitle visible
     // ─────────────────────────────────────────────────────────────────────────
-    @Test
-    public void TC060_admin_revenue_billing_page_header() {
+
     // TC060 — Revenue & Billing UI (double-quoted xpath handles apostrophe in "Today's Revenue")
     @Test(groups = {"regression"})
     public void TC060_admin_revenue_billing_ui() {
@@ -298,7 +297,7 @@ public class AdminRevenueBillingTest extends BaseAdminTest {
     // ─────────────────────────────────────────────────────────────────────────
     // TC071 — Recent Bills heading visible + table has data rows
     // ─────────────────────────────────────────────────────────────────────────
-    @Test
+
     public void TC071_admin_revenue_recent_bills_table() {
     // TC061 — Recent Bills + Insurance Claims tables
     @Test(groups = {"regression"})
