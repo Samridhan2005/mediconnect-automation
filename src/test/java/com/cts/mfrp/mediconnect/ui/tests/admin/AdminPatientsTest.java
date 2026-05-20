@@ -47,4 +47,6 @@ public class AdminPatientsTest extends BaseAdminTest {
         assertTrue(driver.findElements(page.exportBtn).size() > 0,
                 "Export button should be visible on Patient Management");
     }
+
+
 }
