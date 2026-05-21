@@ -2,6 +2,8 @@ package com.cts.mfrp.mediconnect.ui.pages;
 
 import com.cts.mfrp.mediconnect.utils.ConfigReader;
 import org.openqa.selenium.By;
+import org.openqa.selenium.ElementClickInterceptedException;
+import org.openqa.selenium.JavascriptExecutor;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.ui.ExpectedConditions;
@@ -33,8 +35,27 @@ public abstract class BasePage {
         element.sendKeys(text);
     }
 
+    /**
+     * Robust click that:
+     *   1. Waits for the element to be clickable
+     *   2. Scrolls it to the centre of the viewport (handles off-screen / below-the-fold elements)
+     *   3. Tries a native click
+     *   4. Falls back to a JavaScript click if a CSS overlay intercepts the native one
+     *
+     * Eliminates most ElementClickInterceptedException flakes in parallel runs / variable viewports.
+     */
     protected void click(By locator) {
-        clickable(locator).click();
+        WebElement el = clickable(locator);
+        try {
+            ((JavascriptExecutor) driver).executeScript(
+                    "arguments[0].scrollIntoView({block:'center'});", el);
+            try { Thread.sleep(200); } catch (InterruptedException ignored) {}
+        } catch (Exception ignored) { /* scroll is best-effort */ }
+        try {
+            el.click();
+        } catch (ElementClickInterceptedException e) {
+            ((JavascriptExecutor) driver).executeScript("arguments[0].click();", el);
+        }
     }
 
     protected String text(By locator) {

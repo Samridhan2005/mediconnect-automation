@@ -8,7 +8,7 @@
     - Each role can log in
   Run on every PR / after every deployment.
 -->
-<suite name="MediConnect Smoke Suite" verbose="1">
+<suite name="MediConnect Smoke Suite" verbose="1" parallel="classes" thread-count="3">
 
     <listeners>
         <listener class-name="com.cts.mfrp.mediconnect.utils.ExtentReportListener"/>
