@@ -26,6 +26,7 @@ public class AdminLogin extends BasePage {
     private final By backHomeLink       = By.cssSelector("a.back-link");
     private final By registerLink       = By.cssSelector("a.hint-link");
     private final By pwToggle           = By.cssSelector("button.pw-toggle");
+    private final By adminPortalBtn = By.xpath("//button[text()='Admin Portal']");
 
     public AdminLogin(WebDriver driver) {
         super(driver);
@@ -82,7 +83,10 @@ public class AdminLogin extends BasePage {
     }
 
     public void clickBackHome() { click(backHomeLink); }
-    public void clickRegister() { click(registerLink); }
+    public void clickRegister() {
+        click(adminPortalBtn);
+        click(registerLink);
+    }
 
     public boolean isErrorDisplayed()  { return isDisplayed(errorAlert); }
     public String getErrorMessage()    { return text(errorAlert); }
