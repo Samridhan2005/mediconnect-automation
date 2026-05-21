@@ -47,13 +47,12 @@ public class AdminAnalytics extends BasePage {
     public AdminAnalytics open(long userId) {
         driver.get(ConfigReader.get("ui.baseUrl") + "/admin/" + userId + "/analytics");
 
-        // Wait up to 60s for the page navigation to complete.
-        new WebDriverWait(driver, Duration.ofSeconds(60))
+        // Wait up to 30s for the page navigation to complete.
+        new WebDriverWait(driver, Duration.ofSeconds(30))
                 .until(d -> d.getCurrentUrl().contains("/analytics"));
 
-        // The analytics page is chart-heavy and very slow to populate.
-        // Give Angular a 20-second settle period to finish rendering all charts.
-        try { Thread.sleep(20000); } catch (InterruptedException ignored) {}
+        // The analytics page is chart-heavy; brief settle for Angular to render charts.
+        try { Thread.sleep(5000); } catch (InterruptedException ignored) {}
 
         return this;
     }

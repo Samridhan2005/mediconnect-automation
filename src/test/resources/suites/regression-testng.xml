@@ -5,7 +5,7 @@
   Every @Test method in the project (170 tests: 56 API + 114 UI).
   Run nightly / before each release.
 -->
-<suite name="MediConnect Regression Suite" verbose="1">
+<suite name="MediConnect Regression Suite" verbose="1" parallel="classes" thread-count="3">
 
     <listeners>
         <listener class-name="com.cts.mfrp.mediconnect.utils.ExtentReportListener"/>

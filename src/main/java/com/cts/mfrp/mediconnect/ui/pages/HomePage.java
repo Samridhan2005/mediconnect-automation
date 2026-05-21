@@ -2,7 +2,9 @@ package com.cts.mfrp.mediconnect.ui.pages;
 
 import com.cts.mfrp.mediconnect.utils.ConfigReader;
 import org.openqa.selenium.By;
+import org.openqa.selenium.JavascriptExecutor;
 import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.WebElement;
 
 /**
  * Landing / Home page at the root URL "/".

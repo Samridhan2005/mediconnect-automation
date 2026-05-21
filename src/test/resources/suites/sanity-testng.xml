@@ -10,7 +10,7 @@
     - Role-based access control
   Run after a hotfix to confirm nothing important broke.
 -->
-<suite name="MediConnect Sanity Suite" verbose="1">
+<suite name="MediConnect Sanity Suite" verbose="1" parallel="classes" thread-count="3">
 
     <listeners>
         <listener class-name="com.cts.mfrp.mediconnect.utils.ExtentReportListener"/>
