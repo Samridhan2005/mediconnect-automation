@@ -19,7 +19,7 @@ public class HomePage extends BasePage {
     // Header
     public final By headerGetStartedBtn     = By.cssSelector("button.btn-pill");
     public final By headerAdminPortalBtn    = By.cssSelector("button.btn-ghost-nav");
-
+    public final By backLink = By.cssSelector("a.back-link");
     // Hero section
     public final By heroGetStartedFreeBtn   = By.cssSelector("button.btn-hero-primary");
     public final By heroAdminPortalBtn      = By.cssSelector("button.btn-hero-outline");
@@ -58,7 +58,13 @@ public class HomePage extends BasePage {
 
     public void clickHeaderGetStarted()    { click(headerGetStartedBtn); }
     public void clickHeaderAdminPortal()   { click(headerAdminPortalBtn); }
-    public void clickHeroGetStartedFree()  { click(heroGetStartedFreeBtn); }
-    public void clickHeroAdminPortal()     { click(heroAdminPortalBtn); }
+    public void clickHeroGetStartedFree()  {
+        click(backLink);
+        click(heroGetStartedFreeBtn);
+    }
+    public void clickHeroAdminPortal()     {
+        click(backLink);
+        click(heroAdminPortalBtn);
+    }
     public void clickCtaGetStarted()       { click(ctaGetStartedBtn); }
 }
