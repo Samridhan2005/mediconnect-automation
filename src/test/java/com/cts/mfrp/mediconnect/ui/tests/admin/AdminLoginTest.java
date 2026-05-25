@@ -10,22 +10,9 @@ import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertFalse;
 import static org.testng.Assert.assertTrue;
 
-/**
- * FRD: TC016 — Admin login positive flow, plus extended coverage for /admin/login.
- *
- * Batches:
- *   A) UI elements visible          — TC017, TC018, TC019
- *   B) Negative validation          — TC020, TC021, TC022, TC023, TC024
- *   C) Link navigation              — TC025, TC026
- *
- * NOTE: This class extends UiBaseTest (not BaseAdminTest) because the tests
- * need to land on /admin/login directly, without being auto-logged-in first.
- */
+
 public class AdminLoginTest extends UiBaseTest {
 
-    // ============== TC016 — positive login ==============
-    // Clicking 'Sign In to Admin Panel' must navigate to /admin/{userId}/overview
-    // (the Admin System Overview dashboard).
     @Test(groups = {"smoke", "sanity", "regression"})
     public void TC016_admin_login_positive() {
         new AdminLogin(driver).open()

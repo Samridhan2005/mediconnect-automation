@@ -62,9 +62,9 @@ public class AdminOverviewTest extends BaseAdminTest {
     @Test(groups = {"sanity", "regression"})
     public void TC051_OV01_OV02_admin_overview_ui_and_filters() {
         AdminOverview admin = new AdminOverview(driver);
+
         assertTrue(admin.isLoaded(), "Admin overview page not loaded");
 
-        // Page title
         By titleLocator = By.cssSelector("div.tb-title");
         w().until(ExpectedConditions.visibilityOfElementLocated(titleLocator));
         assertEquals(driver.findElement(titleLocator).getText().trim(),

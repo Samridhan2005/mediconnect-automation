@@ -9,13 +9,23 @@ import org.openqa.selenium.WebDriver;
 /** Admin System Overview — /admin/{userId}/overview */
 public class AdminOverview extends BasePage {
 
-    public final By pageHeader        = By.xpath("//*[contains(normalize-space(),'System Overview')]");
-    public final By periodSelector    = By.cssSelector("select[name*='period'], [class*='period-selector']");
-    public final By allHospitalsDdl   = By.cssSelector("select[name*='hospital'], [class*='hospitals-dropdown']");
+    public final By pageHeader        = By.xpath("//div[normalize-space(text())='System Overview']");
     public final By notificationBell  = By.cssSelector("button.notif-btn, button.tb-notif, [class*='notif']");
-    public final By summaryTiles      = By.cssSelector("[class*='summary'] [class*='tile'], .stat-tile");
-    public final By patientInflowChart = By.cssSelector("[class*='patient-inflow'], [class*='line-chart']");
     public final By hospitalBranchMap = By.xpath("//*[contains(normalize-space(),'Hospital Branch Map') or contains(@class,'branch-map') or contains(@class,'map-container')]");
+    public final By totalPatientsHeader = By.xpath("//div[text()='Total Patients']");
+    public final By totalPatientsValue = By.xpath("//div[text()='Total Patients']/following-sibling::div");
+    public final By totalDoctorsHeader = By.xpath("//div[text()='Total Doctors']");
+    public final By totalDoctorsValue = By.xpath("//div[text()='Total Doctors']/following-sibling::div");
+    public final By bedOccupancyHeader = By.xpath("//div[text()='Bed Occupancy']");
+    public final By bedOccupancyValue = By.xpath("//div[text()='Bed Occupancy']/following-sibling::div");
+    public final By revenueHeader = By.xpath("//div[text()='Revenue (Month)']");
+    public final By revenueValue = By.xpath("//div[text()='Revenue (Month)']/following-sibling::div");
+    public final By doctorOnDutyHeader = By.xpath("//div[text()='Doctors On Duty']");
+    public final By doctorOnDutyValue = By.xpath("//div[text()='Doctors On Duty']/following-sibling::div");
+
+
+
+
 
     public AdminOverview(WebDriver driver) {
         super(driver);
