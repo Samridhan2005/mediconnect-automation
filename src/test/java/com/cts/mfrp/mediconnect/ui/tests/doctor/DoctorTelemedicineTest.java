@@ -28,9 +28,8 @@ public class DoctorTelemedicineTest extends BaseDoctorTest {
         return new WebDriverWait(driver, WAIT);
     }
 
-    // TC046 — Telemedicine UI + session management (full overview)
     @Test(groups = {"regression"})
-    public void TC046_doctor_telemedicine_ui() {
+    public void doctor_telemedicine_ui() {
         DoctorTelemedicine page = new DoctorTelemedicine(driver).open(loggedInUserId);
         WebDriverWait wait     = new WebDriverWait(driver, Duration.ofSeconds(60));
         WebDriverWait longWait = new WebDriverWait(driver, Duration.ofSeconds(60));
@@ -109,7 +108,7 @@ public class DoctorTelemedicineTest extends BaseDoctorTest {
 
     // TC_T01_T03 — Page title, subtitle, schedule session button (merged TC_T01 + TC_T02 + TC_T03)
     @Test(groups = {"regression"})
-    public void TC_T01_T03_telemedicine_header_elements() {
+    public void telemedicine_header_elements() {
         new DoctorTelemedicine(driver).open(loggedInUserId);
 
         By title = By.cssSelector("h1.page-title");
@@ -134,7 +133,7 @@ public class DoctorTelemedicineTest extends BaseDoctorTest {
 
     // TC_T04_T06 — Stat card labels, values, sub-labels (merged TC_T04 + TC_T05 + TC_T06)
     @Test(groups = {"regression"})
-    public void TC_T04_T06_telemedicine_stat_cards() {
+    public void telemedicine_stat_cards() {
         new DoctorTelemedicine(driver).open(loggedInUserId);
 
         By statLabel = By.cssSelector("div.stats-row div.stat-label");
@@ -251,6 +250,145 @@ public class DoctorTelemedicineTest extends BaseDoctorTest {
                     List.of("No-show", "Completed", "Cancelled", "Pending")
                             .stream().anyMatch(status::contains),
                     "Row " + i + " STATUS unexpected: '" + status + "'");
+        }
+    }
+
+    @Test(groups = {"regression"})
+    public void schedule_session_empty_form_blocks_submit() {
+        DoctorTelemedicine page = new DoctorTelemedicine(driver).open(loggedInUserId);
+
+        w().until(ExpectedConditions.elementToBeClickable(page.scheduleSessionBtn));
+        driver.findElement(page.scheduleSessionBtn).click();
+
+        By modal = By.cssSelector("div.modal-card");
+        WebElement dialog = w().until(ExpectedConditions.visibilityOfElementLocated(modal));
+
+        assertEquals(dialog.findElement(By.cssSelector("h2.modal-title")).getText().trim(),
+                "Schedule Session", "Modal title mismatch");
+
+        WebElement form = dialog.findElement(By.tagName("form"));
+        assertTrue(form.getAttribute("class").contains("ng-invalid"),
+                "Empty form should start as ng-invalid. Got: " + form.getAttribute("class"));
+
+        for (String label : List.of("Patient", "Date", "Time", "Estimated Duration", "Reason")) {
+            List<WebElement> req = dialog.findElements(
+                    By.xpath(".//label[contains(normalize-space(),'" + label + "')]"
+                            + "//*[contains(@class,'req') or normalize-space()='*']"));
+            assertFalse(req.isEmpty(),
+                    "Required marker (*) missing for: " + label);
+        }
+
+        WebElement submit = dialog.findElement(
+                By.xpath(".//button[normalize-space()='Schedule Session']"));
+        submit.click();
+        try { Thread.sleep(500); } catch (InterruptedException ignored) {}
+
+        assertTrue(driver.findElement(modal).isDisplayed(),
+                "Submitting an empty form should NOT close the modal");
+        assertTrue(form.getAttribute("class").contains("ng-invalid"),
+                "Form should remain ng-invalid after empty submit. Got: " + form.getAttribute("class"));
+
+        dialog.findElement(By.xpath(".//button[normalize-space()='Cancel']")).click();
+        w().until(ExpectedConditions.invisibilityOfElementLocated(modal));
+    }
+
+    @Test(groups = {"regression"})
+    public void schedule_session_submit_creates_session() {
+        DoctorTelemedicine page = new DoctorTelemedicine(driver).open(loggedInUserId);
+
+        w().until(ExpectedConditions.elementToBeClickable(page.scheduleSessionBtn));
+        driver.findElement(page.scheduleSessionBtn).click();
+
+        By modal = By.cssSelector("div.modal-card");
+        WebElement dialog = w().until(ExpectedConditions.visibilityOfElementLocated(modal));
+
+        WebElement patientInput = dialog.findElement(
+                By.cssSelector("div.autocomplete-wrap input"));
+        patientInput.click();
+        patientInput.sendKeys("a");
+
+        By suggestion = By.cssSelector("div.autocomplete-wrap li, "
+                + "div.autocomplete-wrap [class*='suggest'], "
+                + "div.autocomplete-wrap [class*='option'], "
+                + "div.autocomplete-wrap [class*='item']");
+        try {
+            w().until(ExpectedConditions.visibilityOfElementLocated(suggestion));
+        } catch (org.openqa.selenium.TimeoutException e) {
+            org.testng.Assert.fail("Patient autocomplete did not show suggestions after typing 'a'");
+        }
+        List<WebElement> suggestions = driver.findElements(suggestion);
+        assertFalse(suggestions.isEmpty(), "Patient autocomplete returned no suggestions");
+        String chosenPatient = suggestions.get(0).getText().trim();
+        suggestions.get(0).click();
+
+        WebElement dateInput = dialog.findElement(By.cssSelector("input[type='date']"));
+        dateInput.clear();
+        dateInput.sendKeys("06/15/2026");
+
+        WebElement timeInput = dialog.findElement(By.cssSelector("input[type='time']"));
+        timeInput.clear();
+        timeInput.sendKeys("11:30AM");
+
+        List<WebElement> numberInputs = dialog.findElements(By.cssSelector("input[type='number']"));
+        if (!numberInputs.isEmpty()) {
+            WebElement duration = numberInputs.get(0);
+            String currentVal = duration.getAttribute("value");
+            if (currentVal == null || currentVal.isBlank()) {
+                duration.sendKeys("30");
+            }
+        }
+
+        WebElement reason = dialog.findElements(By.cssSelector("input[type='text'], input:not([type])")).stream()
+                .filter(WebElement::isDisplayed)
+                .filter(el -> {
+                    String ph = el.getAttribute("placeholder");
+                    return ph != null && (ph.toLowerCase().contains("hypertension")
+                            || ph.toLowerCase().contains("e.g.")
+                            || ph.toLowerCase().contains("reason"));
+                })
+                .findFirst()
+                .orElseThrow(() -> new AssertionError("Reason input not found by placeholder"));
+        reason.clear();
+        reason.sendKeys("Automated test - follow up consultation");
+
+        List<WebElement> textareas = dialog.findElements(By.tagName("textarea"));
+        if (!textareas.isEmpty()) {
+            textareas.get(0).clear();
+            textareas.get(0).sendKeys("Created by Selenium automation suite");
+        }
+
+        WebElement form = dialog.findElement(By.tagName("form"));
+        try {
+            w().until(d -> {
+                String cls = form.getAttribute("class");
+                return cls != null && cls.contains("ng-valid") && !cls.contains("ng-invalid");
+            });
+        } catch (org.openqa.selenium.TimeoutException e) {
+            org.testng.Assert.fail("Form did not become ng-valid after filling required fields. "
+                    + "Chosen patient: '" + chosenPatient + "'. "
+                    + "Class: " + form.getAttribute("class"));
+        }
+
+        WebElement submit = dialog.findElement(
+                By.xpath(".//button[normalize-space()='Schedule Session']"));
+        assertTrue(submit.isEnabled(), "Schedule Session button disabled with valid form");
+        submit.click();
+
+        try {
+            w().until(ExpectedConditions.invisibilityOfElementLocated(modal));
+        } catch (org.openqa.selenium.TimeoutException e) {
+            List<WebElement> errors = driver.findElements(
+                    By.cssSelector("[class*='error'], [class*='alert'], [class*='toast']"));
+            String errorMsg = errors.stream()
+                    .filter(WebElement::isDisplayed)
+                    .map(el -> el.getText().trim())
+                    .filter(t -> !t.isEmpty())
+                    .findFirst()
+                    .orElse("(no visible error message)");
+            org.testng.Assert.fail("Modal did not close after submit. "
+                    + "Chosen patient: '" + chosenPatient + "'. "
+                    + "Form class: " + form.getAttribute("class") + ". "
+                    + "Error message: " + errorMsg);
         }
     }
 }

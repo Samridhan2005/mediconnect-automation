@@ -11,6 +11,8 @@ import org.testng.annotations.Test;
 import java.time.Duration;
 import java.util.List;
 
+import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.assertFalse;
 import static org.testng.Assert.assertTrue;
 
 /** FRD: TC042, TC043 — Doctor Lab Reports page. */
@@ -131,5 +133,137 @@ public class DoctorLabReportsTest extends BaseDoctorTest {
                         "//*[@aria-label='Test']");
         assertTrue(driver.findElements(testField).size() > 0,
                 "Modal must have a Test field");
+    }
+
+    @Test(groups = {"regression"})
+    public void request_lab_test_empty_form_blocks_submit() {
+        DoctorLabReports page = new DoctorLabReports(driver).open(loggedInUserId);
+        WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(30));
+
+        wait.until(ExpectedConditions.elementToBeClickable(page.requestTestBtn));
+        driver.findElement(page.requestTestBtn).click();
+
+        By modal = By.cssSelector("div.modal-card");
+        WebElement dialog = wait.until(ExpectedConditions.visibilityOfElementLocated(modal));
+
+        assertEquals(dialog.findElement(By.cssSelector("h2.modal-title")).getText().trim(),
+                "Request Lab Test", "Modal title mismatch");
+
+        WebElement form = dialog.findElement(By.tagName("form"));
+        String formClass = form.getAttribute("class");
+        assertTrue(formClass.contains("ng-invalid"),
+                "Empty form should start as ng-invalid. Got: " + formClass);
+
+        for (String label : List.of("Patient", "Test Type", "Priority", "Requested Date")) {
+            List<WebElement> req = dialog.findElements(
+                    By.xpath(".//label[contains(normalize-space(),'" + label + "')]//*[contains(@class,'req') or normalize-space()='*']"));
+            assertFalse(req.isEmpty(),
+                    "Required marker (*) missing for field: " + label);
+        }
+
+        WebElement submit = dialog.findElement(
+                By.xpath(".//button[normalize-space()='Submit Request']"));
+        submit.click();
+        try { Thread.sleep(500); } catch (InterruptedException ignored) {}
+
+        assertTrue(driver.findElement(modal).isDisplayed(),
+                "Submitting an empty form should NOT close the modal — required-field validation should block submit");
+
+        WebElement formAfter = dialog.findElement(By.tagName("form"));
+        assertTrue(formAfter.getAttribute("class").contains("ng-invalid"),
+                "Form should remain ng-invalid after empty submit. Got: " + formAfter.getAttribute("class"));
+
+        dialog.findElement(By.xpath(".//button[normalize-space()='Cancel']")).click();
+        wait.until(ExpectedConditions.invisibilityOfElementLocated(modal));
+    }
+
+    @Test(groups = {"regression"})
+    public void request_lab_test_submit_creates_record() {
+        DoctorLabReports page = new DoctorLabReports(driver).open(loggedInUserId);
+        WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(30));
+
+        wait.until(ExpectedConditions.elementToBeClickable(page.requestTestBtn));
+        driver.findElement(page.requestTestBtn).click();
+
+        By modal = By.cssSelector("div.modal-card");
+        WebElement dialog = wait.until(ExpectedConditions.visibilityOfElementLocated(modal));
+
+        WebElement patientInput = dialog.findElement(
+                By.cssSelector("div.autocomplete-wrap input"));
+        patientInput.click();
+        patientInput.sendKeys("a");
+
+        By suggestion = By.cssSelector("div.autocomplete-wrap li, "
+                + "div.autocomplete-wrap [class*='suggest'], "
+                + "div.autocomplete-wrap [class*='option'], "
+                + "div.autocomplete-wrap [class*='item']");
+        try {
+            wait.until(ExpectedConditions.visibilityOfElementLocated(suggestion));
+        } catch (org.openqa.selenium.TimeoutException e) {
+            org.testng.Assert.fail("Patient autocomplete did not show suggestions after typing 'a'");
+        }
+        List<WebElement> suggestions = driver.findElements(suggestion);
+        assertFalse(suggestions.isEmpty(), "No patient suggestions returned");
+        String chosenPatient = suggestions.get(0).getText().trim();
+        suggestions.get(0).click();
+
+        List<WebElement> selects = dialog.findElements(By.tagName("select"));
+        assertTrue(selects.size() >= 2,
+                "Expected Test Type + Priority dropdowns. Found: " + selects.size());
+
+        org.openqa.selenium.support.ui.Select testTypeSel =
+                new org.openqa.selenium.support.ui.Select(selects.get(0));
+        org.openqa.selenium.support.ui.Select prioritySel =
+                new org.openqa.selenium.support.ui.Select(selects.get(1));
+
+        assertTrue(testTypeSel.getOptions().size() > 1,
+                "Test Type dropdown has no real options (only placeholder)");
+        testTypeSel.selectByIndex(1);
+
+        if (prioritySel.getFirstSelectedOption().getText().trim().isEmpty()) {
+            prioritySel.selectByIndex(1);
+        }
+
+        WebElement dateInput = dialog.findElement(
+                By.cssSelector("input[type='date']"));
+        dateInput.clear();
+        dateInput.sendKeys("06/15/2026");
+
+        WebElement notes = dialog.findElement(By.tagName("textarea"));
+        notes.clear();
+        notes.sendKeys("Automated test request — please ignore");
+
+        WebElement form = dialog.findElement(By.tagName("form"));
+        try {
+            wait.until(d -> {
+                String cls = form.getAttribute("class");
+                return cls != null && cls.contains("ng-valid") && !cls.contains("ng-invalid");
+            });
+        } catch (org.openqa.selenium.TimeoutException e) {
+            org.testng.Assert.fail("Form did not become ng-valid after filling all required fields. "
+                    + "Class: " + form.getAttribute("class"));
+        }
+
+        WebElement submit = dialog.findElement(
+                By.xpath(".//button[normalize-space()='Submit Request']"));
+        assertTrue(submit.isEnabled(), "Submit Request button disabled with valid form");
+        submit.click();
+
+        try {
+            wait.until(ExpectedConditions.invisibilityOfElementLocated(modal));
+        } catch (org.openqa.selenium.TimeoutException e) {
+            List<WebElement> errors = driver.findElements(
+                    By.cssSelector("[class*='error'], [class*='alert'], [class*='toast']"));
+            String errorMsg = errors.stream()
+                    .filter(WebElement::isDisplayed)
+                    .map(el -> el.getText().trim())
+                    .filter(t -> !t.isEmpty())
+                    .findFirst()
+                    .orElse("(no visible error message)");
+            org.testng.Assert.fail("Modal did not close after submit. "
+                    + "Chosen patient: '" + chosenPatient + "'. "
+                    + "Form class: " + form.getAttribute("class") + ". "
+                    + "Error message: " + errorMsg);
+        }
     }
 }

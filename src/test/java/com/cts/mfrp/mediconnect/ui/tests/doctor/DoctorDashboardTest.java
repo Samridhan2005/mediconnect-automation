@@ -28,19 +28,16 @@ public class DoctorDashboardTest extends BaseDoctorTest {
     }
 
     // TC007_010 — Dashboard header: page title, sidebar links, hospital selector, notification bell
-    // Merged TC007 + TC008 + TC009 + TC010
     @Test(groups = {"sanity", "regression"})
-    public void TC007_010_doctor_dashboard_header_and_nav() {
+    public void doctor_dashboard_header_and_nav() {
         new DoctorDashboard(driver);
 
-        // TC007 — page title
         By titleLocator = By.cssSelector("h1.page-title");
         w().until(ExpectedConditions.visibilityOfElementLocated(titleLocator));
         WebElement title = driver.findElement(titleLocator);
         assertTrue(title.isDisplayed(), "h1.page-title not visible");
         assertEquals(title.getText().trim(), "Dashboard", "Page title mismatch");
 
-        // TC008 — sidebar nav links
         By navLinks = By.cssSelector("aside.sb nav.sb-nav a.ni");
         w().until(ExpectedConditions.visibilityOfElementLocated(navLinks));
         List<String> found = driver.findElements(navLinks)
@@ -53,7 +50,7 @@ public class DoctorDashboardTest extends BaseDoctorTest {
                     "Sidebar link '" + expected + "' not found. Found: " + found);
         }
 
-        // TC009 — hospital selector
+
         By hospitalBtn = By.cssSelector("button.hospital-btn");
         w().until(ExpectedConditions.visibilityOfElementLocated(hospitalBtn));
         WebElement hbtn = driver.findElement(hospitalBtn);
@@ -61,7 +58,6 @@ public class DoctorDashboardTest extends BaseDoctorTest {
         assertFalse(hbtn.getText().trim().isEmpty(),
                 "Hospital selector button text is empty");
 
-        // TC010 — notification bell + badge
         By notifBtn = By.cssSelector("button.notif-btn");
         w().until(ExpectedConditions.visibilityOfElementLocated(notifBtn));
         assertTrue(driver.findElement(notifBtn).isDisplayed(),
@@ -73,6 +69,82 @@ public class DoctorDashboardTest extends BaseDoctorTest {
         assertTrue(badgeText.matches("\\d+"),
                 "Notification badge not numeric: '" + badgeText + "'");
     }
+    @Test(groups = {"regression"})
+    public void hospital_dropdown() {
+        new DoctorDashboard(driver);
+
+        By hospitalBtn  = By.cssSelector("button.hospital-btn");
+        By menuWrapper  = By.xpath("//button[contains(@class,'hospital-btn')]/following-sibling::div[contains(@style,'position') and contains(@style,'relative')]");
+
+        w().until(ExpectedConditions.elementToBeClickable(hospitalBtn));
+        WebElement btn = driver.findElement(hospitalBtn);
+        String initialText = btn.getText().trim();
+        assertFalse(initialText.isEmpty(), "Hospital button text is empty before click");
+
+        btn.click();
+
+        WebElement wrapper = w().until(
+                ExpectedConditions.visibilityOfElementLocated(menuWrapper));
+
+        List<WebElement> options = wrapper.findElements(By.xpath(".//*[self::button or self::a or self::li or self::div[@role='option']]"));
+        assertFalse(options.isEmpty(),
+                "BUG: Hospital dropdown menu opened but contains no selectable options. " +
+                        "Wrapper HTML: " + wrapper.getAttribute("outerHTML"));
+
+        WebElement target = options.stream()
+                .filter(o -> !o.getText().trim().isEmpty())
+                .filter(o -> !o.getText().trim().equalsIgnoreCase(initialText))
+                .findFirst()
+                .orElse(options.get(0));
+        String targetText = target.getText().trim();
+        target.click();
+
+        w().until(d -> driver.findElement(hospitalBtn).getText().trim().contains(targetText));
+
+        String updatedText = driver.findElement(hospitalBtn).getText().trim();
+        assertTrue(updatedText.contains(targetText),
+                "Hospital button text did not update after selection. Expected to contain '"
+                        + targetText + "', got '" + updatedText + "'");
+    }
+
+    @Test(groups = {"regression"})
+    public void view_all_links() {
+        new DoctorDashboard(driver);
+
+        By viewAll = By.xpath("//a[normalize-space()='View all'] | //button[normalize-space()='View all']");
+        w().until(ExpectedConditions.presenceOfElementLocated(viewAll));
+
+        List<WebElement> links = driver.findElements(viewAll);
+        assertFalse(links.isEmpty(), "No 'View all' links found on the dashboard");
+
+        String dashboardUrl = driver.getCurrentUrl();
+
+        for (int i = 0; i < links.size(); i++) {
+            List<WebElement> current = driver.findElements(viewAll);
+            WebElement link = current.get(i);
+
+            String parentCard = link.findElement(By.xpath("ancestor::*[contains(@class,'card') or contains(@class,'panel')][1]"))
+                    .findElement(By.cssSelector("span.card-title"))
+                    .getText().trim();
+
+            assertTrue(link.isDisplayed(), "'View all' link not visible for card: " + parentCard);
+            assertTrue(link.isEnabled(),   "'View all' link disabled for card: " + parentCard);
+
+            link.click();
+
+            w().until(d -> !d.getCurrentUrl().equals(dashboardUrl));
+            String navigatedUrl = driver.getCurrentUrl();
+            assertFalse(navigatedUrl.equals(dashboardUrl),
+                    "'View all' for '" + parentCard + "' did not navigate. Still at: " + navigatedUrl);
+            assertTrue(navigatedUrl.contains("/doctor/"),
+                    "'View all' for '" + parentCard + "' navigated outside doctor area: " + navigatedUrl);
+
+            driver.navigate().back();
+            w().until(ExpectedConditions.urlToBe(dashboardUrl));
+            w().until(ExpectedConditions.visibilityOfElementLocated(viewAll));
+        }
+    }
+
 
     // TC011 — Stat cards: labels and values
     @Test(groups = {"regression"})
@@ -85,8 +157,7 @@ public class DoctorDashboardTest extends BaseDoctorTest {
         By statLabel = By.cssSelector("span.stat-label");
         w().until(ExpectedConditions.visibilityOfElementLocated(statLabel));
 
-        List<String> labels = driver.findElements(statLabel)
-                .stream().map(e -> e.getText().trim()).toList();
+        List<String> labels = driver.findElements(statLabel).stream().map(e -> e.getText().trim()).toList();
 
         for (String expected : List.of(
                 "Total patients", "Today's appointments",
@@ -105,10 +176,9 @@ public class DoctorDashboardTest extends BaseDoctorTest {
         }
     }
 
-    // TC012_012a — Today's appointments section + row data validation
-    // Merged TC012 + TC012a
+
     @Test(groups = {"regression"})
-    public void TC012_012a_doctor_dashboard_todays_appointments() {
+    public void doctor_dashboard_todays_appointments() {
         new DoctorDashboard(driver);
 
         // TC012 — section visible
@@ -142,13 +212,10 @@ public class DoctorDashboardTest extends BaseDoctorTest {
         }
     }
 
-    // TC013_073 — Upcoming consultations + Sign Out button
-    // Merged TC013 + TC073
     @Test(groups = {"regression"})
-    public void TC013_073_doctor_dashboard_consultations_and_signout() {
+    public void doctor_dashboard_consultations_and_signout() {
         new DoctorDashboard(driver);
 
-        // TC013 — upcoming consultations
         By cardTitles = By.cssSelector("span.card-title");
         w().until(ExpectedConditions.visibilityOfElementLocated(cardTitles));
         boolean headingFound = driver.findElements(cardTitles).stream()
@@ -179,7 +246,6 @@ public class DoctorDashboardTest extends BaseDoctorTest {
             assertTrue(joinBtn.isEnabled(), "button.join-btn is disabled");
         }
 
-        // TC073 — Sign Out button
         By signOut = By.cssSelector("button.sb-logout");
         w().until(ExpectedConditions.visibilityOfElementLocated(signOut));
         WebElement btn = driver.findElement(signOut);
@@ -189,8 +255,7 @@ public class DoctorDashboardTest extends BaseDoctorTest {
         assertTrue(btn.isEnabled(), "Sign Out button is disabled");
     }
 
-    // TC075_075a_075b — Bed availability + Lab reports + Supply chain alerts sections
-    // Merged TC075 + TC075a + TC075b
+    
     @Test(groups = {"regression"})
     public void TC075_075a_075b_doctor_dashboard_side_sections() {
         new DoctorDashboard(driver);
@@ -253,5 +318,106 @@ public class DoctorDashboardTest extends BaseDoctorTest {
             assertTrue(qty.contains("left"),
                     "inv-qty should contain 'left': '" + qty + "'");
         }
+    }
+
+    @Test(groups = {"regression"})
+    public void join_button_opens_jitsi_meet() {
+        new DoctorDashboard(driver);
+
+        By joinBtn = By.cssSelector("div.consult-list button.join-btn");
+        w().until(ExpectedConditions.visibilityOfElementLocated(joinBtn));
+
+        List<WebElement> joinButtons = driver.findElements(joinBtn);
+        if (joinButtons.isEmpty()) {
+            throw new org.testng.SkipException("No upcoming consultations with Join buttons available");
+        }
+
+        String originalWindow = driver.getWindowHandle();
+        java.util.Set<String> windowsBefore = driver.getWindowHandles();
+
+        joinButtons.get(0).click();
+
+        w().until(d -> d.getWindowHandles().size() > windowsBefore.size());
+
+        java.util.Set<String> windowsAfter = driver.getWindowHandles();
+        windowsAfter.removeAll(windowsBefore);
+        String newWindow = windowsAfter.iterator().next();
+        driver.switchTo().window(newWindow);
+
+        w().until(d -> !d.getCurrentUrl().equals("about:blank"));
+        String meetUrl = driver.getCurrentUrl();
+        assertTrue(meetUrl.contains("meet.jit.si"),
+                "Join did not open a Jitsi meet URL. Got: " + meetUrl);
+        assertTrue(meetUrl.contains("mediconnect"),
+                "Jitsi room URL does not contain 'mediconnect'. Got: " + meetUrl);
+
+        driver.close();
+        driver.switchTo().window(originalWindow);
+    }
+
+    @Test(groups = {"regression"})
+    public void mark_all_read_clears_notifications() {
+        new DoctorDashboard(driver);
+
+        By cardTitles = By.cssSelector("span.card-title");
+        w().until(ExpectedConditions.visibilityOfElementLocated(cardTitles));
+
+        WebElement notifCard = driver.findElements(cardTitles).stream()
+                .filter(e -> e.getText().trim().equalsIgnoreCase("Notifications"))
+                .findFirst()
+                .orElseThrow(() -> new AssertionError("'Notifications' card-title not found on dashboard"))
+                .findElement(By.xpath("ancestor::*[contains(@class,'card') or contains(@class,'panel')][1]"));
+
+        By markAllRead = By.xpath(".//a[normalize-space()='Mark all read'] | .//button[normalize-space()='Mark all read']");
+        List<WebElement> markBtns = notifCard.findElements(markAllRead);
+        assertFalse(markBtns.isEmpty(), "'Mark all read' link not found inside Notifications card");
+
+        WebElement mark = markBtns.get(0);
+        assertTrue(mark.isDisplayed(), "'Mark all read' link not visible");
+        assertTrue(mark.isEnabled(),   "'Mark all read' link disabled");
+
+        By badge = By.cssSelector("span.notif-badge");
+        String badgeBefore = driver.findElements(badge).isEmpty()
+                ? "0" : driver.findElement(badge).getText().trim();
+
+        mark.click();
+
+        try {
+            w().until(d -> {
+                List<WebElement> b = d.findElements(badge);
+                if (b.isEmpty()) return true;
+                String t = b.get(0).getText().trim();
+                return t.isEmpty() || t.equals("0");
+            });
+        } catch (org.openqa.selenium.TimeoutException e) {
+            String badgeAfter = driver.findElements(badge).isEmpty()
+                    ? "(removed)" : driver.findElement(badge).getText().trim();
+            org.testng.Assert.fail("'Mark all read' did not clear the notification badge. " +
+                    "Before: " + badgeBefore + ", After: " + badgeAfter);
+        }
+    }
+
+    @Test(groups = {"regression"}, priority = 100)
+    public void doctor_signout_redirects_to_login() {
+        new DoctorDashboard(driver);
+
+        By signOut = By.cssSelector("button.sb-logout");
+        w().until(ExpectedConditions.elementToBeClickable(signOut));
+
+        String beforeUrl = driver.getCurrentUrl();
+        driver.findElement(signOut).click();
+
+        w().until(d -> !d.getCurrentUrl().equals(beforeUrl));
+        String afterUrl = driver.getCurrentUrl();
+
+        assertFalse(afterUrl.contains("/dashboard"),
+                "Still on dashboard after sign out: " + afterUrl);
+        assertTrue(afterUrl.contains("/login") || afterUrl.endsWith("/") || afterUrl.contains("/auth"),
+                "Sign out did not redirect to login/home. Landed at: " + afterUrl);
+
+        By emailField = By.cssSelector("input[type='email'], input[name='email'], input#email");
+        w().until(ExpectedConditions.visibilityOfElementLocated(emailField));
+        assertTrue(driver.findElement(emailField).isDisplayed(),
+                "Login email field not visible after sign out");
     }
 }
