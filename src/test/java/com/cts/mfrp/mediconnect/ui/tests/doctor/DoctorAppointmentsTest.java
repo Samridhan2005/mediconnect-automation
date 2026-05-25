@@ -23,10 +23,9 @@ public class DoctorAppointmentsTest extends BaseDoctorTest {
         return new WebDriverWait(driver, WAIT);
     }
 
-    // TC039_A01_A04 — Page header, title, subtitle, calendar view + new appointment buttons
-    // Merged TC039 + TC_A01 + TC_A02 + TC_A03 + TC_A04
+
     @Test(groups = {"sanity", "regression"})
-    public void TC039_A01_A04_doctor_appointments_header_and_buttons() {
+    public void doctor_appointments_header_and_buttons() {
         new DoctorAppointments(driver).open(loggedInUserId);
 
         // TC039 / TC_A01 — page title
@@ -62,10 +61,9 @@ public class DoctorAppointmentsTest extends BaseDoctorTest {
         assertTrue(nb.isEnabled(), "New Appointment button is disabled");
     }
 
-    // TC040_A05_A08 — Tab bar (Today active / Upcoming / Past) + stat cards
-    // Merged TC040 + TC_A05 + TC_A06 + TC_A07 + TC_A08
+
     @Test(groups = {"regression"})
-    public void TC040_A05_A08_doctor_appointments_tabs_and_stat_cards() {
+    public void doctor_appointments_tabs_and_stat_cards() {
         new DoctorAppointments(driver).open(loggedInUserId);
 
         // TC040 / TC_A08 — tab bar active = Today, all 3 tabs present
@@ -84,7 +82,6 @@ public class DoctorAppointmentsTest extends BaseDoctorTest {
                     "Tab '" + tab + "' not found. Found: " + tabTexts);
         }
 
-        // TC_A05 — stat card labels
         By statLabel = By.cssSelector("div.stats-row div.stat-label");
         w().until(ExpectedConditions.visibilityOfElementLocated(statLabel));
         List<String> foundLabels = driver.findElements(statLabel)
@@ -94,7 +91,6 @@ public class DoctorAppointmentsTest extends BaseDoctorTest {
                     "Stat label '" + expected + "' missing. Found: " + foundLabels);
         }
 
-        // TC_A06 — stat values non-empty
         By statVal = By.cssSelector("div.stats-row div.stat-val");
         w().until(ExpectedConditions.visibilityOfElementLocated(statVal));
         List<WebElement> values = driver.findElements(statVal);
@@ -103,7 +99,6 @@ public class DoctorAppointmentsTest extends BaseDoctorTest {
             assertFalse(v.getText().trim().isEmpty(), "div.stat-val is blank");
         }
 
-        // TC_A07 — stat sub-labels non-empty
         By statSub = By.cssSelector("div.stats-row div.stat-sub");
         w().until(ExpectedConditions.visibilityOfElementLocated(statSub));
         List<WebElement> subs = driver.findElements(statSub);
@@ -225,5 +220,242 @@ public class DoctorAppointmentsTest extends BaseDoctorTest {
         By closeBtn = By.cssSelector("aside.side-panel button.panel-close");
         assertTrue(driver.findElements(closeBtn).size() > 0,
                 "button.panel-close not found in side panel");
+    }
+
+    @Test(groups = {"regression"})
+    public void calendar_view_opens() {
+        new DoctorAppointments(driver).open(loggedInUserId);
+
+        By calBtn = By.xpath("//button[contains(normalize-space(),'Calendar view')]");
+        w().until(ExpectedConditions.elementToBeClickable(calBtn));
+        driver.findElement(calBtn).click();
+
+        By monthHeader = By.xpath(
+                "//*[(contains(normalize-space(),'January') or contains(normalize-space(),'February') "
+                        + "or contains(normalize-space(),'March') or contains(normalize-space(),'April') "
+                        + "or contains(normalize-space(),'May') or contains(normalize-space(),'June') "
+                        + "or contains(normalize-space(),'July') or contains(normalize-space(),'August') "
+                        + "or contains(normalize-space(),'September') or contains(normalize-space(),'October') "
+                        + "or contains(normalize-space(),'November') or contains(normalize-space(),'December')) "
+                        + "and string-length(normalize-space()) &lt; 25]");
+
+        try {
+            w().until(ExpectedConditions.visibilityOfElementLocated(monthHeader));
+        } catch (org.openqa.selenium.TimeoutException e) {
+            org.testng.Assert.fail("Calendar did not render — no month/year heading found");
+        }
+
+        List<WebElement> dayLabels = driver.findElements(
+                By.xpath("//*[normalize-space()='Su' or normalize-space()='Mo' "
+                        + "or normalize-space()='Tu' or normalize-space()='We' "
+                        + "or normalize-space()='Th' or normalize-space()='Fr' "
+                        + "or normalize-space()='Sa']"));
+        assertTrue(dayLabels.size() >= 7,
+                "Expected 7 day-of-week labels (Su Mo Tu We Th Fr Sa), found: " + dayLabels.size());
+
+        List<WebElement> dateNumbers = driver.findElements(
+                By.xpath("//*[normalize-space()='1' or normalize-space()='15' or normalize-space()='28']"));
+        assertFalse(dateNumbers.isEmpty(),
+                "Calendar grid shows no recognisable date numbers (e.g. 1, 15, 28)");
+    }
+
+    @Test(groups = {"regression"})
+    public void appointment_tabs_switch_content() {
+        new DoctorAppointments(driver).open(loggedInUserId);
+
+        By tableWrap = By.cssSelector("div.table-wrap");
+        w().until(ExpectedConditions.visibilityOfElementLocated(tableWrap));
+
+        for (String tabName : List.of("Today", "Upcoming", "Past")) {
+            By tabLocator = By.xpath(
+                    "//div[contains(@class,'tab-bar')]//button[normalize-space()='" + tabName + "']");
+            w().until(ExpectedConditions.elementToBeClickable(tabLocator));
+            driver.findElement(tabLocator).click();
+
+            w().until(d -> {
+                List<WebElement> active = d.findElements(
+                        By.cssSelector("div.tab-bar button.tab.active"));
+                return !active.isEmpty() && active.get(0).getText().trim().equals(tabName);
+            });
+
+            WebElement activeTab = driver.findElement(
+                    By.cssSelector("div.tab-bar button.tab.active"));
+            assertEquals(activeTab.getText().trim(), tabName,
+                    "Active tab did not switch to: " + tabName);
+
+            int rowCount = driver.findElements(
+                    By.cssSelector("div.table-wrap table tbody tr.data-row")).size();
+            int emptyStateCount = driver.findElements(
+                    By.cssSelector("div.table-wrap [class*='empty']")).size();
+            assertTrue(rowCount > 0 || emptyStateCount > 0,
+                    "Tab '" + tabName + "' shows neither data rows nor an empty-state message");
+        }
+    }
+
+    @Test(groups = {"regression"})
+    public void appointment_filter_dropdowns_work() {
+        new DoctorAppointments(driver).open(loggedInUserId);
+
+        By toolbar = By.cssSelector("div.toolbar");
+        w().until(ExpectedConditions.visibilityOfElementLocated(toolbar));
+
+        List<WebElement> selects = driver.findElements(
+                By.cssSelector("div.toolbar select.tb-input"));
+        assertTrue(selects.size() >= 2,
+                "Expected at least 2 toolbar dropdowns. Found: " + selects.size());
+
+        for (int i = 0; i < selects.size(); i++) {
+            org.openqa.selenium.support.ui.Select sel =
+                    new org.openqa.selenium.support.ui.Select(selects.get(i));
+            String defaultText = sel.getFirstSelectedOption().getText().trim();
+
+            List<WebElement> options = sel.getOptions();
+            assertTrue(options.size() > 1,
+                    "Dropdown #" + i + " ('" + defaultText + "') has no selectable options");
+
+            for (WebElement opt : options) {
+                assertFalse(opt.getText().trim().isEmpty(),
+                        "Dropdown #" + i + " contains an empty option");
+            }
+
+            sel.selectByIndex(1);
+            String newText = sel.getFirstSelectedOption().getText().trim();
+            assertFalse(newText.equals(defaultText),
+                    "Dropdown #" + i + " value did not change after selectByIndex(1)");
+
+            sel.selectByVisibleText(defaultText);
+        }
+
+        By datePicker = By.cssSelector("div.toolbar input[type='date'].tb-input");
+        w().until(ExpectedConditions.visibilityOfElementLocated(datePicker));
+        WebElement date = driver.findElement(datePicker);
+        assertTrue(date.isDisplayed(), "Date filter input not visible");
+        assertTrue(date.isEnabled(), "Date filter input disabled");
+
+        date.sendKeys("05/26/2026");
+        String dateVal = date.getAttribute("value");
+        assertFalse(dateVal.isEmpty(),
+                "Date filter input did not accept value (got empty value attribute)");
+    }
+
+    @Test(groups = {"regression"})
+    public void upcoming_eye_icon_opens_patient_page() {
+        new DoctorAppointments(driver).open(loggedInUserId);
+
+        By upcomingTab = By.xpath(
+                "//div[contains(@class,'tab-bar')]//button[normalize-space()='Upcoming']");
+        w().until(ExpectedConditions.elementToBeClickable(upcomingTab));
+        driver.findElement(upcomingTab).click();
+
+        By rows = By.cssSelector("div.table-wrap table tbody tr.data-row");
+        try {
+            w().until(ExpectedConditions.numberOfElementsToBeMoreThan(rows, 0));
+        } catch (org.openqa.selenium.TimeoutException e) {
+            throw new org.testng.SkipException("No upcoming appointments to test eye icon");
+        }
+
+        WebElement firstRow = driver.findElements(rows).get(0);
+        List<WebElement> actionCells = firstRow.findElements(By.cssSelector("td"));
+        WebElement actionsCell = actionCells.get(actionCells.size() - 1);
+
+        List<WebElement> eyeIcons = actionsCell.findElements(
+                By.cssSelector("button[title*='View' i], button[aria-label*='View' i], "
+                        + "button.action-btn, button[class*='view'], a[class*='view']"));
+        assertFalse(eyeIcons.isEmpty(),
+                "Eye/View action icon not found in Upcoming appointment row's Actions column");
+
+        String beforeUrl = driver.getCurrentUrl();
+        eyeIcons.get(0).click();
+
+        w().until(d -> !d.getCurrentUrl().equals(beforeUrl));
+        String afterUrl = driver.getCurrentUrl();
+        assertTrue(afterUrl.contains("/patients/"),
+                "Eye icon did not navigate to /patients/{id}. Landed at: " + afterUrl);
+
+        By scheduleBtn = By.xpath("//button[contains(normalize-space(.),'Schedule Appointment')]");
+        w().until(ExpectedConditions.visibilityOfElementLocated(scheduleBtn));
+        WebElement schedule = driver.findElement(scheduleBtn);
+        assertTrue(schedule.isDisplayed(),
+                "'Schedule Appointment' button not visible on patient detail page");
+        assertTrue(schedule.isEnabled(),
+                "'Schedule Appointment' button disabled on patient detail page");
+
+        By editBtn = By.xpath("//button[contains(normalize-space(.),'Edit Patient')]");
+        assertFalse(driver.findElements(editBtn).isEmpty(),
+                "'Edit Patient' button not found on patient detail page");
+    }
+
+    @Test(groups = {"regression"})
+    public void new_appointment_submit_creates_record() {
+        DoctorAppointments page = new DoctorAppointments(driver).open(loggedInUserId);
+
+        w().until(ExpectedConditions.elementToBeClickable(page.newAppointmentBtn));
+        driver.findElement(page.newAppointmentBtn).click();
+
+        By modal = By.cssSelector("div.modal-card");
+        WebElement dialog = w().until(ExpectedConditions.visibilityOfElementLocated(modal));
+
+        WebElement patientInput = dialog.findElement(
+                By.cssSelector("div.autocomplete-wrap input"));
+        patientInput.click();
+        patientInput.sendKeys("a");
+
+        By suggestion = By.cssSelector("div.autocomplete-wrap li, "
+                + "div.autocomplete-wrap [class*='suggest'], "
+                + "div.autocomplete-wrap [class*='option'], "
+                + "div.autocomplete-wrap [class*='item']");
+        try {
+            w().until(ExpectedConditions.visibilityOfElementLocated(suggestion));
+        } catch (org.openqa.selenium.TimeoutException e) {
+            org.testng.Assert.fail("Patient autocomplete did not show suggestions after typing. "
+                    + "Either no patients match 'a' or the suggestion selector is wrong.");
+        }
+        List<WebElement> suggestions = driver.findElements(suggestion);
+        assertFalse(suggestions.isEmpty(), "Patient autocomplete returned no suggestions");
+        String chosenPatient = suggestions.get(0).getText().trim();
+        suggestions.get(0).click();
+
+        WebElement dateInput = dialog.findElement(
+                By.cssSelector("input[formcontrolname='date']"));
+        dateInput.clear();
+        dateInput.sendKeys("06/15/2026");
+
+        WebElement timeInput = dialog.findElement(
+                By.cssSelector("input[formcontrolname='time']"));
+        timeInput.clear();
+        timeInput.sendKeys("11:30AM");
+
+        WebElement form = dialog.findElement(By.tagName("form"));
+        try {
+            w().until(d -> {
+                String cls = form.getAttribute("class");
+                return cls != null && cls.contains("ng-valid") && !cls.contains("ng-invalid");
+            });
+        } catch (org.openqa.selenium.TimeoutException e) {
+            org.testng.Assert.fail("Form did not become ng-valid after filling. "
+                    + "Class: " + form.getAttribute("class"));
+        }
+
+        WebElement submit = dialog.findElement(
+                By.xpath(".//button[normalize-space()='Save Appointment']"));
+        assertTrue(submit.isEnabled(), "Save Appointment button disabled with valid form");
+        submit.click();
+
+        try {
+            w().until(ExpectedConditions.invisibilityOfElementLocated(modal));
+        } catch (org.openqa.selenium.TimeoutException e) {
+            List<WebElement> errors = driver.findElements(
+                    By.cssSelector("[class*='error'], [class*='alert'], [class*='toast']"));
+            String errorMsg = errors.stream()
+                    .filter(WebElement::isDisplayed)
+                    .map(el -> el.getText().trim())
+                    .filter(t -> !t.isEmpty())
+                    .findFirst()
+                    .orElse("(no visible error message)");
+            org.testng.Assert.fail("Modal did not close after submitting valid form. "
+                    + "Chosen patient: '" + chosenPatient + "'. "
+                    + "Form class: " + form.getAttribute("class") + ". "
+                    + "Error message on page: " + errorMsg);
+        }
     }
 }

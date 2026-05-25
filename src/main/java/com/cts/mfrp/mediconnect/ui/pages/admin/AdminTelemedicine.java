@@ -70,7 +70,10 @@ public class AdminTelemedicine extends BasePage {
         // it sits inside a scrollable table and may be off-screen / intercepted otherwise.
         ((org.openqa.selenium.JavascriptExecutor) driver)
                 .executeScript("arguments[0].scrollIntoView({block:'center'});", btn);
-        try { Thread.sleep(400); } catch (InterruptedException ignored) {}
+
+        // Wait until the button is clickable instead of using a fixed sleep
+        wait.until(org.openqa.selenium.support.ui.ExpectedConditions
+                .elementToBeClickable(btn));
 
         try {
             btn.click();
