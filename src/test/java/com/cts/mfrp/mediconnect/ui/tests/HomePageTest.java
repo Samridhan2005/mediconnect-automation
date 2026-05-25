@@ -65,7 +65,6 @@ public class HomePageTest extends UiBaseTest {
         wait.until(d -> d.getCurrentUrl().contains(Login.PATH));
         assertTrue(driver.getCurrentUrl().contains(Login.PATH),
                 "Header 'Get Started' should land user on /login");
-
         home.clickHeroGetStartedFree();
         wait.until(d -> d.getCurrentUrl().contains(Login.PATH));
         assertTrue(driver.getCurrentUrl().contains(Login.PATH),

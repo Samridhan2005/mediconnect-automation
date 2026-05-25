@@ -123,6 +123,7 @@ public class AdminLoginTest extends UiBaseTest {
     @Test(groups = {"regression"})
     public void TC025_026_admin_login_back_home_and_register_links() {
         AdminLogin login = new AdminLogin(driver).open();
+//        System.out.println("hi");
         login.clickBackHome();
 
         wait.until(d -> !d.getCurrentUrl().contains(AdminLogin.PATH));
@@ -130,8 +131,9 @@ public class AdminLoginTest extends UiBaseTest {
                 "URL should no longer contain '/admin/login' after clicking 'Back to Home'");
         assertTrue(driver.getCurrentUrl().startsWith(ConfigReader.get("ui.baseUrl")),
                 "Browser should be back on the MediConnect landing page");
-
+//        System.out.println("hi");
         login.clickRegister();
+        System.out.println("hi");
 
         wait.until(d -> d.getCurrentUrl().contains("/admin/register"));
         assertTrue(driver.getCurrentUrl().contains("/admin/register"),

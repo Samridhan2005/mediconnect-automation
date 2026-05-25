@@ -4,6 +4,7 @@ import com.cts.mfrp.mediconnect.ui.pages.admin.AdminSupplyChain;
 import com.cts.mfrp.mediconnect.ui.tests.base.BaseAdminTest;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebElement;
+import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 import org.testng.annotations.Test;
 
@@ -27,6 +28,8 @@ import static org.testng.Assert.assertTrue;
  * All tests use the page's long FluentWait helpers since the page is data-heavy and slow.
  */
 public class AdminSupplyChainTest extends BaseAdminTest {
+
+    private static final Duration FILTER_WAIT = Duration.ofSeconds(5);
 
     // Merged TC058 + TC058a + TC058b + TC058c
     @Test(groups = {"regression"})
@@ -55,9 +58,9 @@ public class AdminSupplyChainTest extends BaseAdminTest {
         //   - any <form> element
         By modalIndicators = By.xpath(
                 "//button[contains(@class,'btn-ghost') and contains(@class,'btn-sm')]" +
-                " | //*[contains(normalize-space(),'New Order')][self::h1 or self::h2 or self::h3]" +
-                " | //form" +
-                " | //*[contains(@class,'modal')]");
+                        " | //*[contains(normalize-space(),'New Order')][self::h1 or self::h2 or self::h3]" +
+                        " | //form" +
+                        " | //*[contains(@class,'modal')]");
         try {
             new WebDriverWait(driver, Duration.ofSeconds(20))
                     .until(d -> d.findElements(modalIndicators).size() > 0);
@@ -71,8 +74,10 @@ public class AdminSupplyChainTest extends BaseAdminTest {
         assertTrue(driver.findElements(page.exportCsvBtn).size() > 0,
                 "'Export CSV' button must be present");
         page.clickExportCsv();
-        // No browser API to assert a download; verify the page is still functional after click
-        try { Thread.sleep(1500); } catch (InterruptedException ignored) {}
+        // No browser API to assert a download; verify the page is still functional after click.
+        // Wait until the page header is visible again instead of sleeping.
+        new WebDriverWait(driver, Duration.ofSeconds(5))
+                .until(ExpectedConditions.presenceOfElementLocated(page.pageHeader));
         assertTrue(driver.findElements(page.pageHeader).size() > 0,
                 "Page should remain on Supply Chain Management after clicking Export CSV");
     }
@@ -97,7 +102,7 @@ public class AdminSupplyChainTest extends BaseAdminTest {
                 + daysVisible + " of 7 matched.");
         assertTrue(daysVisible >= 1,
                 "At least one weekday label should be visible on the Drug Usage Trend chart " +
-                "(found " + daysVisible + " of 7).");
+                        "(found " + daysVisible + " of 7).");
         // Informational only: log which drug labels happened to be on the chart for this admin.
         // We don't hard-fail on specific drug names because the data varies by hospital / admin context.
         java.util.List<String> commonDrugs = java.util.List.of("Paracetamol", "Aspirin", "Metformin",
@@ -160,23 +165,36 @@ public class AdminSupplyChainTest extends BaseAdminTest {
         AdminSupplyChain page = new AdminSupplyChain(driver).open(loggedInUserId);
         page.waitForInventoryTable();
 
+        By tableOrEmpty = By.xpath(
+                page.inventoryTable.toString().replace("By.cssSelector: ", "") +
+                        " | //*[contains(normalize-space(),'No items') or contains(normalize-space(),'No data')]");
+
+        By tableOrEmptyXpath = By.xpath(
+                "//*[contains(normalize-space(),'No items') or contains(normalize-space(),'No data')]");
+
         page.clickFilterLowStock();
-        try { Thread.sleep(1500); } catch (InterruptedException ignored) {}
-        // Table OR empty-state should remain visible
+        new WebDriverWait(driver, FILTER_WAIT)
+                .until(d -> d.findElements(page.inventoryTable).size() > 0
+                        || d.findElements(tableOrEmptyXpath).size() > 0);
         boolean ok = driver.findElements(page.inventoryTable).size() > 0
-                || driver.findElements(By.xpath("//*[contains(normalize-space(),'No items') or contains(normalize-space(),'No data')]")).size() > 0;
+                || driver.findElements(tableOrEmptyXpath).size() > 0;
         assertTrue(ok, "After Low Stock filter, table or empty-state should remain visible");
 
         page.clickFilterExpiring();
-        try { Thread.sleep(1500); } catch (InterruptedException ignored) {}
+        new WebDriverWait(driver, FILTER_WAIT)
+                .until(d -> d.findElements(page.inventoryTable).size() > 0
+                        || d.findElements(tableOrEmptyXpath).size() > 0);
         boolean ok2 = driver.findElements(page.inventoryTable).size() > 0
-                || driver.findElements(By.xpath("//*[contains(normalize-space(),'No items') or contains(normalize-space(),'No data')]")).size() > 0;
+                || driver.findElements(tableOrEmptyXpath).size() > 0;
         assertTrue(ok2, "After Expiring filter, table or empty-state should remain visible");
 
         page.clickFilterLowStock();
-        try { Thread.sleep(1500); } catch (InterruptedException ignored) {}
+        new WebDriverWait(driver, FILTER_WAIT)
+                .until(d -> d.findElements(page.inventoryTable).size() > 0
+                        || d.findElements(tableOrEmptyXpath).size() > 0);
         page.clickFilterAll();
-        try { Thread.sleep(1500); } catch (InterruptedException ignored) {}
+        new WebDriverWait(driver, FILTER_WAIT)
+                .until(ExpectedConditions.numberOfElementsToBeMoreThan(page.tableRows, 0));
 
         assertTrue(driver.findElements(page.tableRows).size() > 0,
                 "After clicking 'All', the inventory table should show at least one row");
@@ -185,7 +203,8 @@ public class AdminSupplyChainTest extends BaseAdminTest {
         if (!search.isEmpty()) {
             search.get(0).clear();
             search.get(0).sendKeys("Paracetamol");
-            try { Thread.sleep(1500); } catch (InterruptedException ignored) {}
+            new WebDriverWait(driver, FILTER_WAIT)
+                    .until(ExpectedConditions.presenceOfElementLocated(page.inventoryTable));
             assertTrue(driver.findElements(page.inventoryTable).size() > 0,
                     "Inventory table should remain visible after typing in the search bar");
         }

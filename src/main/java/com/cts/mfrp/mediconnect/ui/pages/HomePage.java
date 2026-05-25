@@ -21,7 +21,7 @@ public class HomePage extends BasePage {
     // Header
     public final By headerGetStartedBtn     = By.cssSelector("button.btn-pill");
     public final By headerAdminPortalBtn    = By.cssSelector("button.btn-ghost-nav");
-
+    public final By backLink = By.cssSelector("a.back-link");
     // Hero section
     public final By heroGetStartedFreeBtn   = By.cssSelector("button.btn-hero-primary");
     public final By heroAdminPortalBtn      = By.cssSelector("button.btn-hero-outline");
@@ -58,26 +58,15 @@ public class HomePage extends BasePage {
     public boolean isCtaGetStartedVisible()       { return isDisplayed(ctaGetStartedBtn); }
     public boolean isCtaContactUsVisible()        { return isDisplayed(ctaContactUsBtn); }
 
-    public void clickHeaderGetStarted()    { safeClick(headerGetStartedBtn); }
-    public void clickHeaderAdminPortal()   { safeClick(headerAdminPortalBtn); }
-    public void clickHeroGetStartedFree()  { safeClick(heroGetStartedFreeBtn); }
-    public void clickHeroAdminPortal()     { safeClick(heroAdminPortalBtn); }
-    public void clickCtaGetStarted()       { safeClick(ctaGetStartedBtn); }
-
-    /**
-     * Click that survives ElementClickInterceptedException for off-screen / overlapped buttons.
-     * Scrolls the target to the centre of the viewport, then attempts a native click;
-     * falls back to a JavaScript click if a CSS overlay intercepts the native one.
-     */
-    private void safeClick(By locator) {
-        WebElement el = clickable(locator);
-        ((JavascriptExecutor) driver).executeScript(
-                "arguments[0].scrollIntoView({block:'center'});", el);
-        try { Thread.sleep(250); } catch (InterruptedException ignored) {}
-        try {
-            el.click();
-        } catch (org.openqa.selenium.ElementClickInterceptedException e) {
-            ((JavascriptExecutor) driver).executeScript("arguments[0].click();", el);
-        }
+    public void clickHeaderGetStarted()    { click(headerGetStartedBtn); }
+    public void clickHeaderAdminPortal()   { click(headerAdminPortalBtn); }
+    public void clickHeroGetStartedFree()  {
+        click(backLink);
+        click(heroGetStartedFreeBtn);
     }
+    public void clickHeroAdminPortal()     {
+        click(backLink);
+        click(heroAdminPortalBtn);
+    }
+    public void clickCtaGetStarted()       { click(ctaGetStartedBtn); }
 }
