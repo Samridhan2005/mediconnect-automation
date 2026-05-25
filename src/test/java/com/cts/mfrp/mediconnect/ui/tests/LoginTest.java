@@ -3,25 +3,20 @@ package com.cts.mfrp.mediconnect.ui.tests;
 import com.cts.mfrp.mediconnect.ui.base.UiBaseTest;
 import com.cts.mfrp.mediconnect.ui.pages.auth.Login;
 import com.cts.mfrp.mediconnect.utils.ConfigReader;
+import com.cts.mfrp.mediconnect.utils.TestData;
 import org.testng.annotations.Test;
 
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebElement;
 
 import java.util.List;
+import java.util.Map;
 
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertFalse;
 import static org.testng.Assert.assertTrue;
 
-/**
- * Wave 1 — Login / role-selector / forgot-password / negative login.
- * Covers FRD: TC001, TC002, TC003, TC004, TC005, TC006, TC014, TC072.
- *
- * Discrepancy from FRD: TC003 expects a third "Admin Login" tab on /login.
- * Actual UI: only Patient and Doctor tabs are on /login; Admin login is at /admin/login.
- * The TC003 assertions below reflect actual UI behaviour and validate Admin via /admin/login.
- */
+
 public class LoginTest extends UiBaseTest {
 
     // TC001 — URL validation
@@ -33,7 +28,6 @@ public class LoginTest extends UiBaseTest {
                 "Browser should be on the MediConnect site");
     }
 
-    // TC002 — Login page UI validation
     @Test(groups = {"smoke", "sanity", "regression"})
     public void TC002_login_page_shows_all_expected_elements() {
         Login login = new Login(driver).open();
@@ -55,7 +49,6 @@ public class LoginTest extends UiBaseTest {
     public void TC003_014_login_role_selector_tabs() {
         Login login = new Login(driver).open();
 
-        // Patient tab should be visible and selectable
         login.selectPatientTab();
         assertTrue(login.isPatientTabActive(), "Patient Login should be active after click");
 
@@ -81,21 +74,23 @@ public class LoginTest extends UiBaseTest {
         assertFalse(login.isDoctorTabActive(), "Doctor tab should NOT be active simultaneously");
     }
 
-    // TC004 — Doctor role selector + email format + masked password
     @Test(groups = {"regression"})
     public void TC004_doctor_login_fields_and_validation() {
+        Map<String, String> data = TestData.login("TC004_doctor_valid");
+        String email    = data.get("email");
+        String password = data.get("password");
+
         Login login = new Login(driver).open();
         login.selectDoctorTab();
         assertTrue(login.isDoctorTabActive());
 
-        login.enterEmail("shifani@doctor.com");
-        // email-type input enforces a basic format on browser side
+        login.enterEmail(email);
         assertTrue(login.getEmailField().getAttribute("value").contains("@"),
                 "Email value should contain '@'");
 
-        login.enterPassword("shifanidoctor@134");
-        assertEquals(login.getPasswordField().getAttribute("value").length(), 17,
-                "Password length should be exactly what we typed");
+        login.enterPassword(password);
+        assertEquals(login.getPasswordField().getAttribute("value").length(), password.length(),
+                "Password length should match the typed value");
         assertTrue(login.isPasswordMasked(), "Password field should be of type 'password' (masked)");
     }
 
@@ -106,8 +101,7 @@ public class LoginTest extends UiBaseTest {
         assertTrue(login.isForgotLinkVisible(), "Forgot Password link should be displayed");
 
         login.clickForgotPassword();
-        // App routes to a placeholder/anchor for now — URL may contain '#'.
-        // We just verify the click did not error and the page is still reachable.
+
         System.out.println(driver.getCurrentUrl());
         assertTrue(driver.getCurrentUrl().contains("reset")
                         || driver.getCurrentUrl().contains("forgot")
@@ -127,9 +121,10 @@ public class LoginTest extends UiBaseTest {
         assertTrue(login.isErrorDisplayed(), "Error alert should appear when fields are empty");
         assertEquals(login.getErrorMessage(), "Please fill in all fields.");
 
-        // Invalid format - 'shifanidoctor' is not a valid email; the browser should refuse to submit
-        login.enterEmail("shifanidoctor");
-        login.enterPassword("anything");
+        // Invalid format - browser should refuse to submit
+        Map<String, String> invalid = TestData.login("TC006_invalid_format");
+        login.enterEmail(invalid.get("email"));
+        login.enterPassword(invalid.get("password"));
         login.submit();
         // The page should still be on /login (form did not submit / was rejected)
         assertTrue(driver.getCurrentUrl().contains(Login.PATH),
@@ -139,8 +134,10 @@ public class LoginTest extends UiBaseTest {
     // TC072 — Invalid credentials show server-side error
     @Test(groups = {"sanity", "regression"})
     public void TC072_invalid_credentials_show_error() {
+        Map<String, String> data = TestData.login("TC072_wrong_creds");
+
         Login login = new Login(driver).open();
-        login.loginAs("wrong@user.com", "WrongPass123");
+        login.loginAs(data.get("email"), data.get("password"));
         assertTrue(login.isErrorDisplayed(), "Error alert should be shown for invalid creds");
         assertEquals(login.getErrorMessage(), "Invalid email or password");
         assertTrue(driver.getCurrentUrl().contains(Login.PATH),

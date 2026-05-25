@@ -16,10 +16,7 @@ import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertFalse;
 import static org.testng.Assert.assertTrue;
 
-/**
- * FRD: TC046 — Doctor Telemedicine page.
- * URL: /doctor/{id}/telemedicine
- */
+
 public class DoctorTelemedicineTest extends BaseDoctorTest {
 
     private static final Duration WAIT = Duration.ofSeconds(60);
@@ -106,7 +103,6 @@ public class DoctorTelemedicineTest extends BaseDoctorTest {
                 "'+ Schedule session' button should be visible");
     }
 
-    // TC_T01_T03 — Page title, subtitle, schedule session button (merged TC_T01 + TC_T02 + TC_T03)
     @Test(groups = {"regression"})
     public void telemedicine_header_elements() {
         new DoctorTelemedicine(driver).open(loggedInUserId);
@@ -131,7 +127,6 @@ public class DoctorTelemedicineTest extends BaseDoctorTest {
         assertTrue(btn.isEnabled(), "Schedule session button is disabled");
     }
 
-    // TC_T04_T06 — Stat card labels, values, sub-labels (merged TC_T04 + TC_T05 + TC_T06)
     @Test(groups = {"regression"})
     public void telemedicine_stat_cards() {
         new DoctorTelemedicine(driver).open(loggedInUserId);
@@ -166,20 +161,16 @@ public class DoctorTelemedicineTest extends BaseDoctorTest {
         }
     }
 
-    // TC_T07_T13 — Live/Upcoming + Past sessions sections, table columns, rows, data
-    //              (merged TC_T07 + TC_T08 + TC_T09 + TC_T10 + TC_T11 + TC_T12 + TC_T13)
     @Test(groups = {"regression"})
     public void TC_T07_T13_telemedicine_sections_and_past_table() {
         new DoctorTelemedicine(driver).open(loggedInUserId);
 
-        // TC_T07 — Live & Upcoming section title
         By sectionTitles = By.cssSelector("div.section-title");
         w().until(ExpectedConditions.visibilityOfElementLocated(sectionTitles));
         boolean liveFound = driver.findElements(sectionTitles).stream()
                 .anyMatch(e -> e.getText().trim().equals("Live & Upcoming"));
         assertTrue(liveFound, "'Live & Upcoming' section-title not found");
 
-        // TC_T08 — Live & Upcoming empty state OR session rows
         By emptyState = By.cssSelector("div.empty-state");
         w().until(ExpectedConditions.presenceOfElementLocated(emptyState));
         List<WebElement> emptyEls = driver.findElements(
@@ -194,12 +185,10 @@ public class DoctorTelemedicineTest extends BaseDoctorTest {
                     "Empty state message mismatch");
         }
 
-        // TC_T09 — Past sessions section title
         boolean pastFound = driver.findElements(sectionTitles).stream()
                 .anyMatch(e -> e.getText().trim().equals("Past sessions"));
         assertTrue(pastFound, "'Past sessions' section-title not found");
 
-        // TC_T13 — Past card and table-wrap visible
         By pastCard = By.cssSelector("div.past-card");
         w().until(ExpectedConditions.visibilityOfElementLocated(pastCard));
         assertTrue(driver.findElement(pastCard).isDisplayed(),
@@ -208,7 +197,6 @@ public class DoctorTelemedicineTest extends BaseDoctorTest {
         assertTrue(driver.findElements(tableWrap).size() > 0,
                 "div.table-wrap not found inside div.past-card");
 
-        // TC_T10 — Past sessions table column headers
         By thLocator = By.cssSelector("div.past-card div.table-wrap table thead th");
         w().until(ExpectedConditions.visibilityOfElementLocated(thLocator));
         List<String> headers = driver.findElements(thLocator)
@@ -223,13 +211,11 @@ public class DoctorTelemedicineTest extends BaseDoctorTest {
                     "Column '" + col + "' not found. Found: " + headers);
         }
 
-        // TC_T11 — Past sessions table has data rows
         By rows = By.cssSelector("div.past-card div.table-wrap table tbody tr");
         w().until(ExpectedConditions.numberOfElementsToBeMoreThan(rows, 0));
         List<WebElement> dataRows = driver.findElements(rows);
         assertTrue(dataRows.size() > 0, "Past sessions table has no data rows");
 
-        // TC_T12 — Past sessions row data validation
         int rowsToCheck = Math.min(3, dataRows.size());
         for (int i = 0; i < rowsToCheck; i++) {
             List<WebElement> cells = dataRows.get(i)

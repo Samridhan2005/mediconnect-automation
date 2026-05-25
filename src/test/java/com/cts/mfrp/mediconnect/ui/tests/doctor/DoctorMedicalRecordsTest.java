@@ -15,10 +15,8 @@ import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertFalse;
 import static org.testng.Assert.assertTrue;
 
-/** FRD: TC044, TC045 — Doctor Medical Records page. */
 public class DoctorMedicalRecordsTest extends BaseDoctorTest {
 
-    // TC044 — Medical Records UI + patient search
     @Test(groups = {"regression"})
     public void TC044_doctor_medical_records_ui_search() {
         DoctorMedicalRecords page = new DoctorMedicalRecords(driver).open(loggedInUserId);
@@ -30,29 +28,24 @@ public class DoctorMedicalRecordsTest extends BaseDoctorTest {
         assertTrue(driver.findElements(page.newRecordBtn).size() > 0, "+ New Record button should be visible");
     }
 
-    // TC045 — New Medical Record modal form fields
     @Test(groups = {"regression"})
     public void TC045_doctor_create_new_record() {
         DoctorMedicalRecords page = new DoctorMedicalRecords(driver).open(loggedInUserId);
         WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(10));
 
-        // Step 1 — + New Record button is in top-right, visible without patient selection
         wait.until(ExpectedConditions.elementToBeClickable(page.newRecordBtn));
         assertTrue(driver.findElements(page.newRecordBtn).size() > 0, "+ New Record button should be visible");
 
-        // Step 2 — Click + New Record, modal should open
         driver.findElement(page.newRecordBtn).click();
         wait.until(ExpectedConditions.presenceOfElementLocated(page.modalTitle));
         assertTrue(driver.findElements(page.modalTitle).size() > 0, "Modal title 'New Medical Record' should appear");
 
-        // Steps 3-5 — Verify actual form fields visible in modal
         for (String label : List.of("Patient", "Record Date", "Diagnosis", "Treatment", "Prescription", "Clinical Notes")) {
             assertTrue(driver.findElements(By.xpath(
                             "//*[contains(normalize-space(),'" + label + "')]")).size() > 0,
                     "New Record form label missing: " + label);
         }
 
-        // Save button should be present
         assertTrue(driver.findElements(page.saveRecordBtn).size() > 0, "'Create Record' button should be visible");
     }
 

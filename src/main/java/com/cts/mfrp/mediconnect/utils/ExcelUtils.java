@@ -5,23 +5,103 @@ import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.util.LinkedHashMap;
+import java.util.Map;
+import java.util.TreeMap;
 
-/**
- * ExcelUtils — reads test data from Excel (.xlsx) files using Apache POI.
- * Used by @DataProvider to drive data-driven tests.
- *
- * Excel format:
- *   Row 0 = Headers (skipped)
- *   Row 1+ = Test data
- *
- * Usage:
- *   @DataProvider(name = "loginData")
- *   public Object[][] getData() throws Exception {
- *       return ExcelUtils.getTestData(
- *           "src/test/resources/testdata/LoginData.xlsx", "LoginSheet");
- *   }
- */
+
 public class ExcelUtils {
+
+    /**
+     * Read one row identified by a key value in a named column.
+     * Returns a Map<columnName, cellValueAsString> for the matched row.
+     * Throws if no row matches.
+     */
+    public static Map<String, String> getRowByKey(String filePath, String sheetName,
+                                                  String keyColumn, String keyValue) throws IOException {
+        try (FileInputStream fis = new FileInputStream(filePath);
+             Workbook wb = new XSSFWorkbook(fis)) {
+
+            Sheet sheet = wb.getSheet(sheetName);
+            if (sheet == null) throw new RuntimeException("Sheet not found: " + sheetName);
+
+            Row header = sheet.getRow(0);
+            if (header == null) throw new RuntimeException("Sheet has no header row: " + sheetName);
+
+            int keyCol = -1;
+            int totalCols = header.getLastCellNum();
+            String[] colNames = new String[totalCols];
+            for (int c = 0; c < totalCols; c++) {
+                String name = getCellValueAsString(header.getCell(c));
+                colNames[c] = name;
+                if (name.equalsIgnoreCase(keyColumn)) keyCol = c;
+            }
+            if (keyCol < 0) throw new RuntimeException("Key column '" + keyColumn + "' not found in " + sheetName);
+
+            for (int r = 1; r <= sheet.getLastRowNum(); r++) {
+                Row row = sheet.getRow(r);
+                if (row == null) continue;
+                String cellVal = getCellValueAsString(row.getCell(keyCol));
+                if (cellVal.equals(keyValue)) {
+                    String uniqueValue = String.valueOf(System.nanoTime());
+                    Map<String, String> result = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
+                    for (int c = 0; c < totalCols; c++) {
+                        String raw = getCellValueAsString(row.getCell(c));
+                        result.put(colNames[c], substitutePlaceholders(raw, uniqueValue));
+                    }
+                    System.out.println("[TestData] " + sheetName + "[" + keyValue + "] columns: " + result.keySet());
+                    return result;
+                }
+            }
+            throw new RuntimeException("No row in " + sheetName + " where " + keyColumn + "='" + keyValue + "'");
+        }
+    }
+
+    /**
+     * Replace placeholders in a cell value with runtime-generated values.
+     * Supported: ${UNIQUE} → a nanosecond timestamp, identical for every cell in the same row read.
+     */
+    private static String substitutePlaceholders(String value, String uniqueValue) {
+        if (value == null || value.isEmpty()) return value;
+        return value.replace("${UNIQUE}", uniqueValue);
+    }
+
+    /**
+     * Read all values from a single column, useful as a TestNG @DataProvider source.
+     * Returns Object[][] where each row is one cell value (no header).
+     */
+    public static Object[][] getColumnValues(String filePath, String sheetName,
+                                             String columnName) throws IOException {
+        try (FileInputStream fis = new FileInputStream(filePath);
+             Workbook wb = new XSSFWorkbook(fis)) {
+
+            Sheet sheet = wb.getSheet(sheetName);
+            if (sheet == null) throw new RuntimeException("Sheet not found: " + sheetName);
+
+            Row header = sheet.getRow(0);
+            if (header == null) throw new RuntimeException("Sheet has no header row: " + sheetName);
+
+            int targetCol = -1;
+            for (int c = 0; c < header.getLastCellNum(); c++) {
+                if (getCellValueAsString(header.getCell(c)).equalsIgnoreCase(columnName)) {
+                    targetCol = c;
+                    break;
+                }
+            }
+            if (targetCol < 0) throw new RuntimeException("Column '" + columnName + "' not found in " + sheetName);
+
+            java.util.List<Object[]> rows = new java.util.ArrayList<>();
+            for (int r = 1; r <= sheet.getLastRowNum(); r++) {
+                Row row = sheet.getRow(r);
+                if (row == null) continue;
+                String v = getCellValueAsString(row.getCell(targetCol));
+                if (v != null && !v.isEmpty()) {
+                    rows.add(new Object[]{v});
+                }
+            }
+            return rows.toArray(new Object[0][]);
+        }
+    }
 
     /**
      * Read all rows (except header) from the given sheet.

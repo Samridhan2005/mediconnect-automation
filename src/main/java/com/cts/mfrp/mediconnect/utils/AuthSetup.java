@@ -8,11 +8,7 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-/**
- * One-time seed setup for UI test users.
- * Registers the FRD's documented credentials via the API so UI tests can log in.
- * Idempotent — re-registering an existing user is treated as a no-op.
- */
+
 public final class AuthSetup {
 
     private static final AtomicBoolean SEEDED = new AtomicBoolean(false);

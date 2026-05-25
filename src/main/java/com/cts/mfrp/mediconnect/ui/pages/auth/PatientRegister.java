@@ -3,6 +3,7 @@ package com.cts.mfrp.mediconnect.ui.pages.auth;
 import com.cts.mfrp.mediconnect.ui.pages.BasePage;
 import com.cts.mfrp.mediconnect.utils.ConfigReader;
 import org.openqa.selenium.By;
+import org.openqa.selenium.JavascriptExecutor;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.ui.ExpectedConditions;
@@ -25,7 +26,7 @@ public class PatientRegister extends BasePage {
     private final By gender          = By.xpath("//*[text()='Gender']/parent::div/div/select");
     private final By password        = By.xpath("//*[text()='Password']/parent::div/div/input");
     private final By confirmPassword = By.xpath("//*[text()='Confirm password']/parent::div/div/input");
-    private final By termsCheckbox   = By.xpath("//input[@type='checkbox']");
+    private final By termsCheckbox   = By.xpath("//input[@id='terms']");
     private final By submitButton    = By.xpath("//button[@type='submit']");
 
     public PatientRegister(WebDriver driver) {
@@ -57,8 +58,17 @@ public class PatientRegister extends BasePage {
     }
 
     public PatientRegister acceptTerms() {
-        WebElement cb = visible(termsCheckbox);
-        if (!cb.isSelected()) cb.click();
+        WebElement cb = wait.until(ExpectedConditions.presenceOfElementLocated(termsCheckbox));
+        JavascriptExecutor js = (JavascriptExecutor) driver;
+        js.executeScript("arguments[0].scrollIntoView({block:'center'});", cb);
+        if (!cb.isSelected()) {
+            js.executeScript(
+                    "arguments[0].checked = true;"
+                            + "arguments[0].dispatchEvent(new Event('input',  {bubbles:true}));"
+                            + "arguments[0].dispatchEvent(new Event('change', {bubbles:true}));"
+                            + "arguments[0].dispatchEvent(new Event('blur',   {bubbles:true}));",
+                    cb);
+        }
         return this;
     }
 
