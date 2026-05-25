@@ -7,6 +7,7 @@ import org.openqa.selenium.JavascriptExecutor;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.ui.ExpectedConditions;
+import org.openqa.selenium.support.ui.Select;
 import org.openqa.selenium.support.ui.WebDriverWait;
 
 import java.time.Duration;
@@ -33,6 +34,12 @@ public abstract class BasePage {
         WebElement element = visible(locator);
         element.clear();
         element.sendKeys(text);
+    }
+
+    protected void selectByText(By locator,String text){
+        wait.until(ExpectedConditions.elementToBeClickable(locator));
+        Select s=new Select(driver.findElement(locator));
+        s.selectByVisibleText(text);
     }
 
     /**
@@ -65,6 +72,13 @@ public abstract class BasePage {
     protected boolean isDisplayed(By locator) {
         try {
             return visible(locator).isDisplayed();
+        } catch (Exception e) {
+            return false;
+        }
+    }
+    public boolean isElementVisible(By locator) {
+        try {
+            return wait.until(ExpectedConditions.visibilityOfElementLocated(locator)).isDisplayed();
         } catch (Exception e) {
             return false;
         }

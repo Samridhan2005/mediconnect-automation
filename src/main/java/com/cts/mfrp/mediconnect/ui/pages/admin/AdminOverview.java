@@ -5,6 +5,7 @@ import com.cts.mfrp.mediconnect.ui.pages.common.AdminSidebar;
 import com.cts.mfrp.mediconnect.utils.ConfigReader;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.support.ui.ExpectedConditions;
 
 /** Admin System Overview — /admin/{userId}/overview */
 public class AdminOverview extends BasePage {
@@ -22,7 +23,7 @@ public class AdminOverview extends BasePage {
     public final By revenueValue = By.xpath("//div[text()='Revenue (Month)']/following-sibling::div");
     public final By doctorOnDutyHeader = By.xpath("//div[text()='Doctors On Duty']");
     public final By doctorOnDutyValue = By.xpath("//div[text()='Doctors On Duty']/following-sibling::div");
-
+    public final By card = By.cssSelector("div.card-title");
 
 
 
@@ -44,4 +45,34 @@ public class AdminOverview extends BasePage {
     public AdminSidebar sidebar() {
         return new AdminSidebar(driver);
     }
+
+
+
+
+
+
+    public void loadContents(){
+        wait.until(ExpectedConditions.visibilityOfElementLocated(totalPatientsHeader));
+        wait.until(ExpectedConditions.visibilityOfAllElementsLocatedBy(card));
+    }
+    public boolean isPageHeaderDisplayed(){ return isElementVisible(pageHeader); }
+    public boolean isNotificationBellDisplayed(){ return isElementVisible(notificationBell); }
+
+    public boolean isNotificationBellVisible() { return isElementVisible(notificationBell); }
+
+    public boolean isTotalPatientsHeaderVisible() { return isElementVisible(totalPatientsHeader); }
+    public boolean isTotalPatientsValueVisible() { return isElementVisible(totalPatientsValue); }
+
+    public boolean isTotalDoctorsHeaderVisible() { return isElementVisible(totalDoctorsHeader); }
+    public boolean isTotalDoctorsValueVisible() { return isElementVisible(totalDoctorsValue); }
+
+    public boolean isBedOccupancyHeaderVisible() { return isElementVisible(bedOccupancyHeader); }
+    public boolean isBedOccupancyValueVisible() { return isElementVisible(bedOccupancyValue); }
+
+    public boolean isRevenueHeaderVisible() { return isElementVisible(revenueHeader); }
+    public boolean isRevenueValueVisible() { return isElementVisible(revenueValue); }
+
+    public boolean isDoctorOnDutyHeaderVisible() { return isElementVisible(doctorOnDutyHeader); }
+    public boolean isDoctorOnDutyValueVisible() { return isElementVisible(doctorOnDutyValue); }
+
 }

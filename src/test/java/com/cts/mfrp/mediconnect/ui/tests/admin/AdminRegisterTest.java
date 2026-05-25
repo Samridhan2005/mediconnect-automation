@@ -3,8 +3,11 @@ package com.cts.mfrp.mediconnect.ui.tests.admin;
 import com.cts.mfrp.mediconnect.ui.base.UiBaseTest;
 import com.cts.mfrp.mediconnect.ui.pages.admin.AdminRegister;
 import com.cts.mfrp.mediconnect.utils.ConfigReader;
-import org.openqa.selenium.By;
+import com.cts.mfrp.mediconnect.utils.ExcelUtils;
+import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
+
+import java.io.IOException;
 
 import static org.testng.Assert.assertTrue;
 
@@ -29,34 +32,46 @@ public class AdminRegisterTest extends UiBaseTest {
     @Test(groups = {"regression"})
     public void admin_register_page_loads_and_back_link() {
         openRegisterPage();
-        assertTrue(driver.getCurrentUrl().contains(PATH),
-                "Browser should be on /admin/register");
-        assertTrue(driver.getTitle().toLowerCase().contains("mediconnect"),
-                "Tab title should still be MediConnect");
-        // Look for any link/button that takes the user back to login
-        assertTrue(driver.findElements(By.xpath(
-                        "//a[contains(translate(normalize-space(),'BACK TO LOGINSIGNIN','back to loginsignin'),'login') " +
-                                "or contains(translate(normalize-space(),'BACK TO LOGINSIGNIN','back to loginsignin'),'sign in')]"
-                )).size() > 0
-                || driver.findElements(By.cssSelector("a.back-link")).size() > 0,
-                "There should be a way to navigate back to the admin login from the register page");
+        AdminRegister admin=new AdminRegister(driver);
+        assertTrue(admin.getUrl().contains(PATH),"Browser should be on /admin/register");
+        assertTrue(admin.getTitle().toLowerCase().contains("mediconnect"),"Tab title should still be MediConnect");
+        assertTrue(admin.isBackToLoginLinkVisible(),"There should be a way to navigate back to the admin login from the register page");
     }
 
     // Merged admin_register_form_has_basic_fields + admin_register_form_has_submit_button
-    @Test(groups = {"regression"})
-    public void admin_register_form_fields_and_submit() {
+    @DataProvider(name = "AdminRegisData")
+    public Object[][] AdminRegisterData() throws IOException {
+        return ExcelUtils.getTestData("C:\\Users\\2480114\\Desktop\\trash\\proj\\mediconnect-automation\\src\\test\\resources\\testdata\\TestData.xlsx","AdminRegistration");
+    }
+
+    @Test(groups = {"regression"},dataProvider = "AdminRegisData")
+    public void admin_register_form_fields_and_submit(String hospital,String fn,String ln,String email,String phno,String pswd,String cpswd) {
         openRegisterPage();
-        AdminRegister adr=new AdminRegister(driver);
-        assertTrue(driver.findElement(adr.firstName).isDisplayed(),"First name is not available");
-        assertTrue(driver.findElement(adr.lastName).isDisplayed(),"Last name is not available");
-        assertTrue(driver.findElement(adr.email).isDisplayed(),"Email is not available");
-        assertTrue(driver.findElement(adr.hospitalSelect).isDisplayed(),"Hospital select is not available");
-        assertTrue(driver.findElement(adr.phoneNumber).isDisplayed(),"Phone number is not available");
-        assertTrue(driver.findElement(adr.pswd).isDisplayed(),"Password is not available");
-        assertTrue(driver.findElement(adr.confirmPswd).isDisplayed(),"Confirm password is not available");
-        assertTrue(driver.findElement(adr.terms).isDisplayed(),"Terms checkbox is not available");
-        assertTrue(driver.findElement(adr.submit).isDisplayed(),"Submit button is not available");
+        AdminRegister admin=new AdminRegister(driver);
 
 
+        assertTrue(admin.isHospitalSelectVisible(), "Hospital dropdown not visible");
+        assertTrue(admin.isFirstNameVisible(), "First Name field not visible");
+        assertTrue(admin.isLastNameVisible(), "Last Name field not visible");
+        assertTrue(admin.isEmailVisible(), "Email field not visible");
+        assertTrue(admin.isPhoneNumberVisible(), "Phone Number field not visible");
+        assertTrue(admin.isPasswordVisible(), "Password field not visible");
+        assertTrue(admin.isConfirmPasswordVisible(), "Confirm Password field not visible");
+        assertTrue(admin.isTermsCheckboxVisible(), "Terms checkbox not visible");
+        assertTrue(admin.isSubmitButtonVisible(), "Submit button not visible");
+
+        
+
+        admin.enterHospital(hospital);
+        admin.enterFirstName(fn);
+        admin.enterLastName(ln);
+        admin.enterEmail(email);
+        admin.enterPhoneNumber(phno);
+        admin.enterPassword(pswd);
+        admin.enterConfirmPassword(cpswd);
+        admin.clickTerms();
+        admin.clickSubmit();
+
+        assertTrue(admin.getUrl().matches("\".*/admin/\\\\d+/overview$\""),"Not landed in admin page");
     }
 }
