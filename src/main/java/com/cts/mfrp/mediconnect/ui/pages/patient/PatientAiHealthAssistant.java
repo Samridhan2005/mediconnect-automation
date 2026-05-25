@@ -134,4 +134,120 @@ public class PatientAiHealthAssistant extends BasePage {
     public PatientSidebar sidebar() {
         return new PatientSidebar(driver);
     }
+
+    // --- Interaction helpers ---
+
+    /** Click a chat suggestion chip (button.chip) whose text matches the given value. */
+    public PatientAiHealthAssistant clickChip(String chipText) {
+        By chip = By.xpath("//button[contains(@class,'chip') and normalize-space()='" + chipText + "']");
+        click(chip);
+        return this;
+    }
+
+    /** Type a question into the 'Ask about your health…' input/textarea. */
+    public PatientAiHealthAssistant typeAsk(String question) {
+        WebElement input = wait.until(ExpectedConditions.visibilityOfElementLocated(askInput));
+        input.clear();
+        input.sendKeys(question);
+        return this;
+    }
+
+    public PatientAiHealthAssistant clickSend() {
+        click(sendButton);
+        return this;
+    }
+
+    public String getAskInputValue() {
+        WebElement input = wait.until(ExpectedConditions.visibilityOfElementLocated(askInput));
+        String v = input.getAttribute("value");
+        return v == null ? "" : v;
+    }
+
+    /**
+     * Click a right-panel Quick Action card by its title (e.g. 'Symptom Checker').
+     * Walks the DOM in JS: finds an element whose text equals (or contains) the title,
+     * then clicks its nearest clickable ancestor — covers buttons, anchors, role=button,
+     * and class-based card patterns without relying on a single brittle xpath.
+     *
+     * The title text also appears in the left-side MODE buttons, so we scope to the
+     * QUICK ACTIONS region by preferring elements after the 'QUICK ACTIONS' heading.
+     */
+    public PatientAiHealthAssistant clickQuickAction(String title) {
+        Boolean clicked = (Boolean) ((JavascriptExecutor) driver).executeScript(
+                "const target = arguments[0].trim();"
+                        + "const norm = s => (s || '').replace(/\\s+/g,' ').trim();"
+                        // Find the QUICK ACTIONS heading so we can prefer descendants/siblings within its section.
+                        + "let region = null;"
+                        + "for (const el of document.querySelectorAll('*')) {"
+                        + "  const t = norm(el.textContent).toUpperCase();"
+                        + "  if (t === 'QUICK ACTIONS' || t === 'QUICK ACTION') {"
+                        + "    region = el.parentElement; break;"
+                        + "  }"
+                        + "}"
+                        + "const scope = region || document.body;"
+                        // Find a text-bearing element inside that scope whose text matches the title.
+                        + "for (const el of scope.querySelectorAll('*')) {"
+                        + "  if (el.children.length === 0 && norm(el.textContent) === target) {"
+                        + "    const click = el.closest('button, a, [role=\"button\"], .quick-btn, [class*=\"quick\"], [class*=\"action-card\"], [class*=\"card\"]');"
+                        + "    if (click) { click.click(); return true; }"
+                        + "  }"
+                        + "}"
+                        // Fallback — any text-bearing element in document with matching text and a clickable ancestor.
+                        + "for (const el of document.querySelectorAll('*')) {"
+                        + "  if (el.children.length === 0 && norm(el.textContent) === target) {"
+                        + "    const click = el.closest('button, a, [role=\"button\"], .quick-btn, [class*=\"quick\"]');"
+                        + "    if (click) { click.click(); return true; }"
+                        + "  }"
+                        + "}"
+                        + "return false;",
+                title);
+        if (clicked == null || !clicked) {
+            throw new org.openqa.selenium.NoSuchElementException(
+                    "Quick action '" + title + "' not found on the page. Available quick-btn titles: "
+                            + quickActionDiagnostic());
+        }
+        return this;
+    }
+
+    /** Click a right-panel Common Question entry by its visible text. */
+    public PatientAiHealthAssistant clickCommonQuestion(String questionText) {
+        Boolean clicked = (Boolean) ((JavascriptExecutor) driver).executeScript(
+                "const target = arguments[0].trim();"
+                        + "const norm = s => (s || '').replace(/\\s+/g,' ').trim();"
+                        + "let region = null;"
+                        + "for (const el of document.querySelectorAll('*')) {"
+                        + "  const t = norm(el.textContent).toUpperCase();"
+                        + "  if (t === 'COMMON QUESTIONS' || t === 'COMMON QUESTION') {"
+                        + "    region = el.parentElement; break;"
+                        + "  }"
+                        + "}"
+                        + "const scope = region || document.body;"
+                        + "for (const el of scope.querySelectorAll('*')) {"
+                        + "  if (el.children.length === 0 && norm(el.textContent) === target) {"
+                        + "    const click = el.closest('button, a, [role=\"button\"], [class*=\"common\"], [class*=\"question\"]');"
+                        + "    if (click) { click.click(); return true; }"
+                        + "    el.click(); return true;"
+                        + "  }"
+                        + "}"
+                        + "return false;",
+                questionText);
+        if (clicked == null || !clicked) {
+            throw new org.openqa.selenium.NoSuchElementException(
+                    "Common question '" + questionText + "' not found on the page.");
+        }
+        return this;
+    }
+
+    /** Diagnostic — return the visible text of every button.quick-btn for failure messages. */
+    private String quickActionDiagnostic() {
+        try {
+            Object r = ((JavascriptExecutor) driver).executeScript(
+                    "return Array.from(document.querySelectorAll('button, [role=\"button\"], [class*=\"quick\"]'))"
+                            + ".map(el => (el.textContent || '').replace(/\\s+/g,' ').trim())"
+                            + ".filter(t => t.length > 0 && t.length < 100);");
+            return String.valueOf(r);
+        } catch (Exception e) {
+            return "(diagnostic failed: " + e.getMessage() + ")";
+        }
+    }
 }

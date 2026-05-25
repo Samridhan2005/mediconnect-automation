@@ -148,6 +148,42 @@ public final class TestData {
         }
     }
 
+    public static Map<String, String> patientBooking(String testId) {
+        return read("PatientBookings", testId);
+    }
+
+    public static Object[][] patientBookingIds() {
+        try {
+            return ExcelUtils.getColumnValues(FILE, "PatientBookings", "testId");
+        } catch (IOException e) {
+            throw new RuntimeException("Failed to read PatientBookings testIds", e);
+        }
+    }
+
+    public static Map<String, String> labReportAIQuestion(String testId) {
+        return read("LabReportAIQuestions", testId);
+    }
+
+    public static Object[][] labReportAIQuestionIds() {
+        try {
+            return ExcelUtils.getColumnValues(FILE, "LabReportAIQuestions", "testId");
+        } catch (IOException e) {
+            throw new RuntimeException("Failed to read LabReportAIQuestions testIds", e);
+        }
+    }
+
+    public static Map<String, String> aiAssistantInteraction(String testId) {
+        return read("AiAssistantInteractions", testId);
+    }
+
+    public static Object[][] aiAssistantInteractionIds() {
+        try {
+            return ExcelUtils.getColumnValues(FILE, "AiAssistantInteractions", "testId");
+        } catch (IOException e) {
+            throw new RuntimeException("Failed to read AiAssistantInteractions testIds", e);
+        }
+    }
+
     private static Map<String, String> read(String sheet, String testId) {
         try {
             return ExcelUtils.getRowByKey(FILE, sheet, "testId", testId);
