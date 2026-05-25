@@ -113,7 +113,7 @@ public class DoctorAppointmentsTest extends BaseDoctorTest {
 
     // TC041 — New Appointment modal opens (button click interaction)
     @Test(groups = {"regression"})
-    public void TC041_doctor_new_appointment_modal() {
+    public void doctor_new_appointment_modal() {
         DoctorAppointments page = new DoctorAppointments(driver).open(loggedInUserId);
 
         List<WebElement> btn = driver.findElements(page.newAppointmentBtn);
@@ -130,7 +130,7 @@ public class DoctorAppointmentsTest extends BaseDoctorTest {
     // TC_A09_A10_A13 — Toolbar filters + table columns + pagination label
     // Merged TC_A09 + TC_A10 + TC_A13
     @Test(groups = {"regression"})
-    public void TC_A09_A10_A13_doctor_appointments_toolbar_columns_pagination() {
+    public void doctor_appointments_toolbar_columns_pagination() {
         new DoctorAppointments(driver).open(loggedInUserId);
 
         // TC_A09 — toolbar filters (search, 2 selects, date picker)
@@ -175,7 +175,7 @@ public class DoctorAppointmentsTest extends BaseDoctorTest {
     // TC078_A11_A12_A14 — Table has rows + row data validation + detail panel opens on row click
     // Merged TC078 + TC_A11 + TC_A12 + TC_A14
     @Test(groups = {"regression"})
-    public void TC078_A11_A12_A14_doctor_appointments_rows_and_detail_panel() {
+    public void doctor_appointments_rows_and_detail_panel() {
         new DoctorAppointments(driver).open(loggedInUserId);
 
         // TC078 / TC_A11 — table has rows

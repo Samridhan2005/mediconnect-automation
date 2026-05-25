@@ -15,12 +15,10 @@ import java.util.Map;
 import static org.testng.Assert.assertNotNull;
 import static org.testng.Assert.assertTrue;
 
-/** FRD: TC053, TC077 — Admin Multi-Hospital Management. */
 public class AdminHospitalsTest extends BaseAdminTest {
 
-    // Merged TC053 + TC077
     @Test(groups = {"regression"})
-    public void TC053_077_admin_hospitals_ui_and_occupancy() {
+    public void admin_hospitals_ui_and_occupancy() {
         AdminHospitals page = new AdminHospitals(driver).open(loggedInUserId);
         for (String tile : List.of("Total Hospitals", "Operational", "Under Maintenance", "Critical Capacity")) {
             assertTrue(driver.findElements(By.xpath("//*[contains(normalize-space(),'" + tile + "')]")).size() > 0,
@@ -40,9 +38,8 @@ public class AdminHospitalsTest extends BaseAdminTest {
         }
     }
 
-    // TC086 — Clicking 'Hospitals' in the sidebar navigates to /admin/{id}/hospitals
     @Test(groups = {"regression"})
-    public void TC086_hospitals_sidebar_link_navigates_to_hospitals_page() {
+    public void hospitals_sidebar_link_navigates_to_hospitals_page() {
         // BaseAdminTest leaves us on /admin/{id}/overview after login
         AdminOverview overview = new AdminOverview(driver);
         assertTrue(overview.isLoaded(), "Should start on Admin Overview");
@@ -63,9 +60,8 @@ public class AdminHospitalsTest extends BaseAdminTest {
         return TestData.hospitalIds();
     }
 
-    // Merged TC087 + TC089 — data-driven: runs once per row in the Hospitals sheet.
     @Test(groups = {"regression"}, dataProvider = "hospitalsToAdd")
-    public void TC087_089_admin_add_hospital_modal_and_submit(String testId) {
+    public void admin_add_hospital_modal_and_submit(String testId) {
         Map<String, String> data = TestData.hospital(testId);
         String newName = data.get("name"); // includes ${UNIQUE} substitution from the sheet
 
@@ -105,9 +101,8 @@ public class AdminHospitalsTest extends BaseAdminTest {
         }
     }
 
-    // Merged TC088 + TC091
     @Test(groups = {"regression"})
-    public void TC088_091_admin_hospitals_row_data_and_details() {
+    public void admin_hospitals_row_data_and_details() {
         AdminHospitals page = new AdminHospitals(driver).open(loggedInUserId);
 
         List<WebElement> nameCells = driver.findElements(page.hospitalNameCells);
@@ -154,9 +149,8 @@ public class AdminHospitalsTest extends BaseAdminTest {
                 "Expanded view should reference the selected hospital '" + existingHospital + "'");
     }
 
-    // Merged TC090 + TC092
     @Test(groups = {"regression"})
-    public void TC090_092_admin_hospitals_edit_modal_and_save() {
+    public void admin_hospitals_edit_modal_and_save() {
         AdminHospitals page = new AdminHospitals(driver).open(loggedInUserId);
 
         String existingHospital = page.getHospitalName();

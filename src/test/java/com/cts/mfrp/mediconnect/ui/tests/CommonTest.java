@@ -47,7 +47,7 @@ public class CommonTest extends UiBaseTest {
 
     // TC064 — Common form validation rules (mandatory + invalid)
     @Test(groups = {"regression"})
-    public void TC064_common_form_validation_rules() {
+    public void common_form_validation_rules() {
         loginAsPatient();
         // Navigate to Appointments and open Book Appointment modal as a representative form
         driver.findElement(By.xpath("//a[contains(@class,'ni') and contains(normalize-space(),'Appointments')]")).click();
@@ -75,7 +75,7 @@ public class CommonTest extends UiBaseTest {
 
     // TC065 — Common search & filter rules
     @Test(groups = {"regression"})
-    public void TC065_common_search_filter_rules() {
+    public void common_search_filter_rules() {
         loginAsDoctor();
         driver.findElement(By.xpath("//a[contains(@class,'ni') and normalize-space()='Patients']")).click();
         wait.until(d -> d.getCurrentUrl().contains("/patients"));
@@ -108,7 +108,7 @@ public class CommonTest extends UiBaseTest {
     // not as <span class="badge"> elements. Accept either explicit badge classes
     // OR a status column in a table containing the standard status keywords.
     @Test(groups = {"regression"})
-    public void TC066_status_badge_colour_standards() {
+    public void status_badge_colour_standards() {
         loginAsDoctor();
         driver.findElement(By.xpath("//a[contains(@class,'ni') and normalize-space()='Appointments']")).click();
         wait.until(d -> d.getCurrentUrl().contains("/appointments"));
@@ -128,7 +128,7 @@ public class CommonTest extends UiBaseTest {
 
     // TC067 — Navigation rules
     @Test(groups = {"regression"})
-    public void TC067_navigation_rules() {
+    public void navigation_rules() {
         loginAsPatient();
         // Sidebar logo click navigates home
         List<WebElement> logo = driver.findElements(By.cssSelector(
@@ -148,7 +148,7 @@ public class CommonTest extends UiBaseTest {
     // We can't reliably simulate an offline AI service, so we validate the page renders
     // its mode selector and chat input — proving the AI feature is wired up.
     @Test(groups = {"regression"})
-    public void TC068_ai_service_unavailable_indicator() {
+    public void ai_service_unavailable_indicator() {
         loginAsPatient();
         driver.findElement(By.xpath("//a[contains(@class,'ni') and normalize-space()='AI Health Assistant']")).click();
         wait.until(d -> d.getCurrentUrl().contains("/ai"));
@@ -166,7 +166,7 @@ public class CommonTest extends UiBaseTest {
 
     // TC069 — Export / Download failure handling
     @Test(groups = {"regression"})
-    public void TC069_export_download_failure_ui_elements() {
+    public void export_download_failure_ui_elements() {
         loginAsAdmin();
         driver.findElement(By.xpath("//a[contains(@class,'ni') and normalize-space()='Patients']")).click();
         wait.until(d -> d.getCurrentUrl().contains("/patients"));
@@ -178,7 +178,7 @@ public class CommonTest extends UiBaseTest {
 
     // TC070 — Role-based access control
     @Test(groups = {"sanity", "regression"})
-    public void TC070_role_based_access_control() {
+    public void role_based_access_control() {
         loginAsPatient();
         // Try to access Doctor portal URL
         driver.get(ConfigReader.get("ui.baseUrl") + "/doctor/3/dashboard");
@@ -203,7 +203,7 @@ public class CommonTest extends UiBaseTest {
 
     // TC071 — Empty state displays across portals
     @Test(groups = {"regression"})
-    public void TC071_empty_state_displays() {
+    public void empty_state_displays() {
         loginAsPatient();
         // Appointments page with no upcoming items would show empty state
         driver.findElement(By.xpath("//a[contains(@class,'ni') and contains(normalize-space(),'Appointments')]")).click();

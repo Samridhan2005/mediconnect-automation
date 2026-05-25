@@ -21,7 +21,7 @@ import static org.testng.Assert.assertTrue;
 public class DoctorAiAssistantTest extends BaseDoctorTest {
 
     @Test(groups = {"regression"})
-    public void TC050_doctor_ai_assistant_ui_chat() {
+    public void doctor_ai_assistant_ui_chat() {
         DoctorAiAssistant page = new DoctorAiAssistant(driver).open(loggedInUserId);
         assertTrue(driver.findElements(page.pageHeader).size() > 0);
         assertTrue(driver.findElements(page.chips).size() > 0,

@@ -22,7 +22,7 @@ public class DoctorRegisterTest extends UiBaseTest {
     }
 
     @Test(groups = {"regression"}, dataProvider = "doctorRegistrations")
-    public void TD001_doctor_registration_lands_on_doctor_dashboard(String testId) {
+    public void doctor_registration_lands_on_doctor_dashboard(String testId) {
         Map<String, String> data = TestData.doctorRegister(testId);
         String firstName = data.get("firstName");
         String password  = data.get("password");

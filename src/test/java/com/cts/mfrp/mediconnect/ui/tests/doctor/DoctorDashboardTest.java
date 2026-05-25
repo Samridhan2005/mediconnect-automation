@@ -148,7 +148,7 @@ public class DoctorDashboardTest extends BaseDoctorTest {
 
     // TC011 — Stat cards: labels and values
     @Test(groups = {"regression"})
-    public void TC011_doctor_dashboard_stat_cards() {
+    public void doctor_dashboard_stat_cards() {
         new DoctorDashboard(driver);
 
         By statCard = By.cssSelector("div.stat-cards div.stat-card");
@@ -257,7 +257,7 @@ public class DoctorDashboardTest extends BaseDoctorTest {
 
     
     @Test(groups = {"regression"})
-    public void TC075_075a_075b_doctor_dashboard_side_sections() {
+    public void doctor_dashboard_side_sections() {
         new DoctorDashboard(driver);
 
         By cardTitles = By.cssSelector("span.card-title");

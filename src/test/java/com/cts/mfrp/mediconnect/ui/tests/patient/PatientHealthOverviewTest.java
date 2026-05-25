@@ -20,14 +20,14 @@ public class PatientHealthOverviewTest extends BasePatientTest {
 
     // TC015 — Patient login lands on Health Overview
     @Test(groups = {"smoke", "sanity", "regression"})
-    public void TC015_patient_login_lands_on_health_overview() {
+    public void patient_login_lands_on_health_overview() {
         PatientHealthOverview dash = new PatientHealthOverview(driver);
         assertTrue(dash.isLoaded(), "User should land on Patient Health Overview dashboard");
     }
 
     // Merged TC017 + TC130 + TC131 + TC132
     @Test(groups = {"regression"})
-    public void TC017_130_132_patient_dashboard_header_and_sidebar() {
+    public void patient_dashboard_header_and_sidebar() {
         PatientHealthOverview dash = new PatientHealthOverview(driver);
         assertTrue(dash.isLoaded(), "Health Overview should be the default home screen");
 
@@ -79,7 +79,7 @@ public class PatientHealthOverviewTest extends BasePatientTest {
 
     // Merged TC018 + TC133 + TC134
     @Test(groups = {"regression"})
-    public void TC018_133_134_patient_summary_tiles_and_banner() {
+    public void patient_summary_tiles_and_banner() {
         PatientHealthOverview dash = new PatientHealthOverview(driver);
         List<WebElement> viewAllLinks = driver.findElements(dash.tileLinks);
         assertTrue(viewAllLinks.size() >= 1, "Each summary tile should have a 'View all' / 'All' link");
@@ -109,7 +109,7 @@ public class PatientHealthOverviewTest extends BasePatientTest {
 
     // Merged TC019 + TC135
     @Test(groups = {"regression"})
-    public void TC019_135_upcoming_appointments_and_health_score() {
+    public void upcoming_appointments_and_health_score() {
         WebElement section = wait.until(d -> {
             List<WebElement> sections = d.findElements(By.xpath(
                     "//div[contains(concat(' ',normalize-space(@class),' '),' card ')]" +
@@ -133,7 +133,7 @@ public class PatientHealthOverviewTest extends BasePatientTest {
 
     // Merged TC020 + TC136 + TC137
     @Test(groups = {"regression"})
-    public void TC020_136_137_patient_health_vitals_and_activity() {
+    public void patient_health_vitals_and_activity() {
         assertTrue(driver.findElements(By.xpath(
                         "//*[contains(text(),'Health Vitals') or contains(text(),'Vitals')]")).size() > 0,
                 "Health Vitals panel title should be visible");
@@ -165,7 +165,7 @@ public class PatientHealthOverviewTest extends BasePatientTest {
     // FIX: contains(text(),...) is too strict — it doesn't traverse children. Use
     // contains(normalize-space(.),...) so a title nested inside a <span> or icon still matches.
     @Test(groups = {"regression"})
-    public void TC021_022_138_patient_medicines_notifications_and_ai() {
+    public void patient_medicines_notifications_and_ai() {
         assertTrue(driver.findElements(By.xpath(
                         "//*[contains(normalize-space(.),\"Today's Medicines\") or contains(normalize-space(.),\"Today’s Medicines\")]")).size() > 0,
                 "Today's Medicines panel title should be visible");
@@ -213,7 +213,7 @@ public class PatientHealthOverviewTest extends BasePatientTest {
     //   b) clicking the hamburger / profile icon exposes a sign-out option.
     // If neither exists the test fails with a clear FRD-vs-UI gap message.
     @Test(groups = {"regression"})
-    public void TC074_139_patient_signout_and_no_nulls() {
+    public void patient_signout_and_no_nulls() {
         // TC139 — BUG-002 regression guard: greeting and sidebar must NOT contain 'null null'
         // (Indicates the patient record's firstName/lastName are null in the database.)
         // Find any element whose visible text contains 'null null' on the dashboard.

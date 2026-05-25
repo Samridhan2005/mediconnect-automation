@@ -16,40 +16,7 @@ import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertFalse;
 import static org.testng.Assert.assertTrue;
 
-/**
- * FRD: TC051, TC052, TC084 — Admin System Overview page.
- * URL: /admin/{userId}/overview
- *
- * DOM locators from browser inspection:
- *   div.tb-title                    → "System Overview"
- *   div.tb-sub                      → subtitle with date
- *   div.tb-chip                     → "Apr 2026" | "All Hospitals ↓"
- *   div.tb-notif                    → notification bell
- *   aside.sb nav.sb-nav a.ni        → sidebar nav links
- *   div.sb-brand-sub                → "Admin Control"
- *   div.sb-admin-name               → admin name
- *   div.sb-admin-role               → "Admin"
- *   span.sf-label                   → "Logout"
- *   div.stats-grid.mb20             → stat cards wrapper
- *   div.stat.teal/green/amber/blue  → tile wrappers
- *   div.stat-label                  → tile label
- *   div.stat-val                    → tile value
- *   div.stat-sub                    → tile sub-label
- *   div.card div.card-title         → chart card headings
- *   div.card div.card-sub           → chart card subtitles
- *   div.chart-pad canvas            → chart canvases
- *   div.disease-legend div.dl-row   → disease distribution legend rows
- *   span.dl-label                   → disease name
- *   span.dl-val                     → percentage
- *   div.map-container               → hospital branch map
- *   div.map-pin                     → map location pins
- *   div.ai-panel                    → AI System Insights panel
- *   div.ai-title                    → "AI System Insights"
- *   div.ai-insights-grid div.ai-insight → insight items
- *   div.notif-panel                 → notification panel
- *   div.notif-panel-title           → "Notifications"
- *   div.notif-item div.notif-content → notification content
- */
+
 public class AdminOverviewTest extends BaseAdminTest {
 
     private static final Duration WAIT = Duration.ofSeconds(60);
@@ -58,9 +25,8 @@ public class AdminOverviewTest extends BaseAdminTest {
         return new WebDriverWait(driver, WAIT);
     }
 
-    // Merged TC051 + TC_OV01 + TC_OV02
     @Test(groups = {"sanity", "regression"})
-    public void TC051_OV01_OV02_admin_overview_ui_and_filters() {
+    public void admin_overview_ui_and_filters() {
         AdminOverview admin = new AdminOverview(driver);
         assertTrue(admin.isLoaded(), "Admin overview page not loaded");
 
@@ -81,7 +47,6 @@ public class AdminOverviewTest extends BaseAdminTest {
                     "Sidebar group missing: " + group);
         }
 
-        // Wait for stat tiles
         By statLabel = By.cssSelector("div.stats-grid div.stat-label");
         w().until(ExpectedConditions.visibilityOfElementLocated(statLabel));
 
@@ -119,9 +84,8 @@ public class AdminOverviewTest extends BaseAdminTest {
         assertFalse(chipTexts.isEmpty(), "No tb-chip elements found");
     }
 
-    // Merged TC052 + TC_OV03 + TC_OV04 + TC_OV05
     @Test(groups = {"regression"})
-    public void TC052_OV03_OV05_admin_overview_stat_tiles() {
+    public void admin_overview_stat_tiles() {
         new AdminOverview(driver);
 
         // div.tb-chip contains both the period chip and hospitals chip
@@ -179,9 +143,8 @@ public class AdminOverviewTest extends BaseAdminTest {
         }
     }
 
-    // Merged TC_OV06 + TC_OV07 + TC_OV08 + TC_OV09
     @Test(groups = {"regression"})
-    public void TC_OV06_OV09_admin_overview_charts() {
+    public void admin_overview_charts() {
         new AdminOverview(driver);
 
         By cardTitles = By.cssSelector("div.card div.card-title");
@@ -247,9 +210,8 @@ public class AdminOverviewTest extends BaseAdminTest {
         assertTrue(subFound, "Revenue Trend card-sub containing '2026' not found");
     }
 
-    // Merged TC084 + TC_OV10 + TC_OV11
     @Test(groups = {"regression"})
-    public void TC084_OV10_OV11_admin_overview_map_and_ai_insights() {
+    public void admin_overview_map_and_ai_insights() {
         AdminOverview admin = new AdminOverview(driver).open(loggedInUserId);
         assertTrue(admin.isLoaded());
 
@@ -310,9 +272,8 @@ public class AdminOverviewTest extends BaseAdminTest {
         }
     }
 
-    // Merged TC_OV12 + TC_OV13 + TC_OV14 + TC_OV15
     @Test(groups = {"regression"})
-    public void TC_OV12_OV15_admin_overview_notifications_and_profile() {
+    public void admin_overview_notifications_and_profile() {
         new AdminOverview(driver).open(loggedInUserId);
 
         // Wait for page to fully load

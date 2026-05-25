@@ -165,7 +165,7 @@ public class DoctorTelemedicineTest extends BaseDoctorTest {
     }
 
     @Test(groups = {"regression"})
-    public void TC_T07_T13_telemedicine_sections_and_past_table() {
+    public void telemedicine_sections_and_past_table() {
         new DoctorTelemedicine(driver).open(loggedInUserId);
 
         By sectionTitles = By.cssSelector("div.section-title");

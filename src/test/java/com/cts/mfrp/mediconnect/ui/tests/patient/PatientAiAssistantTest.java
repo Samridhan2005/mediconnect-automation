@@ -19,7 +19,7 @@ public class PatientAiAssistantTest extends BasePatientTest {
 
     // Merged TC035 + TC036 + TC183 + TC184 + TC185
     @Test(groups = {"regression"})
-    public void TC03_patient_ai_assistant_ui_and_modes() {
+    public void patient_ai_assistant_ui_and_modes() {
         PatientAiHealthAssistant page = new PatientAiHealthAssistant(driver).open(loggedInUserId);
 
         assertTrue(wait.until(ExpectedConditions.visibilityOfElementLocated(page.pageHeader)).isDisplayed(),
@@ -66,7 +66,7 @@ public class PatientAiAssistantTest extends BasePatientTest {
 
     // Merged TC079 + TC186 + TC187
     @Test(groups = {"regression"})
-    public void TC079_186_187_patient_ai_emergency_and_context() {
+    public void patient_ai_emergency_and_context() {
         PatientAiHealthAssistant page = new PatientAiHealthAssistant(driver).open(loggedInUserId);
 
         List<WebElement> emerg = driver.findElements(page.emergencyCard);
@@ -90,7 +90,7 @@ public class PatientAiAssistantTest extends BasePatientTest {
 
     // Merged TC188 + TC189
     @Test(groups = {"regression"})
-    public void TC188_189_patient_ai_ask_input_and_disclaimer() {
+    public void patient_ai_ask_input_and_disclaimer() {
         PatientAiHealthAssistant page = new PatientAiHealthAssistant(driver).open(loggedInUserId);
         assertTrue(driver.findElements(page.askInput).size() > 0,
                 "'Ask about your health, symptoms, or results...' input field should be visible");
@@ -104,7 +104,7 @@ public class PatientAiAssistantTest extends BasePatientTest {
 
     // Merged TC190 + TC191
     @Test(groups = {"regression"})
-    public void TC190_191_patient_ai_quick_actions_and_common_questions() {
+    public void patient_ai_quick_actions_and_common_questions() {
         PatientAiHealthAssistant page = new PatientAiHealthAssistant(driver).open(loggedInUserId);
         assertTrue(driver.findElements(page.quickActionsHeading).size() > 0,
                 "'QUICK ACTIONS' section heading should be visible in the right panel");
@@ -133,7 +133,7 @@ public class PatientAiAssistantTest extends BasePatientTest {
     // The success signal is light — the click/type completes without error and the page
     // remains on /ai. AI responses are async and out-of-scope for a UI smoke test.
     @Test(groups = {"regression"}, dataProvider = "aiInteractions")
-    public void TC193_patient_ai_assistant_interaction(String testId) {
+    public void patient_ai_assistant_interaction(String testId) {
         Map<String, String> data = TestData.aiAssistantInteraction(testId);
         String mode   = data.get("mode");
         String action = data.get("action");
@@ -183,7 +183,7 @@ public class PatientAiAssistantTest extends BasePatientTest {
 
     // TC192 — BUG-002 regression guard: 'Hello null!' / 'null null' should NEVER appear
     @Test(groups = {"regression"})
-    public void TC192_no_null_in_greeting_or_anywhere() {
+    public void no_null_in_greeting_or_anywhere() {
         new PatientAiHealthAssistant(driver).open(loggedInUserId);
 
         int nullNullCount = driver.findElements(

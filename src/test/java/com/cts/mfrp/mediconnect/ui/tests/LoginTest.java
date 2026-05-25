@@ -22,7 +22,7 @@ public class LoginTest extends UiBaseTest {
 
     // TC001 — URL validation
     @Test(groups = {"smoke", "sanity", "regression"})
-    public void TC001_url_loads_mediconnect() {
+    public void url_loads_mediconnect() {
         // baseUrl is opened by UiBaseTest.@BeforeMethod
         assertEquals(driver.getTitle(), "MediConnect", "Tab title should be 'MediConnect'");
         assertTrue(driver.getCurrentUrl().startsWith(ConfigReader.get("ui.baseUrl")),
@@ -30,7 +30,7 @@ public class LoginTest extends UiBaseTest {
     }
 
     @Test(groups = {"smoke", "sanity", "regression"})
-    public void TC002_login_page_shows_all_expected_elements() {
+    public void login_page_shows_all_expected_elements() {
         Login login = new Login(driver).open();
 
         assertTrue(login.isPatientTabVisible(), "Patient Login tab must be visible");
@@ -47,7 +47,7 @@ public class LoginTest extends UiBaseTest {
 
     // Merged TC003 + TC014
     @Test(groups = {"sanity", "regression"})
-    public void TC003_014_login_role_selector_tabs() {
+    public void login_role_selector_tabs() {
         Login login = new Login(driver).open();
 
         login.selectPatientTab();
@@ -76,7 +76,7 @@ public class LoginTest extends UiBaseTest {
     }
 
     @Test(groups = {"regression"})
-    public void TC004_doctor_login_fields_and_validation() {
+    public void doctor_login_fields_and_validation() {
         Map<String, String> data = TestData.login("TC004_doctor_valid");
         String email    = data.get("email");
         String password = data.get("password");
@@ -97,7 +97,7 @@ public class LoginTest extends UiBaseTest {
 
     // Merged TC005 + TC005a + TC005b + TC005c + TC005d
     @Test(groups = {"regression"})
-    public void TC005_005d_forgot_password_flow() {
+    public void forgot_password_flow() {
         Login login = new Login(driver).open();
         assertTrue(login.isForgotLinkVisible(), "Forgot Password link should be displayed");
 
@@ -114,7 +114,7 @@ public class LoginTest extends UiBaseTest {
 
     // TC006 — Login button: empty + invalid email behaviour
     @Test(groups = {"regression"})
-    public void TC006_login_button_validation_for_empty_and_invalid_inputs() {
+    public void login_button_validation_for_empty_and_invalid_inputs() {
         Login login = new Login(driver).open();
 
         // Empty submit -> "Please fill in all fields."
@@ -158,7 +158,7 @@ public class LoginTest extends UiBaseTest {
 
     // TC072 — Invalid credentials show server-side error
     @Test(groups = {"sanity", "regression"})
-    public void TC072_invalid_credentials_show_error() {
+    public void invalid_credentials_show_error() {
         Map<String, String> data = TestData.login("TC072_wrong_creds");
 
         Login login = new Login(driver).open();

@@ -18,30 +18,6 @@ import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertFalse;
 import static org.testng.Assert.assertTrue;
 
-/**
- * FRD: TC054, TC055, TC080 — Admin Patient Management.
- * URL: /admin/{userId}/patients
- *
- * DOM structure from browser inspection:
- *   div.tb-title              → "Patient Management"
- *   div.tb-sub                → "All patients across all hospitals · May 20, 2026"
- *   button.btn-teal           → "Export CSV"
- *   div.stat.blue             → Total Patients tile
- *   div.stat.red              → Inpatients tile
- *   div.stat.teal             → Outpatients Today tile
- *   div.stat.amber            → Critical Cases tile
- *   div.stat-label            → tile label text
- *   div.stat-val              → tile numeric value
- *   div.stat-sub              → tile sub-label
- *   div.tab-bar               → tab container
- *   div.tab.active            → active tab (Inpatients)
- *   div.tab                   → all tabs
- *   div.card-title            → "Patient List"
- *   table thead th            → PATIENT | EMAIL | BLOOD GROUP | PHONE | STATUS | ACTION
- *   table tbody tr            → patient data rows
- *   div.pagination span       → "Showing X of Y patients"
- *   div.search-wrap           → search input container
- */
 public class AdminPatientsTest extends BaseAdminTest {
 
     /** 60s for slow Netlify + Railway backend */
@@ -68,9 +44,8 @@ public class AdminPatientsTest extends BaseAdminTest {
                 driver.getCurrentUrl().replaceAll(".*/admin/(\\d+)/.*", "$1"));
     }
 
-    // Merged TC054 + TC054_admin_patient_management_header + TC055_admin_patient_summary_tile_labels
     @Test(groups = {"sanity", "regression"})
-    public void TC054_055_admin_patient_management_ui_and_tiles() {
+    public void admin_patient_management_ui_and_tiles() {
         AdminPatients page = new AdminPatients(driver).open(loggedInUserId);
         assertTrue(driver.findElements(page.pageHeader).size() > 0);
         for (String tab : List.of("Inpatients", "Outpatients")) {
@@ -101,9 +76,8 @@ public class AdminPatientsTest extends BaseAdminTest {
         }
     }
 
-    // TC055 — AI Summarize button on patient detail
     @Test(groups = {"regression"})
-    public void TC055_admin_patient_ai_summarize() {
+    public void admin_patient_ai_summarize() {
         AdminPatients page = new AdminPatients(driver).open(loggedInUserId);
         List<WebElement> viewBtn = driver.findElements(page.viewBtn);
         if (!viewBtn.isEmpty()) {
@@ -114,9 +88,8 @@ public class AdminPatientsTest extends BaseAdminTest {
         }
     }
 
-    // Merged TC056 + TC057 + TC058 + TC059 + TC060
     @Test(groups = {"regression"})
-    public void TC056_060_admin_patient_tile_values() {
+    public void admin_patient_tile_values() {
         new AdminPatients(driver).open(loggedInUserId);
 
         By statVal = By.cssSelector("div.stat-val");
@@ -174,9 +147,8 @@ public class AdminPatientsTest extends BaseAdminTest {
                 "ICU / HDU", "Sub-label mismatch");
     }
 
-    // Merged TC061 + TC062 + TC063 + TC064 + TC065 + TC066
     @Test(groups = {"regression"})
-    public void TC061_066_admin_patient_table_and_pagination() {
+    public void admin_patient_table_and_pagination() {
         new AdminPatients(driver).open(loggedInUserId);
 
         By tabBar = By.cssSelector("div.tab-bar");
@@ -240,9 +212,8 @@ public class AdminPatientsTest extends BaseAdminTest {
                 "Search input container not visible");
     }
 
-    // TC080 — Export
     @Test(groups = {"regression"})
-    public void TC080_admin_patient_management_export() {
+    public void admin_patient_management_export() {
         AdminPatients page = new AdminPatients(driver).open(loggedInUserId);
 
         By exportBtn = By.cssSelector("button.btn-teal");

@@ -16,27 +16,12 @@ import java.util.Map;
 
 import static org.testng.Assert.assertTrue;
 
-/**
- * Admin Supply Chain — full coverage.
- *
- * FRD baseline: TC058 (UI + AI Insights), TC059 (inventory table + filters).
- * New coverage:
- *   - Header actions: + New Order, Export CSV
- *   - Drug Usage Trend line chart + 4 legend items
- *   - Stock Consumption donut chart + 3 legend items
- *   - AI Supply Insights / "Predictive analytics" badge
- *   - Inventory: filter behaviour (All / Low Stock / Expiring) + search bar
- *   - Status badges (OK)
- *
- * All tests use the page's long FluentWait helpers since the page is data-heavy and slow.
- */
 public class AdminSupplyChainTest extends BaseAdminTest {
 
     private static final Duration FILTER_WAIT = Duration.ofSeconds(5);
 
-    // Merged TC058 + TC058a + TC058b + TC058c
     @Test(groups = {"regression"})
-    public void TC058_058a_058c_admin_supply_chain_ui_and_header_buttons() {
+    public void admin_supply_chain_ui_and_header_buttons() {
         AdminSupplyChain page = new AdminSupplyChain(driver).open(loggedInUserId);
         page.waitForTilesGrid();
 
@@ -54,11 +39,7 @@ public class AdminSupplyChainTest extends BaseAdminTest {
                 "'Export CSV' button should be visible in the top-right");
 
         page.clickNewOrder();
-        // Wait up to 20s for the modal to render. Modals on this app use INLINE styles
-        // (no class="modal"), so we additionally look for:
-        //   - the close-button class (btn-ghost btn-sm) used by every modal in this app
-        //   - any heading mentioning 'Order' / 'New Order'
-        //   - any <form> element
+
         By modalIndicators = By.xpath(
                 "//button[contains(@class,'btn-ghost') and contains(@class,'btn-sm')]" +
                         " | //*[contains(normalize-space(),'New Order')][self::h1 or self::h2 or self::h3]" +
@@ -85,9 +66,8 @@ public class AdminSupplyChainTest extends BaseAdminTest {
                 "Page should remain on Supply Chain Management after clicking Export CSV");
     }
 
-    // Merged TC058d + TC058e + TC058f
     @Test(groups = {"regression"})
-    public void TC058d_058f_admin_supply_chain_charts_and_ai() {
+    public void admin_supply_chain_charts_and_ai() {
         AdminSupplyChain page = new AdminSupplyChain(driver).open(loggedInUserId);
         page.waitForCharts();
 
@@ -142,13 +122,8 @@ public class AdminSupplyChainTest extends BaseAdminTest {
     public Object[][] supplyOrders() {
         return TestData.supplyOrderIds();
     }
-
-    // TC058b — '+ New Order' end-to-end (data-driven).
-    // Runs once per row in the SupplyOrders sheet. Fills the New Purchase Order
-    // modal with that row's itemName / category / quantity / reorderLevel / hospital
-    // / notes, clicks Place Order, and asserts the modal closes (success signal).
-    @Test(groups = {"regression"}, dataProvider = "supplyOrders")
-    public void TC058b_admin_supply_chain_new_order(String testId) {
+  @Test(groups = {"regression"}, dataProvider = "supplyOrders")
+    public void admin_supply_chain_new_order(String testId) {
         Map<String, String> data = TestData.supplyOrder(testId);
 
         AdminSupplyChain page = new AdminSupplyChain(driver).open(loggedInUserId);
@@ -176,9 +151,8 @@ public class AdminSupplyChainTest extends BaseAdminTest {
                 "[" + testId + "] Modal should close after clicking Place Order");
     }
 
-    // Merged TC059 + TC059a
     @Test(groups = {"regression"})
-    public void TC059_059a_admin_supply_chain_inventory_heading() {
+    public void admin_supply_chain_inventory_heading() {
         AdminSupplyChain page = new AdminSupplyChain(driver).open(loggedInUserId);
         page.waitForInventoryTable();
 
@@ -200,9 +174,8 @@ public class AdminSupplyChainTest extends BaseAdminTest {
                 "Item count subtitle (e.g. '27 items') should be visible");
     }
 
-    // Merged TC059b + TC059c + TC059d + TC059e + TC059f
     @Test(groups = {"regression"})
-    public void TC059b_059f_admin_supply_chain_inventory_filters_search_badges() {
+    public void admin_supply_chain_inventory_filters_search_badges() {
         AdminSupplyChain page = new AdminSupplyChain(driver).open(loggedInUserId);
         page.waitForInventoryTable();
 

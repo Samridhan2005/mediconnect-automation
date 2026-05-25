@@ -14,16 +14,6 @@ import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertFalse;
 import static org.testng.Assert.assertTrue;
 
-/**
- * FRD: TC016 — Admin login positive flow, plus extended coverage for /admin/login.
- *
- * Credential-using tests (TC016, TC022_024, TC027) are now data-driven from the
- * "Logins" sheet in TestData.xlsx. Rows are filtered by testId containing "_admin_"
- * and the row's "expectation" column.
- *
- * NOTE: This class extends UiBaseTest (not BaseAdminTest) because the tests
- * need to land on /admin/login directly, without being auto-logged-in first.
- */
 public class AdminLoginTest extends UiBaseTest {
 
     // ---------- Data providers ----------
@@ -47,11 +37,8 @@ public class AdminLoginTest extends UiBaseTest {
         return merged;
     }
 
-    // ============== TC016 — positive login (data-driven) ==============
-    // Clicking 'Sign In to Admin Panel' must navigate to /admin/{userId}/overview
-    // (the Admin System Overview dashboard).
     @Test(groups = {"smoke", "sanity", "regression"}, dataProvider = "adminValidLogins")
-    public void TC016_admin_login_positive(String testId) {
+    public void admin_login_positive(String testId) {
         Map<String, String> data = TestData.login(testId);
 
         new AdminLogin(driver).open()
@@ -68,9 +55,8 @@ public class AdminLoginTest extends UiBaseTest {
                 "[" + testId + "] 'ADMIN CONTROL' label should be visible in the sidebar after login");
     }
 
-    // Merged TC017 + TC018 + TC019
     @Test(groups = {"regression"})
-    public void TC017_019_admin_login_ui_and_password_masking() {
+    public void admin_login_ui_and_password_masking() {
         AdminLogin login = new AdminLogin(driver).open();
 
         assertEquals(login.getHeading(), "Admin Sign In", "Heading should be 'Admin Sign In'");
@@ -100,11 +86,9 @@ public class AdminLoginTest extends UiBaseTest {
         assertTrue(login.isPasswordMasked(), "After toggling again, password should be masked again");
     }
 
-    // ============== Batch B — Negative validation ==============
 
-    // Merged TC020 + TC021
     @Test(groups = {"regression"})
-    public void TC020_021_admin_login_empty_and_invalid_format() {
+    public void admin_login_empty_and_invalid_format() {
         AdminLogin login = new AdminLogin(driver).open();
         login.submit();
         // Either an in-app error appears, OR browser-native required-field blocks submission.
@@ -119,12 +103,9 @@ public class AdminLoginTest extends UiBaseTest {
                 "After invalid-email submit user should remain on /admin/login");
     }
 
-    // ============== TC022_024 — wrong credentials (data-driven) ==============
-    // Runs once per admin row in the Logins sheet whose expectation is
-    // wrongEmail / wrongPassword / bothWrong. Each scenario must show an error
-    // and remain on /admin/login.
+
     @Test(groups = {"regression"}, dataProvider = "adminWrongCredentials")
-    public void TC022_024_admin_login_wrong_credentials(String testId) {
+    public void admin_login_wrong_credentials(String testId) {
         Map<String, String> data = TestData.login(testId);
 
         AdminLogin login = new AdminLogin(driver).open();
@@ -136,11 +117,9 @@ public class AdminLoginTest extends UiBaseTest {
                 "[" + testId + "] User should remain on /admin/login after bad credentials");
     }
 
-    // ============== Batch C — Link navigation ==============
 
-    // Merged TC025 + TC026
     @Test(groups = {"regression"})
-    public void TC025_026_admin_login_back_home_and_register_links() {
+    public void admin_login_back_home_and_register_links() {
         AdminLogin login = new AdminLogin(driver).open();
         login.clickBackHome();
 
@@ -156,12 +135,8 @@ public class AdminLoginTest extends UiBaseTest {
                 "Clicking 'Create admin account' should navigate to /admin/register");
     }
 
-    // ============== TC027 — Admin sign-out (data-driven) ==============
-    // Mirrors TC073 (doctor) and TC074 (patient). After clicking Logout in the
-    // sidebar, admin must be redirected away from /admin/{id}/... and land on
-    // /admin/login (or the landing page). Runs once per valid admin row.
     @Test(groups = {"smoke", "regression"}, dataProvider = "adminValidLogins")
-    public void TC027_admin_sign_out_redirects_to_login_or_landing(String testId) {
+    public void admin_sign_out_redirects_to_login_or_landing(String testId) {
         Map<String, String> data = TestData.login(testId);
 
         // Log in first — this class extends UiBaseTest, no auto-login.

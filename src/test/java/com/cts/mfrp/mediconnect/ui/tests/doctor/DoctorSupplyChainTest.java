@@ -33,7 +33,7 @@ public class DoctorSupplyChainTest extends BaseDoctorTest {
     // TC049_SC01_SC04 — Page UI: header tiles, title, subtitle, export & add buttons
     // Merged TC049 + TC_SC01 + TC_SC02 + TC_SC03 + TC_SC04
     @Test(groups = {"regression"})
-    public void TC049_SC01_SC04_doctor_supply_chain_ui_and_header_buttons() {
+    public void doctor_supply_chain_ui_and_header_buttons() {
         DoctorSupplyChain page = new DoctorSupplyChain(driver).open(loggedInUserId);
 
         // TC049 — page header + tile labels
@@ -84,7 +84,7 @@ public class DoctorSupplyChainTest extends BaseDoctorTest {
     // TC081_SC08 — Low stock filter + toolbar (search + 2 dropdowns)
     // Merged TC081 + TC_SC08
     @Test(groups = {"regression"})
-    public void TC081_SC08_doctor_supply_chain_filters_and_toolbar() {
+    public void doctor_supply_chain_filters_and_toolbar() {
         DoctorSupplyChain page = new DoctorSupplyChain(driver).open(loggedInUserId);
 
         // TC081 — Low Stock filter present
@@ -107,7 +107,7 @@ public class DoctorSupplyChainTest extends BaseDoctorTest {
     // TC_SC05_SC07 — Stat card labels, values, sub-labels
     // Merged TC_SC05 + TC_SC06 + TC_SC07
     @Test(groups = {"regression"})
-    public void TC_SC05_SC07_supply_chain_stat_cards() {
+    public void supply_chain_stat_cards() {
         new DoctorSupplyChain(driver).open(loggedInUserId);
 
         // TC_SC05 — labels (uppercase rendering)
@@ -146,7 +146,7 @@ public class DoctorSupplyChainTest extends BaseDoctorTest {
     // TC_SC09_SC13 — Table columns, rows, row data, pagination label, pagination buttons
     // Merged TC_SC09 + TC_SC10 + TC_SC11 + TC_SC12 + TC_SC13
     @Test(groups = {"regression"})
-    public void TC_SC09_SC13_supply_chain_table_and_pagination() {
+    public void supply_chain_table_and_pagination() {
         new DoctorSupplyChain(driver).open(loggedInUserId);
 
         // TC_SC09 — column headers

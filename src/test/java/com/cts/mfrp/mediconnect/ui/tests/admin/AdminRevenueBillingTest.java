@@ -18,13 +18,6 @@ import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertFalse;
 import static org.testng.Assert.assertTrue;
 
-/**
- * FRD: TC060–TC072 — Admin Revenue & Billing.
- *
- * All waits are 60 seconds to handle slow Netlify + Railway backend.
- * loginAsAdmin() is overridden here with 60s wait so @BeforeMethod
- * never times out regardless of how slow the app is.
- */
 public class AdminRevenueBillingTest extends BaseAdminTest {
 
     /** 60 seconds for login redirect (overrides config's 15s). */
@@ -37,7 +30,6 @@ public class AdminRevenueBillingTest extends BaseAdminTest {
         return new WebDriverWait(driver, WAIT_CONTENT);
     }
 
-    // ── Override loginAsAdmin with 60s wait ───────────────────────────────
     @Override
     @BeforeMethod(dependsOnMethods = "uiSetup")
     public void loginAsAdmin() {
@@ -53,9 +45,8 @@ public class AdminRevenueBillingTest extends BaseAdminTest {
                 driver.getCurrentUrl().replaceAll(".*/admin/(\\d+)/.*", "$1"));
     }
 
-    // Merged TC060 + TC061 + TC062 + TC063
     @Test(groups = {"regression"})
-    public void TC060_063_admin_revenue_ui_and_tile_labels() {
+    public void admin_revenue_ui_and_tile_labels() {
         AdminRevenueBilling page = new AdminRevenueBilling(driver).open(loggedInUserId);
 
         By titleLocator = By.cssSelector("div.tb-title");
@@ -108,9 +99,8 @@ public class AdminRevenueBillingTest extends BaseAdminTest {
         }
     }
 
-    // Merged TC064 + TC065 + TC066 + TC067
     @Test(groups = {"regression"})
-    public void TC064_067_admin_revenue_individual_tiles() {
+    public void admin_revenue_individual_tiles() {
         new AdminRevenueBilling(driver).open(loggedInUserId);
 
         By teal = By.cssSelector("div.stat.teal");
@@ -168,9 +158,8 @@ public class AdminRevenueBillingTest extends BaseAdminTest {
                 "Needs review", "Sub-label mismatch");
     }
 
-    // Merged TC068 + TC069 + TC070
     @Test(groups = {"regression"})
-    public void TC068_070_admin_revenue_charts_and_ai() {
+    public void admin_revenue_charts_and_ai() {
         new AdminRevenueBilling(driver).open(loggedInUserId);
 
         By cardHeaders = By.cssSelector("div.card div.card-header");
@@ -216,9 +205,8 @@ public class AdminRevenueBillingTest extends BaseAdminTest {
         }
     }
 
-    // Merged TC071 + TC072
     @Test(groups = {"regression"})
-    public void TC071_072_admin_revenue_recent_bills_table() {
+    public void admin_revenue_recent_bills_table() {
         AdminRevenueBilling page = new AdminRevenueBilling(driver).open(loggedInUserId);
 
         w().until(ExpectedConditions.visibilityOfElementLocated(page.recentBillsHeader));
@@ -248,15 +236,8 @@ public class AdminRevenueBillingTest extends BaseAdminTest {
                     "Column '" + col + "' not found. Found: " + headers);
         }
     }
-
-    // ─────────────────────────────────────────────────────────────────────────
-    // TC061b — Recent Bills + Insurance Claims tables both visible
-    // (kept from incoming branch — teammate added this. Renamed from TC061 to
-    //  TC061b because TC061_admin_revenue_summary_tile_labels above already
-    //  occupies the TC061 slot. The two TC061 tests cover distinct scenarios.)
-    // ─────────────────────────────────────────────────────────────────────────
-    @Test(groups = {"regression"})
-    public void TC061b_admin_revenue_bills_claims_tables() {
+   @Test(groups = {"regression"})
+    public void admin_revenue_bills_claims_tables() {
         AdminRevenueBilling page = new AdminRevenueBilling(driver).open(loggedInUserId);
 
         w().until(ExpectedConditions.visibilityOfElementLocated(page.recentBillsHeader));

@@ -13,7 +13,7 @@ public class PatientTelemedicineTest extends BasePatientTest {
 
     // Merged TC032 + TC076 + TC175 + TC176
     @Test(groups = {"regression"})
-    public void TC032_076_175_176_patient_telemedicine_ui_and_header() {
+    public void patient_telemedicine_ui_and_header() {
         PatientTelemedicine page = new PatientTelemedicine(driver).open(loggedInUserId);
 
         assertTrue(wait.until(ExpectedConditions.visibilityOfElementLocated(page.pageHeader)).isDisplayed(),
@@ -50,7 +50,7 @@ public class PatientTelemedicineTest extends BasePatientTest {
 
     // Merged TC177 + TC178 + TC179 + TC180
     @Test(groups = {"regression"})
-    public void TC177_180_patient_telemedicine_sections_and_empty_state() {
+    public void patient_telemedicine_sections_and_empty_state() {
         PatientTelemedicine page = new PatientTelemedicine(driver).open(loggedInUserId);
 
         boolean hasSession = !driver.findElements(page.rescheduleBtn).isEmpty();
@@ -90,7 +90,7 @@ public class PatientTelemedicineTest extends BasePatientTest {
 
     // Merged TC181 + TC182
     @Test(groups = {"regression"})
-    public void TC181_182_patient_telemedicine_sidebar_and_no_nulls() {
+    public void patient_telemedicine_sidebar_and_no_nulls() {
         PatientTelemedicine page = new PatientTelemedicine(driver).open(loggedInUserId);
         assertTrue(driver.findElements(page.sidebarPatientId).size() > 0,
                 "Sidebar should display Patient ID");

@@ -20,7 +20,7 @@ public class PatientLabReportsTest extends BasePatientTest {
 
     // Merged TC030 + TC082 + TC158 + TC159
     @Test(groups = {"regression"})
-    public void TC030_082_158_159_patient_lab_reports_ui_and_banner() {
+    public void patient_lab_reports_ui_and_banner() {
         PatientLabReports page = new PatientLabReports(driver).open(loggedInUserId);
 
         assertTrue(wait.until(ExpectedConditions.visibilityOfElementLocated(page.pageHeader)).isDisplayed(),
@@ -55,7 +55,7 @@ public class PatientLabReportsTest extends BasePatientTest {
 
     // TC031 — Ask AI to Explain + Download PDF buttons are clickable
     @Test(groups = {"regression"})
-    public void TC031_lab_reports_ai_explanation_and_download() {
+    public void lab_reports_ai_explanation_and_download() {
         PatientLabReports page = new PatientLabReports(driver).open(loggedInUserId);
 
         WebElement ask = wait.until(ExpectedConditions.elementToBeClickable(page.askAiButton));
@@ -71,7 +71,7 @@ public class PatientLabReportsTest extends BasePatientTest {
 
     // Merged TC160 + TC161 + TC162 + TC163 + TC164
     @Test(groups = {"regression"})
-    public void TC160_164_patient_lab_reports_ai_panel() {
+    public void patient_lab_reports_ai_panel() {
         PatientLabReports page = new PatientLabReports(driver).open(loggedInUserId);
         assertTrue(driver.findElements(page.aiPanelTitle).size() > 0,
                 "'AI Report Explanation' panel title should be visible");
@@ -116,7 +116,7 @@ public class PatientLabReportsTest extends BasePatientTest {
     // for typed questions the input either keeps the typed value (no send wiring) or
     // clears after send (chat-style UX). We assert the appropriate one per mode.
     @Test(groups = {"regression"}, dataProvider = "aiQuestions")
-    public void TC167_patient_lab_reports_ai_question(String testId) {
+    public void patient_lab_reports_ai_question(String testId) {
         Map<String, String> data = TestData.labReportAIQuestion(testId);
         String question = data.get("question");
         String mode     = data.get("mode");
@@ -153,7 +153,7 @@ public class PatientLabReportsTest extends BasePatientTest {
 
     // Merged TC165 + TC166
     @Test(groups = {"regression"})
-    public void TC165_166_patient_lab_reports_sidebar_and_no_nulls() {
+    public void patient_lab_reports_sidebar_and_no_nulls() {
         PatientLabReports page = new PatientLabReports(driver).open(loggedInUserId);
         assertTrue(driver.findElements(page.sidebarPatientId).size() > 0,
                 "Sidebar should display Patient ID");

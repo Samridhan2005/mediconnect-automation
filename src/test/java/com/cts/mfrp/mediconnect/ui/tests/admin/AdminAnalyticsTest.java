@@ -16,24 +16,13 @@ import java.util.Map;
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertTrue;
 
-/**
- * Admin Analytics & Insights (/admin/{id}/analytics).
- *
- * Tests are written against the page as it is actually rendered today.
- * Tile/chart names match what the app shows, not the original FRD wording.
- *
- * The page renders asynchronously (Angular charts populate after initial load),
- * so every assertion is preceded by `wait.until(...)` so Selenium polls for the
- * element to appear instead of failing on the first DOM snapshot.
- */
+
 public class AdminAnalyticsTest extends BaseAdminTest {
 
-    // Helper — polls up to 45s for an element to appear, scrolls it into view, then asserts presence.
     private void waitAndAssertVisible(By locator, String message) {
         WebDriverWait longWait = new WebDriverWait(driver, Duration.ofSeconds(45));
         longWait.until(d -> d.findElements(locator).size() > 0);
 
-        // Scroll the element into view — charts below the fold may need this for visibility checks.
         if (!driver.findElements(locator).isEmpty()) {
             WebElement el = driver.findElements(locator).get(0);
             ((JavascriptExecutor) driver).executeScript("arguments[0].scrollIntoView({block:'center'});", el);
@@ -43,7 +32,6 @@ public class AdminAnalyticsTest extends BaseAdminTest {
         assertTrue(driver.findElements(locator).size() > 0, message);
     }
 
-    // Merged TC062 + TC063
     @Test(groups = {"regression"})
     public void admin_analytics_ui_and_filters() {
         AdminAnalytics page = new AdminAnalytics(driver).open(loggedInUserId);
@@ -62,7 +50,6 @@ public class AdminAnalyticsTest extends BaseAdminTest {
         waitAndAssertVisible(page.tileCancellationRate,
                 "Summary tile 'Cancellation Rate' should be visible");
 
-        // Wait for at least one dropdown to appear before counting.
         wait.until(d -> d.findElements(page.anyDropdown).size() > 0);
 
         int periodHits      = driver.findElements(page.periodSelect).size();
@@ -78,9 +65,8 @@ public class AdminAnalyticsTest extends BaseAdminTest {
                         ", hospital=" + hospitalHits + ", generic dropdowns=" + anyDropdownHits);
     }
 
-    // Merged TC064 + TC065
     @Test(groups = {"regression"})
-    public void TC064_065_admin_analytics_charts() {
+    public void admin_analytics_charts() {
         AdminAnalytics page = new AdminAnalytics(driver).open(loggedInUserId);
 
         waitAndAssertVisible(page.heatmap,
@@ -100,12 +86,10 @@ public class AdminAnalyticsTest extends BaseAdminTest {
                 "'Appointments by Department' chart should be visible");
     }
 
-    // Long custom wait for slow dropdowns (Hospitals dropdown options come from a backend API call).
     private WebDriverWait longDropdownWait() {
         return new WebDriverWait(driver, Duration.ofSeconds(60));
     }
 
-    // Helper — wait until the dropdown contains at least the given marker option, then return all option texts.
     private java.util.List<String> readDropdownOptions(org.openqa.selenium.By selectLocator, String markerOption) {
         longDropdownWait().until(d -> {
             var els = d.findElements(selectLocator);
@@ -119,7 +103,6 @@ public class AdminAnalyticsTest extends BaseAdminTest {
                 .collect(java.util.stream.Collectors.toList());
     }
 
-    // Helper — wait until the dropdown contains the option, then select it.
     private void selectFromDropdown(org.openqa.selenium.By selectLocator, String optionText) {
         longDropdownWait().until(d -> {
             var els = d.findElements(selectLocator);
@@ -132,9 +115,8 @@ public class AdminAnalyticsTest extends BaseAdminTest {
                 .selectByVisibleText(optionText);
     }
 
-    // Merged TC066 + TC067 + TC068
     @Test(groups = {"regression"})
-    public void TC066_068_admin_analytics_dropdown_options() {
+    public void admin_analytics_dropdown_options() {
         AdminAnalytics page = new AdminAnalytics(driver).open(loggedInUserId);
         java.util.List<String> optionTexts = readDropdownOptions(page.periodSelect, "Last 7 Days");
 
@@ -160,9 +142,8 @@ public class AdminAnalyticsTest extends BaseAdminTest {
         }
     }
 
-    // Merged TC069 + TC070 + TC071
     @Test(groups = {"regression"})
-    public void TC069_071_admin_analytics_filter_refresh() {
+    public void admin_analytics_filter_refresh() {
         AdminAnalytics page = new AdminAnalytics(driver).open(loggedInUserId);
 
         // Capture tile value BEFORE filter change
@@ -223,12 +204,8 @@ public class AdminAnalyticsTest extends BaseAdminTest {
         return TestData.analyticsFilterIds();
     }
 
-    // TC072 — Analytics filter combinations (data-driven).
-    // Each row in the AnalyticsFilters sheet supplies a (hospital, department, period)
-    // triple. The test applies all three, then asserts each select reflects the chosen
-    // value and the page's core widgets (Patient Flow tile + heatmap) still render.
     @Test(groups = {"regression"}, dataProvider = "analyticsFilters")
-    public void TC072_admin_analytics_filter_combinations(String testId) {
+    public void admin_analytics_filter_combinations(String testId) {
         Map<String, String> data = TestData.analyticsFilter(testId);
         String hospital   = data.get("hospital");
         String department = data.get("department");

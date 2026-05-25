@@ -11,7 +11,6 @@ import java.util.Map;
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertTrue;
 
-/** FRD: TC056, TC083 — Admin Appointment Management. */
 public class AdminAppointmentsTest extends BaseAdminTest {
 
     @DataProvider(name = "appointmentFilters")
@@ -19,11 +18,8 @@ public class AdminAppointmentsTest extends BaseAdminTest {
         return TestData.appointmentIds();
     }
 
-    // TC056 — Appointment management calendar + filters (data-driven).
-    // Runs once per row in the Appointments sheet, applying that row's
-    // doctor / hospital / date and asserting the filters took effect.
     @Test(groups = {"regression"}, dataProvider = "appointmentFilters")
-    public void TC056_admin_appointment_calendar_filters(String testId) {
+    public void admin_appointment_calendar_filters(String testId) {
         Map<String, String> data = TestData.appointment(testId);
         String doctor   = data.get("doctor");
         String hospital = data.get("hospital");
@@ -56,12 +52,8 @@ public class AdminAppointmentsTest extends BaseAdminTest {
         return TestData.newAppointmentIds();
     }
 
-    // TC083 — New Appointment creation (data-driven).
-    // Runs once per row in the NewAppointments sheet. Fills the modal with that
-    // row's patient / doctor / hospital / date / time / type / notes, submits,
-    // and verifies the modal closes (success signal).
     @Test(groups = {"regression"}, dataProvider = "newAppointments")
-    public void TC083_admin_new_appointment_creation(String testId) {
+    public void admin_new_appointment_creation(String testId) {
         Map<String, String> data = TestData.newAppointment(testId);
 
         AdminAppointments page = new AdminAppointments(driver).open(loggedInUserId);

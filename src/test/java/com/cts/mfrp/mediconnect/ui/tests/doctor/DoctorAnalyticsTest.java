@@ -30,7 +30,7 @@ public class DoctorAnalyticsTest extends BaseDoctorTest {
 
     // TC047 — Analytics page UI (top-level summary tiles + header)
     @Test(groups = {"regression"})
-    public void TC047_doctor_analytics_ui() {
+    public void doctor_analytics_ui() {
         DoctorAnalytics page = new DoctorAnalytics(driver).open(loggedInUserId);
 
         w().until(ExpectedConditions.presenceOfElementLocated(page.pageHeader));
@@ -52,7 +52,7 @@ public class DoctorAnalyticsTest extends BaseDoctorTest {
     // TC048_AN01_AN04 — Header elements: title, subtitle, export button, range-select
     // Merged TC048 (time period filter) + TC_AN01 + TC_AN02 + TC_AN03 + TC_AN04
     @Test(groups = {"regression"})
-    public void TC048_AN01_AN04_analytics_header_and_filter() {
+    public void analytics_header_and_filter() {
         DoctorAnalytics page = new DoctorAnalytics(driver).open(loggedInUserId);
 
         // TC_AN01 — Page title
@@ -99,7 +99,7 @@ public class DoctorAnalyticsTest extends BaseDoctorTest {
     // TC_AN05_AN07 — Stat card labels, values, sub-labels
     // Merged TC_AN05 + TC_AN06 + TC_AN07
     @Test(groups = {"regression"})
-    public void TC_AN05_AN07_analytics_stat_cards() {
+    public void analytics_stat_cards() {
         new DoctorAnalytics(driver).open(loggedInUserId);
 
         // TC_AN05 — labels
@@ -136,7 +136,7 @@ public class DoctorAnalyticsTest extends BaseDoctorTest {
     // TC_AN08_AN13 — All charts and diagnoses section
     // Merged TC_AN08 + TC_AN09 + TC_AN10 + TC_AN11 + TC_AN12 + TC_AN13
     @Test(groups = {"regression"})
-    public void TC_AN08_AN13_analytics_charts_and_diagnoses() {
+    public void analytics_charts_and_diagnoses() {
         new DoctorAnalytics(driver).open(loggedInUserId);
 
         // TC_AN08 — Appointments over time chart

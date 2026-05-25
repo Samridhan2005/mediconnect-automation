@@ -12,7 +12,7 @@ public class PatientReminderTest extends BasePatientTest {
 
     // Merged TC033 + TC035 + TC036
     @Test(groups = {"regression"})
-    public void TC033_035_036_patient_reminders_ui_header() {
+    public void patient_reminders_ui_header() {
         PatientMedicineReminders page = new PatientMedicineReminders(driver).open(loggedInUserId);
 
         assertTrue(wait.until(ExpectedConditions.visibilityOfElementLocated(page.pageHeader)).isDisplayed(),
@@ -39,7 +39,7 @@ public class PatientReminderTest extends BasePatientTest {
 
     // TC034 — Mark dose as taken: clicking the mp-check button updates the row
     @Test(groups = {"regression"})
-    public void TC034_mark_dose_as_taken() {
+    public void mark_dose_as_taken() {
         PatientMedicineReminders page = new PatientMedicineReminders(driver).open(loggedInUserId);
 
         int before = driver.findElements(page.markTakenBtns).size();
@@ -53,7 +53,7 @@ public class PatientReminderTest extends BasePatientTest {
 
     // Merged TC037 + TC038
     @Test(groups = {"regression"})
-    public void TC037_038_patient_reminders_stat_tiles() {
+    public void patient_reminders_stat_tiles() {
         PatientMedicineReminders page = new PatientMedicineReminders(driver).open(loggedInUserId);
         assertTrue(driver.findElements(page.tileActiveMeds).size() > 0,
                 "Tile 'Active medicines' should be visible");
@@ -77,7 +77,7 @@ public class PatientReminderTest extends BasePatientTest {
 
     // Merged TC039 + TC040 + TC041
     @Test(groups = {"regression"})
-    public void TC039_040_041_patient_reminders_schedule_and_prescriptions() {
+    public void patient_reminders_schedule_and_prescriptions() {
         PatientMedicineReminders page = new PatientMedicineReminders(driver).open(loggedInUserId);
         assertTrue(driver.findElements(page.todaysScheduleHeading).size() > 0,
                 "'Today's Schedule' section heading should be visible");
@@ -102,7 +102,7 @@ public class PatientReminderTest extends BasePatientTest {
 
     // TC042 — BUG-002 regression guard: 'null null' should NEVER appear on this page
     @Test(groups = {"regression"})
-    public void TC042_no_null_null_anywhere() {
+    public void no_null_null_anywhere() {
         new PatientMedicineReminders(driver).open(loggedInUserId);
         int nullNullCount = driver.findElements(
                 org.openqa.selenium.By.xpath("//*[contains(normalize-space(),'null null')]")).size();

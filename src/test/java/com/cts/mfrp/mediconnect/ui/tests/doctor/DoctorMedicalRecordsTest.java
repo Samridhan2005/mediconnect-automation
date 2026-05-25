@@ -21,7 +21,7 @@ import static org.testng.Assert.assertTrue;
 public class DoctorMedicalRecordsTest extends BaseDoctorTest {
 
     @Test(groups = {"regression"})
-    public void TC044_doctor_medical_records_ui_search() {
+    public void doctor_medical_records_ui_search() {
         DoctorMedicalRecords page = new DoctorMedicalRecords(driver).open(loggedInUserId);
         WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(10));
 
@@ -32,7 +32,7 @@ public class DoctorMedicalRecordsTest extends BaseDoctorTest {
     }
 
     @Test(groups = {"regression"})
-    public void TC045_doctor_create_new_record() {
+    public void doctor_create_new_record() {
         DoctorMedicalRecords page = new DoctorMedicalRecords(driver).open(loggedInUserId);
         WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(10));
 

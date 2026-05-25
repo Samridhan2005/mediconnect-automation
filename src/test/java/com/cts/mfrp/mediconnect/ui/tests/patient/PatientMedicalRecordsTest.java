@@ -12,7 +12,7 @@ public class PatientMedicalRecordsTest extends BasePatientTest {
 
     // Merged TC028 + TC167 + TC168
     @Test(groups = {"regression"})
-    public void TC028_167_168_patient_medical_records_ui_and_header() {
+    public void patient_medical_records_ui_and_header() {
         PatientMedicalRecords page = new PatientMedicalRecords(driver).open(loggedInUserId);
 
         assertTrue(wait.until(ExpectedConditions.visibilityOfElementLocated(page.pageHeader)).isDisplayed(),
@@ -40,7 +40,7 @@ public class PatientMedicalRecordsTest extends BasePatientTest {
 
     // Merged TC029 + TC172
     @Test(groups = {"regression"})
-    public void TC029_172_patient_medical_records_search() {
+    public void patient_medical_records_search() {
         PatientMedicalRecords page = new PatientMedicalRecords(driver).open(loggedInUserId);
         int total = page.waitForRecordsLoaded();
         assertTrue(total >= 1, "Need records to test filtering");
@@ -63,7 +63,7 @@ public class PatientMedicalRecordsTest extends BasePatientTest {
 
     // Merged TC169 + TC170 + TC171
     @Test(groups = {"regression"})
-    public void TC169_170_171_patient_medical_records_panels_and_empty_state() {
+    public void patient_medical_records_panels_and_empty_state() {
         PatientMedicalRecords page = new PatientMedicalRecords(driver).open(loggedInUserId);
         assertTrue(driver.findElements(page.leftPanel).size() > 0,
                 "Left panel (record list with search) should be visible");
@@ -86,7 +86,7 @@ public class PatientMedicalRecordsTest extends BasePatientTest {
 
     // Merged TC173 + TC174
     @Test(groups = {"regression"})
-    public void TC173_174_patient_medical_records_sidebar_and_no_nulls() {
+    public void patient_medical_records_sidebar_and_no_nulls() {
         PatientMedicalRecords page = new PatientMedicalRecords(driver).open(loggedInUserId);
         assertTrue(driver.findElements(page.sidebarPatientId).size() > 0,
                 "Sidebar should display Patient ID");

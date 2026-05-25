@@ -22,7 +22,7 @@ public class PatientAppointmentsTest extends BasePatientTest {
 
     // Merged TC023 + TC150 + TC151 + TC152
     @Test(groups = {"regression"})
-    public void TC023_150_152_patient_appointments_ui_header_sidebar() {
+    public void patient_appointments_ui_header_sidebar() {
         PatientAppointments page = new PatientAppointments(driver).open(loggedInUserId);
 
         assertTrue(wait.until(ExpectedConditions.visibilityOfElementLocated(page.pageHeader)).isDisplayed(),
@@ -61,7 +61,7 @@ public class PatientAppointmentsTest extends BasePatientTest {
 
     // Merged TC024 + TC156
     @Test(groups = {"regression"})
-    public void TC024_156_patient_appointments_cards_or_empty_state() {
+    public void patient_appointments_cards_or_empty_state() {
         PatientAppointments page = new PatientAppointments(driver).open(loggedInUserId);
 
         // Make Upcoming the active tab (click it explicitly to validate the click works)
@@ -87,7 +87,7 @@ public class PatientAppointmentsTest extends BasePatientTest {
 
     // Merged TC025 + TC026 + TC027
     @Test(groups = {"regression"})
-    public void TC025_026_027_patient_book_appointment_flow() {
+    public void patient_book_appointment_flow() {
         PatientAppointments page = new PatientAppointments(driver).open(loggedInUserId);
         page.openBookModal();
 
@@ -166,7 +166,7 @@ public class PatientAppointmentsTest extends BasePatientTest {
     // doctor / date / time slot / type / reason fields, clicks Confirm Booking,
     // and asserts the modal closes (success signal).
     @Test(groups = {"regression"}, dataProvider = "patientBookings")
-    public void TC028_patient_book_appointment(String testId) {
+    public void patient_book_appointment(String testId) {
         Map<String, String> data = TestData.patientBooking(testId);
 
         PatientAppointments page = new PatientAppointments(driver).open(loggedInUserId);
@@ -202,7 +202,7 @@ public class PatientAppointmentsTest extends BasePatientTest {
 
     // Merged TC153 + TC154 + TC155
     @Test(groups = {"regression"})
-    public void TC153_154_155_patient_appointments_banner_and_tabs() {
+    public void patient_appointments_banner_and_tabs() {
         PatientAppointments page = new PatientAppointments(driver).open(loggedInUserId);
         assertTrue(driver.findElements(page.consultationBanner).size() > 0,
                 "'Need a consultation?' promotional banner should be visible");
@@ -240,7 +240,7 @@ public class PatientAppointmentsTest extends BasePatientTest {
 
     // TC157 — BUG-002 regression guard: 'null null' should NEVER appear
     @Test(groups = {"regression"})
-    public void TC157_no_null_null_anywhere() {
+    public void no_null_null_anywhere() {
         new PatientAppointments(driver).open(loggedInUserId);
         int nullNullCount = driver.findElements(By.xpath("//*[contains(normalize-space(),'null null')]")).size();
         assertTrue(nullNullCount == 0,

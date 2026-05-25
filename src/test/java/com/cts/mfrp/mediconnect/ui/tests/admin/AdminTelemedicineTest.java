@@ -11,19 +11,14 @@ import java.util.Map;
 
 import static org.testng.Assert.assertTrue;
 
-/**
- * Admin Telemedicine page — /admin/{id}/telemedicine
- * Bugs caught: BUG-009 — Join button unresponsive (TC096)
- */
+
 public class AdminTelemedicineTest extends BaseAdminTest {
 
-    // TC093_094_095 — Page header + summary tiles + section headings
-    // Merged TC093 + TC094 + TC095
+
     @Test(groups = {"regression"})
-    public void TC093_094_095_admin_telemedicine_ui_and_sections() {
+    public void admin_telemedicine_ui_and_sections() {
         AdminTelemedicine page = new AdminTelemedicine(driver).open(loggedInUserId);
 
-        // TC093 — header, sub-label, Schedule Session button
         assertTrue(driver.findElements(page.pageHeader).size() > 0,
                 "Telemedicine page title should be visible");
         assertTrue(driver.findElements(page.subLabel).size() > 0,
@@ -31,7 +26,6 @@ public class AdminTelemedicineTest extends BaseAdminTest {
         assertTrue(page.isScheduleSessionButtonVisible(),
                 "'+ Schedule Session' button should be visible in the top-right");
 
-        // TC094 — four summary tiles
         assertTrue(driver.findElements(page.tileDoctorsOnline).size() > 0,
                 "Summary tile 'Doctors Online' should be visible");
         assertTrue(driver.findElements(page.tileActiveSessions).size() > 0,
@@ -50,9 +44,8 @@ public class AdminTelemedicineTest extends BaseAdminTest {
                 "'Session Records' section should be visible");
     }
 
-    // TC096 — Join button should open video session (BUG-009 detection)
     @Test(groups = {"regression"})
-    public void TC096_join_button_in_todays_appointments_opens_session() {
+    public void join_button_in_todays_appointments_opens_session() {
         AdminTelemedicine page = new AdminTelemedicine(driver).open(loggedInUserId);
 
         wait.until(d -> page.joinButtonCount() > 0);
@@ -84,12 +77,8 @@ public class AdminTelemedicineTest extends BaseAdminTest {
         return TestData.telemedicineSessionIds();
     }
 
-    // TC099 — Schedule Video Session end-to-end (data-driven).
-    // Runs once per row in the TelemedicineSessions sheet. Fills the modal with
-    // doctor / patient / date / time / sessionType / notes, clicks Schedule
-    // Session, and asserts the modal closes (success signal).
     @Test(groups = {"regression"}, dataProvider = "telemedicineSessions")
-    public void TC099_admin_telemedicine_schedule_session(String testId) {
+    public void admin_telemedicine_schedule_session(String testId) {
         Map<String, String> data = TestData.telemedicineSession(testId);
 
         AdminTelemedicine page = new AdminTelemedicine(driver).open(loggedInUserId);
@@ -116,19 +105,16 @@ public class AdminTelemedicineTest extends BaseAdminTest {
                 "[" + testId + "] Modal should close after clicking Schedule Session");
     }
 
-    // TC097_098 — Schedule Session modal opens + has all expected fields
-    // Merged TC097 + TC098
     @Test(groups = {"regression"})
-    public void TC097_098_admin_telemedicine_schedule_modal() {
+    public void admin_telemedicine_schedule_modal() {
         AdminTelemedicine page = new AdminTelemedicine(driver).open(loggedInUserId);
 
-        // TC097 — modal opens
         page.clickScheduleSession();
         wait.until(d -> page.isScheduleModalOpen());
         assertTrue(page.isScheduleModalOpen(),
                 "'Schedule Video Session' modal should open after clicking '+ Schedule Session'");
 
-        // TC098 — modal has all fields
+
         assertTrue(driver.findElements(page.modalDoctorSelect).size() > 0,
                 "Modal should have a Doctor dropdown");
         assertTrue(driver.findElements(page.modalPatientSelect).size() > 0,

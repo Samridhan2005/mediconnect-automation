@@ -15,26 +15,20 @@ import java.util.Map;
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertTrue;
 
-/**
- * Admin Diagnostics Module — full coverage.
- * FRD baseline: TC057 (tabs).
- */
+
 public class AdminDiagnosticsTest extends BaseAdminTest {
 
-    // TC057_057a_057b — Tabs visible, tab switching works, top summary tiles
-    // Merged TC057 + TC057a + TC057b
+
     @Test(groups = {"regression"})
-    public void TC057_057a_057b_admin_diagnostics_tabs_and_tiles() {
+    public void admin_diagnostics_tabs_and_tiles() {
         AdminDiagnostics page = new AdminDiagnostics(driver).open(loggedInUserId);
 
-        // TC057 — page header + 3 tabs
         assertTrue(driver.findElements(page.pageHeader).size() > 0, "Page header missing");
         for (String tab : List.of("Lab Reports", "Radiology", "Imaging")) {
             assertTrue(driver.findElements(By.xpath("//*[normalize-space()='" + tab + "']")).size() > 0,
                     "Tab missing: " + tab);
         }
 
-        // TC057a — tab switching
         page.waitForTabBodyReady();
         page.clickRadiologyTab();
         new WebDriverWait(driver, Duration.ofSeconds(45))
@@ -55,7 +49,6 @@ public class AdminDiagnosticsTest extends BaseAdminTest {
         assertTrue(driver.findElements(page.labReportsTable).size() > 0,
                 "Lab Reports tab should re-show its table after returning");
 
-        // TC057b — 4 summary tiles
         page.waitForTilesGrid();
         for (String tile : List.of("Total Reports", "Pending Review", "Abnormal Flags", "Imaging Requests")) {
             boolean found = driver.findElements(By.xpath(
@@ -64,9 +57,8 @@ public class AdminDiagnosticsTest extends BaseAdminTest {
         }
     }
 
-    // TC057c — Lab Reports filters / columns visible
     @Test(groups = {"regression"})
-    public void TC057c_admin_diagnostics_filters_and_columns() {
+    public void admin_diagnostics_filters_and_columns() {
         AdminDiagnostics page = new AdminDiagnostics(driver).open(loggedInUserId);
         page.waitForTabBodyReady();
 
@@ -89,12 +81,9 @@ public class AdminDiagnosticsTest extends BaseAdminTest {
         return TestData.diagnosticsSearchIds();
     }
 
-    // TC057d — Lab Reports search filter (data-driven).
-    // Each row in the DiagnosticsSearch sheet supplies a query and the expected
-    // outcome ("match" = at least one row contains the query; "noMatch" = the
-    // table either becomes empty or shows an empty-state message).
+
     @Test(groups = {"regression"}, dataProvider = "diagnosticsSearch")
-    public void TC057d_admin_diagnostics_search(String testId) {
+    public void admin_diagnostics_search(String testId) {
         Map<String, String> data = TestData.diagnosticsSearch(testId);
         String query    = data.get("query");
         String expected = data.get("expectedResult");
@@ -129,12 +118,9 @@ public class AdminDiagnosticsTest extends BaseAdminTest {
         return TestData.diagnosticsStatusIds();
     }
 
-    // TC057h — Lab Reports 'All status' filter (data-driven).
-    // For each row in DiagnosticsStatus, select the status value and assert that
-    // every visible row's STATUS column matches. The "All status" row (the no-filter
-    // default) is asserted differently: at least one row remains visible.
+
     @Test(groups = {"regression"}, dataProvider = "diagnosticsStatus")
-    public void TC057h_admin_diagnostics_status_filter(String testId) {
+    public void admin_diagnostics_status_filter(String testId) {
         Map<String, String> data = TestData.diagnosticsStatus(testId);
         String status = data.get("status");
 
@@ -158,10 +144,9 @@ public class AdminDiagnosticsTest extends BaseAdminTest {
         }
     }
 
-    // TC057e_057f_057g — Row action buttons + status badges + AI summary panel
-    // Merged TC057e + TC057f + TC057g
+
     @Test(groups = {"regression"})
-    public void TC057e_057f_057g_admin_diagnostics_actions_badges_ai() {
+    public void admin_diagnostics_actions_badges_ai() {
         AdminDiagnostics page = new AdminDiagnostics(driver).open(loggedInUserId);
         page.waitForTabBodyReady();
 
