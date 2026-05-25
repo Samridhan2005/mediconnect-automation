@@ -2,16 +2,20 @@ package com.cts.mfrp.mediconnect.ui.tests.doctor;
 
 import com.cts.mfrp.mediconnect.ui.pages.doctor.DoctorPatients;
 import com.cts.mfrp.mediconnect.ui.tests.base.BaseDoctorTest;
+import com.cts.mfrp.mediconnect.utils.TestData;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
+import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
 import java.time.Duration;
 import java.util.List;
+import java.util.Map;
 
 import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.assertFalse;
 import static org.testng.Assert.assertNotNull;
 import static org.testng.Assert.assertTrue;
 
@@ -181,7 +185,7 @@ public class DoctorPatientsTest extends BaseDoctorTest {
                 "'Cancel' button not actionable");
 
         submit.click();
-        try { Thread.sleep(500); } catch (InterruptedException ignored) {}
+        wait.until(d -> form.getAttribute("class").contains("ng-submitted"));
         assertTrue(!driver.findElements(modal).isEmpty()
                         && driver.findElement(modal).isDisplayed(),
                 "Submitting an invalid form should NOT close the modal (form validation should block it)");
@@ -191,8 +195,15 @@ public class DoctorPatientsTest extends BaseDoctorTest {
         wait.until(ExpectedConditions.invisibilityOfElementLocated(modal));
     }
 
-    @Test(groups = {"regression"})
-    public void add_patient_submit_creates_record() {
+    @DataProvider(name = "addPatientData")
+    public Object[][] addPatientData() {
+        return TestData.addPatientIds();
+    }
+
+    @Test(groups = {"regression"}, dataProvider = "addPatientData")
+    public void add_patient_submit_creates_record(String testId) {
+        Map<String, String> data = TestData.addPatient(testId);
+
         new DoctorPatients(driver).open(loggedInUserId);
         WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(20));
 
@@ -203,27 +214,33 @@ public class DoctorPatientsTest extends BaseDoctorTest {
         By modal = By.cssSelector("div.modal-card");
         WebElement dialog = wait.until(ExpectedConditions.visibilityOfElementLocated(modal));
 
-        String unique = String.valueOf(System.currentTimeMillis());
-        String suffix = unique.substring(unique.length() - 6);
-        String firstName = "Auto";
-        String lastName = "Patient" + suffix;
-        String email = "auto_patient_" + unique + "@test.com";
+        for (String fc : List.of("firstName", "lastName", "email", "phone",
+                                 "password", "age", "dateOfBirth", "gender",
+                                 "bloodGroup", "emergencyContact")) {
+            List<WebElement> els = dialog.findElements(
+                    By.cssSelector("[formcontrolname='" + fc + "']"));
+            assertFalse(els.isEmpty(), "Field '" + fc + "' not present in Add Patient modal");
+            assertTrue(els.get(0).isDisplayed(), "Field '" + fc + "' not visible");
+        }
 
-        fillField(dialog, "firstName", firstName);
-        fillField(dialog, "lastName", lastName);
-        fillField(dialog, "email", email);
-        fillField(dialog, "phone", "9999999999");
-        fillField(dialog, "password", "Patient@1234");
-        fillField(dialog, "age", "30");
-        fillField(dialog, "dateOfBirth", "01/01/1995");
-        fillField(dialog, "emergencyContact", "Emergency - 8888888888");
+        String lastName = data.get("lastName");
+        String email    = data.get("email");
+
+        fillField(dialog, "firstName",        data.get("firstName"));
+        fillField(dialog, "lastName",         lastName);
+        fillField(dialog, "email",            email);
+        fillField(dialog, "phone",            data.get("phone"));
+        fillField(dialog, "password",         data.get("password"));
+        fillField(dialog, "age",              data.get("age"));
+        fillField(dialog, "dateOfBirth",      data.get("dateOfBirth"));
+        fillField(dialog, "emergencyContact", data.get("emergencyContact"));
 
         new org.openqa.selenium.support.ui.Select(
                 dialog.findElement(By.cssSelector("[formcontrolname='gender']")))
-                .selectByVisibleText("Male");
+                .selectByVisibleText(data.get("gender"));
         new org.openqa.selenium.support.ui.Select(
                 dialog.findElement(By.cssSelector("[formcontrolname='bloodGroup']")))
-                .selectByVisibleText("O+");
+                .selectByVisibleText(data.get("bloodGroup"));
 
         WebElement form = dialog.findElement(By.tagName("form"));
         try {
@@ -250,13 +267,16 @@ public class DoctorPatientsTest extends BaseDoctorTest {
         WebElement search = driver.findElement(searchInput);
         search.clear();
         search.sendKeys(lastName);
-        try { Thread.sleep(1500); } catch (InterruptedException ignored) {}
 
         By matchedRow = By.xpath("//tr[contains(normalize-space(.), '" + lastName + "')] | "
                 + "//*[contains(@class,'patient-row') and contains(normalize-space(.), '" + lastName + "')]");
+        try {
+            wait.until(d -> !d.findElements(matchedRow).isEmpty());
+        } catch (org.openqa.selenium.TimeoutException e) {
+            org.testng.Assert.fail("Newly created patient '" + data.get("firstName") + " " + lastName
+                    + "' not found in list after search.");
+        }
         List<WebElement> rows = driver.findElements(matchedRow);
-        assertTrue(!rows.isEmpty(),
-                "Newly created patient '" + firstName + " " + lastName + "' not found in list");
 
         try {
             WebElement row = rows.get(0);

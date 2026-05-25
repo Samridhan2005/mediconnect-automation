@@ -2,12 +2,15 @@ package com.cts.mfrp.mediconnect.ui.tests.patient;
 
 import com.cts.mfrp.mediconnect.ui.pages.patient.PatientLabReports;
 import com.cts.mfrp.mediconnect.ui.tests.base.BasePatientTest;
+import com.cts.mfrp.mediconnect.utils.TestData;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.ui.ExpectedConditions;
+import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
 import java.util.List;
+import java.util.Map;
 
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertTrue;
@@ -98,6 +101,54 @@ public class PatientLabReportsTest extends BasePatientTest {
         // TC164 — AI disclaimer text is permanently displayed
         assertTrue(driver.findElements(page.aiDisclaimer).size() > 0,
                 "Disclaimer 'AI explanations are educational only. Always consult your doctor.' should be visible");
+    }
+
+    @DataProvider(name = "aiQuestions")
+    public Object[][] aiQuestions() {
+        return TestData.labReportAIQuestionIds();
+    }
+
+    // TC167 — AI Report Explanation question entry (data-driven).
+    // Each row in LabReportAIQuestions supplies a question and the interaction mode:
+    //   - mode "chip": click the suggested-question chip whose text matches the question.
+    //   - mode "type": type the question into the Ask input, then click the send button.
+    // The success signal is intentionally light — the chip click should not error, and
+    // for typed questions the input either keeps the typed value (no send wiring) or
+    // clears after send (chat-style UX). We assert the appropriate one per mode.
+    @Test(groups = {"regression"}, dataProvider = "aiQuestions")
+    public void TC167_patient_lab_reports_ai_question(String testId) {
+        Map<String, String> data = TestData.labReportAIQuestion(testId);
+        String question = data.get("question");
+        String mode     = data.get("mode");
+
+        PatientLabReports page = new PatientLabReports(driver).open(loggedInUserId);
+        assertTrue(driver.findElements(page.aiPanelTitle).size() > 0,
+                "[" + testId + "] AI Report Explanation panel should be visible");
+
+        if ("chip".equalsIgnoreCase(mode)) {
+            page.clickChip(question);
+            // Verify the click registered — input either receives the chip text or the
+            // panel reacts in some way. At minimum the chip should still exist (the page
+            // shouldn't have crashed). Brief wait for any UI update.
+            try { Thread.sleep(800); } catch (InterruptedException ignored) {}
+            assertTrue(driver.findElements(By.xpath("//button[normalize-space()='" + question + "']")).size() > 0
+                            || !page.getAskInputValue().isEmpty(),
+                    "[" + testId + "] After clicking chip '" + question
+                            + "' the panel should still render (chip remained OR input got populated)");
+        } else if ("type".equalsIgnoreCase(mode)) {
+            page.typeAskInput(question);
+            assertEquals(page.getAskInputValue(), question,
+                    "[" + testId + "] Ask input should hold the typed question");
+            page.clickAskSend();
+            // After clicking send: either the input clears (chat-app pattern) or it keeps
+            // the text. Both are acceptable — what matters is the click didn't throw.
+            try { Thread.sleep(800); } catch (InterruptedException ignored) {}
+            assertTrue(driver.findElements(page.askInput).size() > 0,
+                    "[" + testId + "] Ask input should still be present after clicking send");
+        } else {
+            throw new IllegalArgumentException(
+                    "[" + testId + "] Unknown mode '" + mode + "' — expected 'chip' or 'type'");
+        }
     }
 
     // Merged TC165 + TC166

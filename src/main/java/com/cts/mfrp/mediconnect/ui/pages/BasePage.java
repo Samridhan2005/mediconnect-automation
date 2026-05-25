@@ -57,7 +57,7 @@ public abstract class BasePage {
             ((JavascriptExecutor) driver).executeScript(
                     "arguments[0].scrollIntoView({block:'center'});", el);
             try { Thread.sleep(200); } catch (InterruptedException ignored) {}
-        } catch (Exception ignored) { /* scroll is best-effort */ }
+        } catch (Exception ignored) { }
         try {
             el.click();
         } catch (ElementClickInterceptedException e) {

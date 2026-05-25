@@ -25,7 +25,7 @@ public class DoctorRegister extends BasePage {
     private final By hospital        = By.name("hospitalId");
     private final By password        = By.xpath("//*[text()='Password']/parent::div/div/input");
     private final By confirmPassword = By.xpath("//*[text()='Confirm password']/parent::div/div/input");
-    private final By termsCheckbox   = By.xpath("//input[@type='checkbox']");
+    private final By termsCheckbox   = By.xpath("//input[@id='terms']");
     private final By submitButton    = By.xpath("//button[@type='submit']");
 
     public DoctorRegister(WebDriver driver) {

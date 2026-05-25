@@ -60,8 +60,6 @@ public class AdminRegisterTest extends UiBaseTest {
         assertTrue(admin.isTermsCheckboxVisible(), "Terms checkbox not visible");
         assertTrue(admin.isSubmitButtonVisible(), "Submit button not visible");
 
-        
-
         admin.enterHospital(hospital);
         admin.enterFirstName(fn);
         admin.enterLastName(ln);

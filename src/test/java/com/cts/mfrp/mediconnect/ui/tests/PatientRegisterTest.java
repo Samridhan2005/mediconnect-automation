@@ -2,8 +2,12 @@ package com.cts.mfrp.mediconnect.ui.tests;
 
 import com.cts.mfrp.mediconnect.ui.base.UiBaseTest;
 import com.cts.mfrp.mediconnect.ui.pages.auth.PatientRegister;
+import com.cts.mfrp.mediconnect.utils.TestData;
 import org.openqa.selenium.By;
+import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
+
+import java.util.Map;
 
 import static org.testng.Assert.assertTrue;
 
@@ -15,23 +19,27 @@ public class PatientRegisterTest extends UiBaseTest {
 
     // TP001 — Successful patient registration logs the user in and lands on the patient dashboard.
     // Verification: URL matches /patient/{id}/... AND the patient's name is visible on the dashboard.
-    @Test(groups = {"regression"})
-    public void TP001_patient_registration_lands_on_patient_dashboard() {
-        long unique = System.currentTimeMillis();
-        String firstName = "Auto";
-        String lastName  = "Patient" + unique;
-        String email     = "auto.patient." + unique + "@test.com";
+    @DataProvider(name = "patientRegistrations")
+    public Object[][] patientRegistrations() {
+        return TestData.patientRegisterIds();
+    }
+
+    @Test(groups = {"regression"}, dataProvider = "patientRegistrations")
+    public void patient_registration_lands_on_patient_dashboard(String testId) {
+        Map<String, String> data = TestData.patientRegister(testId);
+        String firstName = data.get("firstName");
+        String password  = data.get("password");
 
         new PatientRegister(driver).open()
                 .enterFirstName(firstName)
-                .enterLastName(lastName)
-                .enterEmail(email)
-                .enterPhone("9876543210")
-                .enterDateOfBirth("1995-06-15")
-                .selectBloodGroup("B+")
-                .selectGender("MALE")
-                .enterPassword("Password@1")
-                .enterConfirmPassword("Password@1")
+                .enterLastName(data.get("lastName"))
+                .enterEmail(data.get("email"))
+                .enterPhone(data.get("phone"))
+                .enterDateOfBirth(data.get("dateOfBirth"))
+                .selectBloodGroup(data.get("bloodGroup"))
+                .selectGender(data.get("gender"))
+                .enterPassword(password)
+                .enterConfirmPassword(password)
                 .acceptTerms()
                 .submit();
 

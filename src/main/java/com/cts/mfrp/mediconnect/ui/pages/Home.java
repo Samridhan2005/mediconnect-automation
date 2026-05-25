@@ -5,12 +5,7 @@ import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 
-/**
- * Page Object for the public landing page at "/".
- * Exposes the two entry points that should route the user to /admin/login:
- *   - "Admin" link in the top-right navbar
- *   - "Admin Portal" button in the hero section
- */
+
 public class Home extends BasePage {
 
     public static final String PATH = "/";

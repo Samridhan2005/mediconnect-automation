@@ -2,14 +2,17 @@ package com.cts.mfrp.mediconnect.ui.tests.admin;
 
 import com.cts.mfrp.mediconnect.ui.pages.admin.AdminDiagnostics;
 import com.cts.mfrp.mediconnect.ui.tests.base.BaseAdminTest;
+import com.cts.mfrp.mediconnect.utils.TestData;
 import org.openqa.selenium.By;
-import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.ui.WebDriverWait;
+import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
 import java.time.Duration;
 import java.util.List;
+import java.util.Map;
 
+import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertTrue;
 
 /**
@@ -61,14 +64,12 @@ public class AdminDiagnosticsTest extends BaseAdminTest {
         }
     }
 
-    // TC057c_057d — Lab Reports filters/table + search filter
-    // Merged TC057c + TC057d
+    // TC057c — Lab Reports filters / columns visible
     @Test(groups = {"regression"})
-    public void TC057c_057d_admin_diagnostics_filters_and_search() {
+    public void TC057c_admin_diagnostics_filters_and_columns() {
         AdminDiagnostics page = new AdminDiagnostics(driver).open(loggedInUserId);
         page.waitForTabBodyReady();
 
-        // TC057c — search input, status dropdown, table columns
         assertTrue(driver.findElements(page.searchInput).size() > 0,
                 "Search input ('Search patient / test…') should be visible");
         assertTrue(driver.findElements(page.statusDropdown).size() > 0,
@@ -81,15 +82,79 @@ public class AdminDiagnosticsTest extends BaseAdminTest {
                                     "'ABCDEFGHIJKLMNOPQRSTUVWXYZ'),'" + col + "')]")).size() > 0,
                     "Table column missing: " + col);
         }
+    }
 
-        // TC057d — search filter
-        List<WebElement> search = driver.findElements(page.searchInput);
-        if (!search.isEmpty()) {
-            search.get(0).clear();
-            search.get(0).sendKeys("Rajesh");
-            try { Thread.sleep(1500); } catch (InterruptedException ignored) {}
-            assertTrue(driver.findElements(page.labReportsTable).size() > 0,
-                    "Table should remain visible after typing in search");
+    @DataProvider(name = "diagnosticsSearch")
+    public Object[][] diagnosticsSearch() {
+        return TestData.diagnosticsSearchIds();
+    }
+
+    // TC057d — Lab Reports search filter (data-driven).
+    // Each row in the DiagnosticsSearch sheet supplies a query and the expected
+    // outcome ("match" = at least one row contains the query; "noMatch" = the
+    // table either becomes empty or shows an empty-state message).
+    @Test(groups = {"regression"}, dataProvider = "diagnosticsSearch")
+    public void TC057d_admin_diagnostics_search(String testId) {
+        Map<String, String> data = TestData.diagnosticsSearch(testId);
+        String query    = data.get("query");
+        String expected = data.get("expectedResult");
+
+        AdminDiagnostics page = new AdminDiagnostics(driver).open(loggedInUserId);
+        page.waitForTabBodyReady();
+        page.search(query);
+
+        if ("noMatch".equalsIgnoreCase(expected)) {
+            boolean emptyOrMessage = page.visibleRowCount() == 0
+                    || driver.findElements(By.xpath(
+                            "//*[contains(normalize-space(),'No reports') " +
+                            "or contains(normalize-space(),'No data') " +
+                            "or contains(normalize-space(),'No results')]")).size() > 0;
+            assertTrue(emptyOrMessage,
+                    "[" + testId + "] Query '" + query + "' was expected to yield no matches, "
+                            + "but the table still has " + page.visibleRowCount() + " row(s)");
+        } else {
+            boolean anyContainsQuery = page.visibleRowTexts().stream()
+                    .anyMatch(t -> t.toLowerCase().contains(query.toLowerCase()));
+            assertTrue(anyContainsQuery,
+                    "[" + testId + "] At least one visible row should contain '" + query + "' "
+                            + "after searching, but visible cells were: " + page.visibleRowTexts());
+        }
+
+        assertEquals(driver.findElement(page.searchInput).getAttribute("value"), query,
+                "[" + testId + "] Search input should retain the typed query");
+    }
+
+    @DataProvider(name = "diagnosticsStatus")
+    public Object[][] diagnosticsStatus() {
+        return TestData.diagnosticsStatusIds();
+    }
+
+    // TC057h — Lab Reports 'All status' filter (data-driven).
+    // For each row in DiagnosticsStatus, select the status value and assert that
+    // every visible row's STATUS column matches. The "All status" row (the no-filter
+    // default) is asserted differently: at least one row remains visible.
+    @Test(groups = {"regression"}, dataProvider = "diagnosticsStatus")
+    public void TC057h_admin_diagnostics_status_filter(String testId) {
+        Map<String, String> data = TestData.diagnosticsStatus(testId);
+        String status = data.get("status");
+
+        AdminDiagnostics page = new AdminDiagnostics(driver).open(loggedInUserId);
+        page.waitForTabBodyReady();
+
+        page.selectStatus(status);
+
+        List<String> badges = page.visibleStatusBadges();
+        if ("All status".equalsIgnoreCase(status) || "All Status".equalsIgnoreCase(status)) {
+            assertTrue(badges.size() > 0,
+                    "[" + testId + "] 'All status' should leave at least one row visible");
+        } else {
+            assertTrue(badges.size() > 0,
+                    "[" + testId + "] At least one row should remain after filtering by '" + status + "'");
+            for (String badge : badges) {
+                assertTrue(badge.equalsIgnoreCase(status),
+                        "[" + testId + "] Every visible row should have status '" + status
+                                + "', but found: " + badge + " (full list: " + badges + ")");
+            }
         }
     }
 

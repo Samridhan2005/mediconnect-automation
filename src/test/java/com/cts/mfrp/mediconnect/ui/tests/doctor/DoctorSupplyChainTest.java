@@ -2,14 +2,17 @@ package com.cts.mfrp.mediconnect.ui.tests.doctor;
 
 import com.cts.mfrp.mediconnect.ui.pages.doctor.DoctorSupplyChain;
 import com.cts.mfrp.mediconnect.ui.tests.base.BaseDoctorTest;
+import com.cts.mfrp.mediconnect.utils.TestData;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
+import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
 import java.time.Duration;
 import java.util.List;
+import java.util.Map;
 
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertFalse;
@@ -228,5 +231,107 @@ public class DoctorSupplyChainTest extends BaseDoctorTest {
         By activePg = By.cssSelector("div.pg-btns button.pg-btn.active");
         assertTrue(driver.findElements(activePg).size() > 0,
                 "No active pagination button found");
+    }
+
+    @DataProvider(name = "addItemData")
+    public Object[][] addItemData() {
+        return TestData.addItemIds();
+    }
+
+    @Test(groups = {"regression"}, dataProvider = "addItemData")
+    public void add_item_submit_creates_record(String testId) {
+        Map<String, String> data = TestData.addItem(testId);
+
+        new DoctorSupplyChain(driver).open(loggedInUserId);
+
+        By trigger = By.cssSelector("button.btn.btn-primary");
+        w().until(ExpectedConditions.elementToBeClickable(trigger));
+        WebElement triggerBtn = driver.findElement(trigger);
+        assertTrue(triggerBtn.getText().trim().contains("Add item"),
+                "Expected '+ Add item' trigger; got: '" + triggerBtn.getText() + "'");
+        triggerBtn.click();
+
+        By modal = By.cssSelector("app-inventory-item-form div.modal");
+        WebElement dialog = w().until(ExpectedConditions.visibilityOfElementLocated(modal));
+
+        WebElement itemNameInput = dialog.findElement(
+                By.cssSelector("input[formcontrolname='itemName']"));
+        WebElement categorySelect = dialog.findElement(
+                By.cssSelector("select[formcontrolname='category']"));
+        WebElement quantityInput = dialog.findElement(
+                By.cssSelector("input[formcontrolname='quantity']"));
+        WebElement reorderInput = dialog.findElement(
+                By.cssSelector("input[formcontrolname='reorderLevel']"));
+
+        assertTrue(itemNameInput.isDisplayed(),  "Item name input not visible");
+        assertTrue(categorySelect.isDisplayed(), "Category select not visible");
+        assertTrue(quantityInput.isDisplayed(),  "Quantity input not visible");
+        assertTrue(reorderInput.isDisplayed(),   "Reorder level input not visible");
+
+        String itemName = data.get("itemName");
+        itemNameInput.clear();
+        itemNameInput.sendKeys(itemName);
+
+        String category = data.get("category");
+        if (category != null && !category.isBlank()) {
+            new org.openqa.selenium.support.ui.Select(categorySelect).selectByVisibleText(category);
+        }
+
+        quantityInput.clear();
+        quantityInput.sendKeys(data.get("quantity"));
+
+        reorderInput.clear();
+        reorderInput.sendKeys(data.get("reorderLevel"));
+
+        WebElement form = dialog.findElement(By.tagName("form"));
+        try {
+            w().until(d -> {
+                String cls = form.getAttribute("class");
+                return cls != null && cls.contains("ng-valid") && !cls.contains("ng-invalid");
+            });
+        } catch (org.openqa.selenium.TimeoutException e) {
+            org.testng.Assert.fail("Form did not become ng-valid after filling required fields. "
+                    + "Class: " + form.getAttribute("class"));
+        }
+
+        WebElement submit = dialog.findElement(
+                By.xpath(".//button[normalize-space()='Add item']"));
+        assertTrue(submit.isEnabled(), "Submit 'Add item' button disabled with valid form");
+        submit.click();
+
+        try {
+            w().until(ExpectedConditions.invisibilityOfElementLocated(modal));
+        } catch (org.openqa.selenium.TimeoutException e) {
+            List<WebElement> errors = driver.findElements(
+                    By.cssSelector("[class*='error'], [class*='alert'], [class*='toast']"));
+            String errorMsg = errors.stream()
+                    .filter(WebElement::isDisplayed)
+                    .map(el -> el.getText().trim())
+                    .filter(t -> !t.isEmpty())
+                    .findFirst()
+                    .orElse("(no visible error message)");
+            org.testng.Assert.fail("Modal did not close after submit. "
+                    + "Form class: " + form.getAttribute("class") + ". "
+                    + "Error message: " + errorMsg);
+        }
+
+        driver.navigate().refresh();
+        w().until(ExpectedConditions.visibilityOfElementLocated(
+                By.cssSelector("div.table-wrap table tbody tr")));
+
+        By searchInput = By.cssSelector("div.toolbar input[placeholder*='Search' i]");
+        w().until(ExpectedConditions.visibilityOfElementLocated(searchInput));
+        WebElement search = driver.findElement(searchInput);
+        search.clear();
+        search.sendKeys(itemName);
+
+        By matchedRow = By.xpath("//tr[contains(normalize-space(.), '" + itemName + "')]");
+        try {
+            w().until(d -> !d.findElements(matchedRow).isEmpty());
+        } catch (org.openqa.selenium.TimeoutException e) {
+            org.testng.Assert.fail("Newly added item '" + itemName + "' not found in inventory "
+                    + "table even after refresh + search. Total items shown: "
+                    + driver.findElements(By.cssSelector("div.table-wrap table tbody tr")).size());
+        }
     }
 }

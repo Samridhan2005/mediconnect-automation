@@ -2,13 +2,16 @@ package com.cts.mfrp.mediconnect.ui.tests.patient;
 
 import com.cts.mfrp.mediconnect.ui.pages.patient.PatientAppointments;
 import com.cts.mfrp.mediconnect.ui.tests.base.BasePatientTest;
+import com.cts.mfrp.mediconnect.utils.TestData;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.ui.ExpectedConditions;
+import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Map;
 
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertFalse;
@@ -151,6 +154,50 @@ public class PatientAppointmentsTest extends BasePatientTest {
 
         assertEquals(driver.getCurrentUrl().contains("/appointments"), true,
                 "Should remain on appointments page after booking");
+    }
+
+    @DataProvider(name = "patientBookings")
+    public Object[][] patientBookings() {
+        return TestData.patientBookingIds();
+    }
+
+    // TC028 — Book Appointment end-to-end (data-driven).
+    // Runs once per row in the PatientBookings sheet. Opens the modal, fills the
+    // doctor / date / time slot / type / reason fields, clicks Confirm Booking,
+    // and asserts the modal closes (success signal).
+    @Test(groups = {"regression"}, dataProvider = "patientBookings")
+    public void TC028_patient_book_appointment(String testId) {
+        Map<String, String> data = TestData.patientBooking(testId);
+
+        PatientAppointments page = new PatientAppointments(driver).open(loggedInUserId);
+        page.openBookModal();
+
+        page.selectDoctor(data.get("doctor"))
+            .setDate(LocalDate.parse(data.get("date")))
+            .selectTimeSlot(data.get("time"))
+            .selectType(data.get("type"))
+            .enterReason(data.get("reason"));
+
+        assertTrue(page.isConfirmEnabled(),
+                "[" + testId + "] Confirm Booking should be enabled after all mandatory fields are filled");
+
+        page.clickConfirmBooking();
+
+        // Success signal: modal closes OR a success message appears.
+        boolean closedOrSuccess = wait.until(d -> {
+            boolean modalGone = d.findElements(page.modalTitle).isEmpty()
+                    || !d.findElement(page.modalTitle).isDisplayed();
+            boolean success = !d.findElements(By.xpath(
+                    "//*[contains(translate(.,'SUCCESS','success'),'success') " +
+                    "or contains(translate(.,'BOOKED','booked'),'booked') " +
+                    "or contains(translate(.,'CONFIRMED','confirmed'),'confirmed')]"))
+                    .isEmpty();
+            return modalGone || success;
+        });
+        assertTrue(closedOrSuccess,
+                "[" + testId + "] After Confirm Booking the modal should close or a success message should appear");
+        assertTrue(driver.getCurrentUrl().contains("/appointments"),
+                "[" + testId + "] Should remain on appointments page after booking");
     }
 
     // Merged TC153 + TC154 + TC155

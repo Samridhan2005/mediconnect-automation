@@ -3,6 +3,7 @@ package com.cts.mfrp.mediconnect.ui.pages.auth;
 import com.cts.mfrp.mediconnect.ui.pages.BasePage;
 import com.cts.mfrp.mediconnect.utils.ConfigReader;
 import org.openqa.selenium.By;
+import org.openqa.selenium.JavascriptExecutor;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.ui.ExpectedConditions;
@@ -25,7 +26,7 @@ public class PatientRegister extends BasePage {
     private final By gender          = By.xpath("//*[text()='Gender']/parent::div/div/select");
     private final By password        = By.xpath("//*[text()='Password']/parent::div/div/input");
     private final By confirmPassword = By.xpath("//*[text()='Confirm password']/parent::div/div/input");
-    private final By termsCheckbox   = By.xpath("//input[@type='checkbox']");
+    private final By termsCheckbox   = By.xpath("//input[@id='terms']");
     private final By submitButton    = By.xpath("//button[@type='submit']");
 
     public PatientRegister(WebDriver driver) {
@@ -42,9 +43,24 @@ public class PatientRegister extends BasePage {
     public PatientRegister enterLastName(String v)        { type(lastName, v); return this; }
     public PatientRegister enterEmail(String v)           { type(email, v); return this; }
     public PatientRegister enterPhone(String v)           { type(phone, v); return this; }
-    public PatientRegister enterDateOfBirth(String v)     { type(dateOfBirth, v); return this; }
     public PatientRegister enterPassword(String v)        { type(password, v); return this; }
     public PatientRegister enterConfirmPassword(String v) { type(confirmPassword, v); return this; }
+
+    // HTML5 <input type="date"> is brittle with sendKeys: the browser parses each digit into
+    // the locale's DD/MM/YYYY segments, so "1988-03-12" via sendKeys produces garbage.
+    // Set the value via JS using the React-native setter so the onChange handler fires correctly.
+    // Input must be in ISO yyyy-MM-dd format.
+    public PatientRegister enterDateOfBirth(String isoDate) {
+        WebElement el = visible(dateOfBirth);
+        ((JavascriptExecutor) driver).executeScript(
+                "var setter = Object.getOwnPropertyDescriptor(window.HTMLInputElement.prototype, 'value').set;"
+                        + "setter.call(arguments[0], arguments[1]);"
+                        + "arguments[0].dispatchEvent(new Event('input',  {bubbles:true}));"
+                        + "arguments[0].dispatchEvent(new Event('change', {bubbles:true}));"
+                        + "arguments[0].dispatchEvent(new Event('blur',   {bubbles:true}));",
+                el, isoDate);
+        return this;
+    }
 
     public PatientRegister selectBloodGroup(String visibleText) {
         new Select(visible(bloodGroup)).selectByVisibleText(visibleText);
@@ -57,8 +73,17 @@ public class PatientRegister extends BasePage {
     }
 
     public PatientRegister acceptTerms() {
-        WebElement cb = visible(termsCheckbox);
-        if (!cb.isSelected()) cb.click();
+        WebElement cb = wait.until(ExpectedConditions.presenceOfElementLocated(termsCheckbox));
+        JavascriptExecutor js = (JavascriptExecutor) driver;
+        js.executeScript("arguments[0].scrollIntoView({block:'center'});", cb);
+        if (!cb.isSelected()) {
+            js.executeScript(
+                    "arguments[0].checked = true;"
+                            + "arguments[0].dispatchEvent(new Event('input',  {bubbles:true}));"
+                            + "arguments[0].dispatchEvent(new Event('change', {bubbles:true}));"
+                            + "arguments[0].dispatchEvent(new Event('blur',   {bubbles:true}));",
+                    cb);
+        }
         return this;
     }
 

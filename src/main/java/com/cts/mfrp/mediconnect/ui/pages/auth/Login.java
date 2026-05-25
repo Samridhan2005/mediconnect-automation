@@ -7,10 +7,6 @@ import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 
-/**
- * Page Object for the Patient / Doctor login form at /login.
- * Admin login is on a separate route — see {@link AdminLogin}.
- */
 public class Login extends BasePage {
 
     public static final String PATH = "/login";

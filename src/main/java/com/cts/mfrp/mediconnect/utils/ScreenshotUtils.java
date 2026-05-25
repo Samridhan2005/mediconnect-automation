@@ -19,16 +19,13 @@ public final class ScreenshotUtils {
     private ScreenshotUtils() {
     }
 
-    /**
-     * Capture a PNG screenshot of the current driver state into the configured screenshot folder.
-     * @return absolute path of the saved file, or null if no driver / capture failed.
-     */
+
     public static String capture(String testName) {
         WebDriver driver;
         try {
             driver = DriverManager.getDriver();
         } catch (IllegalStateException noDriver) {
-            return null; // API-only test, nothing to capture
+            return null;
         }
 
         try {

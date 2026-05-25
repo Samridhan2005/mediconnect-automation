@@ -2,14 +2,17 @@ package com.cts.mfrp.mediconnect.ui.tests.admin;
 
 import com.cts.mfrp.mediconnect.ui.pages.admin.AdminSupplyChain;
 import com.cts.mfrp.mediconnect.ui.tests.base.BaseAdminTest;
+import com.cts.mfrp.mediconnect.utils.TestData;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
+import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
 import java.time.Duration;
 import java.util.List;
+import java.util.Map;
 
 import static org.testng.Assert.assertTrue;
 
@@ -133,6 +136,44 @@ public class AdminSupplyChainTest extends BaseAdminTest {
                 "'AI Supply Insights' heading should be visible");
         assertTrue(driver.findElements(page.predictiveBadge).size() > 0,
                 "'Predictive analytics' badge should be visible");
+    }
+
+    @DataProvider(name = "supplyOrders")
+    public Object[][] supplyOrders() {
+        return TestData.supplyOrderIds();
+    }
+
+    // TC058b — '+ New Order' end-to-end (data-driven).
+    // Runs once per row in the SupplyOrders sheet. Fills the New Purchase Order
+    // modal with that row's itemName / category / quantity / reorderLevel / hospital
+    // / notes, clicks Place Order, and asserts the modal closes (success signal).
+    @Test(groups = {"regression"}, dataProvider = "supplyOrders")
+    public void TC058b_admin_supply_chain_new_order(String testId) {
+        Map<String, String> data = TestData.supplyOrder(testId);
+
+        AdminSupplyChain page = new AdminSupplyChain(driver).open(loggedInUserId);
+        page.waitForTilesGrid();
+
+        page.clickNewOrder();
+        new WebDriverWait(driver, Duration.ofSeconds(20))
+                .until(d -> page.isOrderModalOpen());
+        assertTrue(page.isOrderModalOpen(),
+                "[" + testId + "] 'New Purchase Order' modal should open");
+
+        page.fillNewOrderForm(
+                data.get("itemName"),
+                data.get("category"),
+                data.get("quantity"),
+                data.get("reorderLevel"),
+                data.get("hospital"),
+                data.get("notes"));
+        page.clickPlaceOrder();
+
+        // Success signal: modal closes after Place Order.
+        new WebDriverWait(driver, Duration.ofSeconds(15))
+                .until(d -> !page.isOrderModalOpen());
+        assertTrue(!page.isOrderModalOpen(),
+                "[" + testId + "] Modal should close after clicking Place Order");
     }
 
     // Merged TC059 + TC059a
