@@ -2,14 +2,17 @@ package com.cts.mfrp.mediconnect.ui.tests.doctor;
 
 import com.cts.mfrp.mediconnect.ui.pages.doctor.DoctorAppointments;
 import com.cts.mfrp.mediconnect.ui.tests.base.BaseDoctorTest;
+import com.cts.mfrp.mediconnect.utils.TestData;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
+import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
 import java.time.Duration;
 import java.util.List;
+import java.util.Map;
 
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertFalse;
@@ -385,8 +388,15 @@ public class DoctorAppointmentsTest extends BaseDoctorTest {
                 "'Edit Patient' button not found on patient detail page");
     }
 
-    @Test(groups = {"regression"})
-    public void new_appointment_submit_creates_record() {
+    @DataProvider(name = "newAppointmentData")
+    public Object[][] newAppointmentData() {
+        return TestData.newAppointmentIds();
+    }
+
+    @Test(groups = {"regression"}, dataProvider = "newAppointmentData")
+    public void new_appointment_submit_creates_record(String testId) {
+        Map<String, String> data = TestData.newAppointment(testId);
+
         DoctorAppointments page = new DoctorAppointments(driver).open(loggedInUserId);
 
         w().until(ExpectedConditions.elementToBeClickable(page.newAppointmentBtn));
@@ -395,10 +405,22 @@ public class DoctorAppointmentsTest extends BaseDoctorTest {
         By modal = By.cssSelector("div.modal-card");
         WebElement dialog = w().until(ExpectedConditions.visibilityOfElementLocated(modal));
 
+        assertEquals(dialog.findElement(By.cssSelector("h2.modal-title")).getText().trim(),
+                "New Appointment", "Modal title mismatch");
+
+        assertTrue(dialog.findElement(By.cssSelector("div.autocomplete-wrap input")).isDisplayed(),
+                "Patient autocomplete input not visible");
+        assertTrue(dialog.findElement(By.cssSelector("input[formcontrolname='date']")).isDisplayed(),
+                "Date field not visible");
+        assertTrue(dialog.findElement(By.cssSelector("input[formcontrolname='time']")).isDisplayed(),
+                "Time field not visible");
+        List<WebElement> selects = dialog.findElements(By.tagName("select"));
+        assertTrue(selects.size() >= 2, "Expected Type + Status selects, found: " + selects.size());
+
         WebElement patientInput = dialog.findElement(
                 By.cssSelector("div.autocomplete-wrap input"));
         patientInput.click();
-        patientInput.sendKeys("a");
+        patientInput.sendKeys(data.get("patientSearchQuery"));
 
         By suggestion = By.cssSelector("div.autocomplete-wrap li, "
                 + "div.autocomplete-wrap [class*='suggest'], "
@@ -407,8 +429,8 @@ public class DoctorAppointmentsTest extends BaseDoctorTest {
         try {
             w().until(ExpectedConditions.visibilityOfElementLocated(suggestion));
         } catch (org.openqa.selenium.TimeoutException e) {
-            org.testng.Assert.fail("Patient autocomplete did not show suggestions after typing. "
-                    + "Either no patients match 'a' or the suggestion selector is wrong.");
+            org.testng.Assert.fail("Patient autocomplete did not show suggestions for query: '"
+                    + data.get("patientSearchQuery") + "'");
         }
         List<WebElement> suggestions = driver.findElements(suggestion);
         assertFalse(suggestions.isEmpty(), "Patient autocomplete returned no suggestions");
@@ -418,12 +440,21 @@ public class DoctorAppointmentsTest extends BaseDoctorTest {
         WebElement dateInput = dialog.findElement(
                 By.cssSelector("input[formcontrolname='date']"));
         dateInput.clear();
-        dateInput.sendKeys("06/15/2026");
+        dateInput.sendKeys(data.get("date"));
 
         WebElement timeInput = dialog.findElement(
                 By.cssSelector("input[formcontrolname='time']"));
         timeInput.clear();
-        timeInput.sendKeys("11:30AM");
+        timeInput.sendKeys(data.get("time"));
+
+        String type = data.get("type");
+        if (type != null && !type.isBlank()) {
+            new org.openqa.selenium.support.ui.Select(selects.get(0)).selectByVisibleText(type);
+        }
+        String status = data.get("status");
+        if (status != null && !status.isBlank()) {
+            new org.openqa.selenium.support.ui.Select(selects.get(1)).selectByVisibleText(status);
+        }
 
         WebElement form = dialog.findElement(By.tagName("form"));
         try {

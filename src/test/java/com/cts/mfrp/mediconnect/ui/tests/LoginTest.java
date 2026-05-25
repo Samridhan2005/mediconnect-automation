@@ -4,6 +4,7 @@ import com.cts.mfrp.mediconnect.ui.base.UiBaseTest;
 import com.cts.mfrp.mediconnect.ui.pages.auth.Login;
 import com.cts.mfrp.mediconnect.utils.ConfigReader;
 import com.cts.mfrp.mediconnect.utils.TestData;
+import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
 import org.openqa.selenium.By;
@@ -129,6 +130,30 @@ public class LoginTest extends UiBaseTest {
         // The page should still be on /login (form did not submit / was rejected)
         assertTrue(driver.getCurrentUrl().contains(Login.PATH),
                 "After invalid submit user should remain on /login");
+    }
+
+    @DataProvider(name = "doctorLogins")
+    public Object[][] doctorLogins() {
+        return TestData.doctorLoginIds();
+    }
+
+    @Test(groups = {"regression"}, dataProvider = "doctorLogins")
+    public void doctor_login_with_valid_creds_lands_on_dashboard(String testId) {
+        Map<String, String> data = TestData.doctorLogin(testId);
+
+        new Login(driver).open()
+                .selectDoctorTab()
+                .enterEmail(data.get("email"))
+                .enterPassword(data.get("password"))
+                .submit();
+
+        wait.until(d -> d.getCurrentUrl().matches(".*/doctor/\\d+/.*"));
+        assertTrue(driver.getCurrentUrl().matches(".*/doctor/\\d+/.*"),
+                "Doctor login should land on /doctor/{id}/... — got: " + driver.getCurrentUrl());
+
+        assertTrue(driver.findElements(By.xpath(
+                "//*[contains(normalize-space(),'Supply Chain') or contains(normalize-space(),'Diagnostics')]")).size() > 0,
+                "Doctor sidebar should be visible after login");
     }
 
     // TC072 — Invalid credentials show server-side error

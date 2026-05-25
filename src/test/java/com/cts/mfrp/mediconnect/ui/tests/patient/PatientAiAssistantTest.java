@@ -16,7 +16,7 @@ public class PatientAiAssistantTest extends BasePatientTest {
 
     // Merged TC035 + TC036 + TC183 + TC184 + TC185
     @Test(groups = {"regression"})
-    public void TC035_036_183_185_patient_ai_assistant_ui_and_modes() {
+    public void TC03_patient_ai_assistant_ui_and_modes() {
         PatientAiHealthAssistant page = new PatientAiHealthAssistant(driver).open(loggedInUserId);
 
         assertTrue(wait.until(ExpectedConditions.visibilityOfElementLocated(page.pageHeader)).isDisplayed(),

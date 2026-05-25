@@ -2,15 +2,18 @@ package com.cts.mfrp.mediconnect.ui.tests.doctor;
 
 import com.cts.mfrp.mediconnect.ui.pages.doctor.DoctorTelemedicine;
 import com.cts.mfrp.mediconnect.ui.tests.base.BaseDoctorTest;
+import com.cts.mfrp.mediconnect.utils.TestData;
 import org.openqa.selenium.By;
 import org.openqa.selenium.JavascriptExecutor;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
+import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
 import java.time.Duration;
 import java.util.List;
+import java.util.Map;
 
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertFalse;
@@ -267,7 +270,7 @@ public class DoctorTelemedicineTest extends BaseDoctorTest {
         WebElement submit = dialog.findElement(
                 By.xpath(".//button[normalize-space()='Schedule Session']"));
         submit.click();
-        try { Thread.sleep(500); } catch (InterruptedException ignored) {}
+        w().until(d -> form.getAttribute("class").contains("ng-submitted"));
 
         assertTrue(driver.findElement(modal).isDisplayed(),
                 "Submitting an empty form should NOT close the modal");
@@ -278,8 +281,15 @@ public class DoctorTelemedicineTest extends BaseDoctorTest {
         w().until(ExpectedConditions.invisibilityOfElementLocated(modal));
     }
 
-    @Test(groups = {"regression"})
-    public void schedule_session_submit_creates_session() {
+    @DataProvider(name = "scheduleSessionData")
+    public Object[][] scheduleSessionData() {
+        return TestData.scheduleSessionIds();
+    }
+
+    @Test(groups = {"regression"}, dataProvider = "scheduleSessionData")
+    public void schedule_session_submit_creates_session(String testId) {
+        Map<String, String> data = TestData.scheduleSession(testId);
+
         DoctorTelemedicine page = new DoctorTelemedicine(driver).open(loggedInUserId);
 
         w().until(ExpectedConditions.elementToBeClickable(page.scheduleSessionBtn));
@@ -288,10 +298,24 @@ public class DoctorTelemedicineTest extends BaseDoctorTest {
         By modal = By.cssSelector("div.modal-card");
         WebElement dialog = w().until(ExpectedConditions.visibilityOfElementLocated(modal));
 
+        assertEquals(dialog.findElement(By.cssSelector("h2.modal-title")).getText().trim(),
+                "Schedule Session", "Modal title mismatch");
+
+        assertTrue(dialog.findElement(By.cssSelector("div.autocomplete-wrap input")).isDisplayed(),
+                "Patient autocomplete input not visible");
+        assertTrue(dialog.findElement(By.cssSelector("input[type='date']")).isDisplayed(),
+                "Date input not visible");
+        assertTrue(dialog.findElement(By.cssSelector("input[type='time']")).isDisplayed(),
+                "Time input not visible");
+        assertFalse(dialog.findElements(By.cssSelector("input[type='number']")).isEmpty(),
+                "Estimated Duration input not present");
+        assertFalse(dialog.findElements(By.tagName("textarea")).isEmpty(),
+                "Notes textarea not present");
+
         WebElement patientInput = dialog.findElement(
                 By.cssSelector("div.autocomplete-wrap input"));
         patientInput.click();
-        patientInput.sendKeys("a");
+        patientInput.sendKeys(data.get("patientSearchQuery"));
 
         By suggestion = By.cssSelector("div.autocomplete-wrap li, "
                 + "div.autocomplete-wrap [class*='suggest'], "
@@ -300,7 +324,8 @@ public class DoctorTelemedicineTest extends BaseDoctorTest {
         try {
             w().until(ExpectedConditions.visibilityOfElementLocated(suggestion));
         } catch (org.openqa.selenium.TimeoutException e) {
-            org.testng.Assert.fail("Patient autocomplete did not show suggestions after typing 'a'");
+            org.testng.Assert.fail("Patient autocomplete did not show suggestions for query: '"
+                    + data.get("patientSearchQuery") + "'");
         }
         List<WebElement> suggestions = driver.findElements(suggestion);
         assertFalse(suggestions.isEmpty(), "Patient autocomplete returned no suggestions");
@@ -309,19 +334,18 @@ public class DoctorTelemedicineTest extends BaseDoctorTest {
 
         WebElement dateInput = dialog.findElement(By.cssSelector("input[type='date']"));
         dateInput.clear();
-        dateInput.sendKeys("06/15/2026");
+        dateInput.sendKeys(data.get("date"));
 
         WebElement timeInput = dialog.findElement(By.cssSelector("input[type='time']"));
         timeInput.clear();
-        timeInput.sendKeys("11:30AM");
+        timeInput.sendKeys(data.get("time"));
 
+        String durationValue = data.get("duration");
         List<WebElement> numberInputs = dialog.findElements(By.cssSelector("input[type='number']"));
-        if (!numberInputs.isEmpty()) {
+        if (!numberInputs.isEmpty() && durationValue != null && !durationValue.isBlank()) {
             WebElement duration = numberInputs.get(0);
-            String currentVal = duration.getAttribute("value");
-            if (currentVal == null || currentVal.isBlank()) {
-                duration.sendKeys("30");
-            }
+            duration.clear();
+            duration.sendKeys(durationValue);
         }
 
         WebElement reason = dialog.findElements(By.cssSelector("input[type='text'], input:not([type])")).stream()
@@ -334,13 +358,15 @@ public class DoctorTelemedicineTest extends BaseDoctorTest {
                 })
                 .findFirst()
                 .orElseThrow(() -> new AssertionError("Reason input not found by placeholder"));
+        assertTrue(reason.isDisplayed(), "Reason input not visible");
         reason.clear();
-        reason.sendKeys("Automated test - follow up consultation");
+        reason.sendKeys(data.get("reason"));
 
         List<WebElement> textareas = dialog.findElements(By.tagName("textarea"));
-        if (!textareas.isEmpty()) {
+        String notes = data.get("notes");
+        if (!textareas.isEmpty() && notes != null && !notes.isBlank()) {
             textareas.get(0).clear();
-            textareas.get(0).sendKeys("Created by Selenium automation suite");
+            textareas.get(0).sendKeys(notes);
         }
 
         WebElement form = dialog.findElement(By.tagName("form"));

@@ -2,14 +2,17 @@ package com.cts.mfrp.mediconnect.ui.tests.doctor;
 
 import com.cts.mfrp.mediconnect.ui.pages.doctor.DoctorMedicalRecords;
 import com.cts.mfrp.mediconnect.ui.tests.base.BaseDoctorTest;
+import com.cts.mfrp.mediconnect.utils.TestData;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
+import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
 import java.time.Duration;
 import java.util.List;
+import java.util.Map;
 
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertFalse;
@@ -78,7 +81,7 @@ public class DoctorMedicalRecordsTest extends BaseDoctorTest {
         WebElement submit = dialog.findElement(
                 By.xpath(".//button[normalize-space()='Create Record']"));
         submit.click();
-        try { Thread.sleep(500); } catch (InterruptedException ignored) {}
+        wait.until(d -> form.getAttribute("class").contains("ng-submitted"));
 
         assertTrue(driver.findElement(modal).isDisplayed(),
                 "Submitting an empty form should NOT close the modal — required validation should block");
@@ -89,8 +92,15 @@ public class DoctorMedicalRecordsTest extends BaseDoctorTest {
         wait.until(ExpectedConditions.invisibilityOfElementLocated(modal));
     }
 
-    @Test(groups = {"regression"})
-    public void new_record_submit_creates_record() {
+    @DataProvider(name = "newRecordData")
+    public Object[][] newRecordData() {
+        return TestData.newRecordIds();
+    }
+
+    @Test(groups = {"regression"}, dataProvider = "newRecordData")
+    public void new_record_submit_creates_record(String testId) {
+        Map<String, String> data = TestData.newRecord(testId);
+
         DoctorMedicalRecords page = new DoctorMedicalRecords(driver).open(loggedInUserId);
         WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(20));
 
@@ -100,10 +110,18 @@ public class DoctorMedicalRecordsTest extends BaseDoctorTest {
         By modal = By.cssSelector("div.modal-card");
         WebElement dialog = wait.until(ExpectedConditions.visibilityOfElementLocated(modal));
 
+        assertEquals(dialog.findElement(By.cssSelector("h2.modal-title")).getText().trim(),
+                "New Medical Record", "Modal title mismatch");
+
+        assertTrue(dialog.findElement(By.cssSelector("div.autocomplete-wrap input")).isDisplayed(),
+                "Patient autocomplete input not visible");
+        assertTrue(dialog.findElement(By.cssSelector("input[type='date']")).isDisplayed(),
+                "Record Date input not visible");
+
         WebElement patientInput = dialog.findElement(
                 By.cssSelector("div.autocomplete-wrap input"));
         patientInput.click();
-        patientInput.sendKeys("a");
+        patientInput.sendKeys(data.get("patientSearchQuery"));
 
         By suggestion = By.cssSelector("div.autocomplete-wrap li, "
                 + "div.autocomplete-wrap [class*='suggest'], "
@@ -112,7 +130,8 @@ public class DoctorMedicalRecordsTest extends BaseDoctorTest {
         try {
             wait.until(ExpectedConditions.visibilityOfElementLocated(suggestion));
         } catch (org.openqa.selenium.TimeoutException e) {
-            org.testng.Assert.fail("Patient autocomplete did not show suggestions after typing 'a'");
+            org.testng.Assert.fail("Patient autocomplete did not show suggestions for query: '"
+                    + data.get("patientSearchQuery") + "'");
         }
         List<WebElement> suggestions = driver.findElements(suggestion);
         assertFalse(suggestions.isEmpty(), "Patient autocomplete returned no suggestions");
@@ -122,7 +141,7 @@ public class DoctorMedicalRecordsTest extends BaseDoctorTest {
         WebElement dateInput = dialog.findElement(
                 By.cssSelector("input[type='date']"));
         dateInput.clear();
-        dateInput.sendKeys("06/15/2026");
+        dateInput.sendKeys(data.get("recordDate"));
 
         List<WebElement> textInputs = dialog.findElements(
                 By.cssSelector("input[type='text'], input:not([type])"));
@@ -134,8 +153,9 @@ public class DoctorMedicalRecordsTest extends BaseDoctorTest {
                 })
                 .findFirst()
                 .orElseThrow(() -> new AssertionError("Diagnosis input not found by placeholder"));
+        assertTrue(diagnosis.isDisplayed(), "Diagnosis input not visible");
         diagnosis.clear();
-        diagnosis.sendKeys("Automated test diagnosis - routine check");
+        diagnosis.sendKeys(data.get("diagnosis"));
 
         WebElement treatment = textInputs.stream()
                 .filter(WebElement::isDisplayed)
@@ -145,19 +165,21 @@ public class DoctorMedicalRecordsTest extends BaseDoctorTest {
                 })
                 .findFirst()
                 .orElse(null);
-        if (treatment != null) {
+        if (treatment != null && data.get("treatment") != null && !data.get("treatment").isBlank()) {
             treatment.clear();
-            treatment.sendKeys("Rest, hydration, follow-up in 7 days");
+            treatment.sendKeys(data.get("treatment"));
         }
 
         List<WebElement> textareas = dialog.findElements(By.tagName("textarea"));
-        if (!textareas.isEmpty()) {
+        String prescription = data.get("prescription");
+        if (!textareas.isEmpty() && prescription != null && !prescription.isBlank()) {
             textareas.get(0).clear();
-            textareas.get(0).sendKeys("Paracetamol | 500mg | 1-0-1");
+            textareas.get(0).sendKeys(prescription);
         }
-        if (textareas.size() > 1) {
+        String clinicalNotes = data.get("clinicalNotes");
+        if (textareas.size() > 1 && clinicalNotes != null && !clinicalNotes.isBlank()) {
             textareas.get(1).clear();
-            textareas.get(1).sendKeys("Created by Selenium automation suite");
+            textareas.get(1).sendKeys(clinicalNotes);
         }
 
         WebElement form = dialog.findElement(By.tagName("form"));

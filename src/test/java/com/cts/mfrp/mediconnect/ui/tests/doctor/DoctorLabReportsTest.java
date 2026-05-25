@@ -2,14 +2,17 @@ package com.cts.mfrp.mediconnect.ui.tests.doctor;
 
 import com.cts.mfrp.mediconnect.ui.pages.doctor.DoctorLabReports;
 import com.cts.mfrp.mediconnect.ui.tests.base.BaseDoctorTest;
+import com.cts.mfrp.mediconnect.utils.TestData;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
+import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
 import java.time.Duration;
 import java.util.List;
+import java.util.Map;
 
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertFalse;
@@ -165,7 +168,7 @@ public class DoctorLabReportsTest extends BaseDoctorTest {
         WebElement submit = dialog.findElement(
                 By.xpath(".//button[normalize-space()='Submit Request']"));
         submit.click();
-        try { Thread.sleep(500); } catch (InterruptedException ignored) {}
+        wait.until(d -> form.getAttribute("class").contains("ng-submitted"));
 
         assertTrue(driver.findElement(modal).isDisplayed(),
                 "Submitting an empty form should NOT close the modal — required-field validation should block submit");
@@ -178,8 +181,15 @@ public class DoctorLabReportsTest extends BaseDoctorTest {
         wait.until(ExpectedConditions.invisibilityOfElementLocated(modal));
     }
 
-    @Test(groups = {"regression"})
-    public void request_lab_test_submit_creates_record() {
+    @DataProvider(name = "requestLabTestData")
+    public Object[][] requestLabTestData() {
+        return TestData.requestLabTestIds();
+    }
+
+    @Test(groups = {"regression"}, dataProvider = "requestLabTestData")
+    public void request_lab_test_submit_creates_record(String testId) {
+        Map<String, String> data = TestData.requestLabTest(testId);
+
         DoctorLabReports page = new DoctorLabReports(driver).open(loggedInUserId);
         WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(30));
 
@@ -189,10 +199,23 @@ public class DoctorLabReportsTest extends BaseDoctorTest {
         By modal = By.cssSelector("div.modal-card");
         WebElement dialog = wait.until(ExpectedConditions.visibilityOfElementLocated(modal));
 
+        assertEquals(dialog.findElement(By.cssSelector("h2.modal-title")).getText().trim(),
+                "Request Lab Test", "Modal title mismatch");
+
+        assertTrue(dialog.findElement(By.cssSelector("div.autocomplete-wrap input")).isDisplayed(),
+                "Patient autocomplete input not visible");
+        assertTrue(dialog.findElement(By.cssSelector("input[type='date']")).isDisplayed(),
+                "Requested Date input not visible");
+        assertFalse(dialog.findElements(By.tagName("textarea")).isEmpty(),
+                "Notes textarea not present");
+        List<WebElement> selects = dialog.findElements(By.tagName("select"));
+        assertTrue(selects.size() >= 2,
+                "Expected Test Type + Priority dropdowns. Found: " + selects.size());
+
         WebElement patientInput = dialog.findElement(
                 By.cssSelector("div.autocomplete-wrap input"));
         patientInput.click();
-        patientInput.sendKeys("a");
+        patientInput.sendKeys(data.get("patientSearchQuery"));
 
         By suggestion = By.cssSelector("div.autocomplete-wrap li, "
                 + "div.autocomplete-wrap [class*='suggest'], "
@@ -201,16 +224,13 @@ public class DoctorLabReportsTest extends BaseDoctorTest {
         try {
             wait.until(ExpectedConditions.visibilityOfElementLocated(suggestion));
         } catch (org.openqa.selenium.TimeoutException e) {
-            org.testng.Assert.fail("Patient autocomplete did not show suggestions after typing 'a'");
+            org.testng.Assert.fail("Patient autocomplete did not show suggestions for query: '"
+                    + data.get("patientSearchQuery") + "'");
         }
         List<WebElement> suggestions = driver.findElements(suggestion);
         assertFalse(suggestions.isEmpty(), "No patient suggestions returned");
         String chosenPatient = suggestions.get(0).getText().trim();
         suggestions.get(0).click();
-
-        List<WebElement> selects = dialog.findElements(By.tagName("select"));
-        assertTrue(selects.size() >= 2,
-                "Expected Test Type + Priority dropdowns. Found: " + selects.size());
 
         org.openqa.selenium.support.ui.Select testTypeSel =
                 new org.openqa.selenium.support.ui.Select(selects.get(0));
@@ -219,20 +239,29 @@ public class DoctorLabReportsTest extends BaseDoctorTest {
 
         assertTrue(testTypeSel.getOptions().size() > 1,
                 "Test Type dropdown has no real options (only placeholder)");
-        testTypeSel.selectByIndex(1);
 
-        if (prioritySel.getFirstSelectedOption().getText().trim().isEmpty()) {
+        String testType = data.get("testType");
+        if (testType != null && !testType.isBlank()) {
+            testTypeSel.selectByVisibleText(testType);
+        } else {
+            testTypeSel.selectByIndex(1);
+        }
+
+        String priority = data.get("priority");
+        if (priority != null && !priority.isBlank()) {
+            prioritySel.selectByVisibleText(priority);
+        } else if (prioritySel.getFirstSelectedOption().getText().trim().isEmpty()) {
             prioritySel.selectByIndex(1);
         }
 
         WebElement dateInput = dialog.findElement(
                 By.cssSelector("input[type='date']"));
         dateInput.clear();
-        dateInput.sendKeys("06/15/2026");
+        dateInput.sendKeys(data.get("requestedDate"));
 
         WebElement notes = dialog.findElement(By.tagName("textarea"));
         notes.clear();
-        notes.sendKeys("Automated test request — please ignore");
+        notes.sendKeys(data.get("notes"));
 
         WebElement form = dialog.findElement(By.tagName("form"));
         try {
