@@ -2,14 +2,18 @@ package com.cts.mfrp.mediconnect.ui.tests.admin;
 
 import com.cts.mfrp.mediconnect.ui.pages.admin.AdminAnalytics;
 import com.cts.mfrp.mediconnect.ui.tests.base.BaseAdminTest;
+import com.cts.mfrp.mediconnect.utils.TestData;
 import org.openqa.selenium.By;
 import org.openqa.selenium.JavascriptExecutor;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.ui.WebDriverWait;
+import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
 import java.time.Duration;
+import java.util.Map;
 
+import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertTrue;
 
 /**
@@ -212,5 +216,45 @@ public class AdminAnalyticsTest extends BaseAdminTest {
     private String readPatientFlowValue(AdminAnalytics page) {
         var elements = driver.findElements(page.tilePatientFlow);
         return elements.isEmpty() ? "" : elements.get(0).getText().trim();
+    }
+
+    @DataProvider(name = "analyticsFilters")
+    public Object[][] analyticsFilters() {
+        return TestData.analyticsFilterIds();
+    }
+
+    // TC072 — Analytics filter combinations (data-driven).
+    // Each row in the AnalyticsFilters sheet supplies a (hospital, department, period)
+    // triple. The test applies all three, then asserts each select reflects the chosen
+    // value and the page's core widgets (Patient Flow tile + heatmap) still render.
+    @Test(groups = {"regression"}, dataProvider = "analyticsFilters")
+    public void TC072_admin_analytics_filter_combinations(String testId) {
+        Map<String, String> data = TestData.analyticsFilter(testId);
+        String hospital   = data.get("hospital");
+        String department = data.get("department");
+        String period     = data.get("period");
+
+        AdminAnalytics page = new AdminAnalytics(driver).open(loggedInUserId);
+
+        // Wait for each option to be present in its select before selecting it. The
+        // hospital list comes from a backend call so this is the slow one.
+        selectFromDropdown(page.hospitalSelect, hospital);
+        selectFromDropdown(page.departmentSelect, department);
+        selectFromDropdown(page.periodSelect, period);
+
+        // Give Angular time to re-render charts after the three filter changes.
+        try { Thread.sleep(3000); } catch (InterruptedException ignored) {}
+
+        assertEquals(page.getSelectedHospital(), hospital,
+                "[" + testId + "] Hospital filter should reflect the selected value");
+        assertEquals(page.getSelectedDepartment(), department,
+                "[" + testId + "] Department filter should reflect the selected value");
+        assertEquals(page.getSelectedPeriod(), period,
+                "[" + testId + "] Period filter should reflect the selected value");
+
+        waitAndAssertVisible(page.tilePatientFlow,
+                "[" + testId + "] Patient Flow tile should still render after applying all filters");
+        waitAndAssertVisible(page.heatmap,
+                "[" + testId + "] Appointment Flow Heatmap should still render after applying all filters");
     }
 }

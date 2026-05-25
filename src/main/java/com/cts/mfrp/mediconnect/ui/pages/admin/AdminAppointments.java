@@ -4,7 +4,10 @@ import com.cts.mfrp.mediconnect.ui.pages.BasePage;
 import com.cts.mfrp.mediconnect.ui.pages.common.AdminSidebar;
 import com.cts.mfrp.mediconnect.utils.ConfigReader;
 import org.openqa.selenium.By;
+import org.openqa.selenium.JavascriptExecutor;
 import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.WebElement;
+import org.openqa.selenium.support.ui.Select;
 
 /** Admin Appointment Management — /admin/{userId}/appointments */
 public class AdminAppointments extends BasePage {
@@ -80,6 +83,67 @@ public class AdminAppointments extends BasePage {
     public boolean isModalOpen()       { return isDisplayed(modalHeading); }
     public void clickModalCreate()     { click(modalCreateBtn); }
     public void clickModalCancel()     { click(modalCancelBtn); }
+
+    // --- Filter actions ---
+
+    public AdminAppointments selectDoctor(String visibleText) {
+        new Select(visible(allDoctorsFilter)).selectByVisibleText(visibleText);
+        return this;
+    }
+
+    public AdminAppointments selectHospital(String visibleText) {
+        new Select(visible(allHospitalsFilter)).selectByVisibleText(visibleText);
+        return this;
+    }
+
+    // <input type="date"> parses sendKeys digits into locale-formatted segments,
+    // which produces junk when the test data is ISO. Set the value via the
+    // React-native setter so the controlled component receives the change.
+    // isoDate must be yyyy-MM-dd.
+    public AdminAppointments setDateFilter(String isoDate) {
+        WebElement el = visible(dateFilter);
+        ((JavascriptExecutor) driver).executeScript(
+                "var setter = Object.getOwnPropertyDescriptor(window.HTMLInputElement.prototype, 'value').set;"
+                        + "setter.call(arguments[0], arguments[1]);"
+                        + "arguments[0].dispatchEvent(new Event('input',  {bubbles:true}));"
+                        + "arguments[0].dispatchEvent(new Event('change', {bubbles:true}));"
+                        + "arguments[0].dispatchEvent(new Event('blur',   {bubbles:true}));",
+                el, isoDate);
+        return this;
+    }
+
+    public String getSelectedDoctor()   { return new Select(visible(allDoctorsFilter)).getFirstSelectedOption().getText(); }
+    public String getSelectedHospital() { return new Select(visible(allHospitalsFilter)).getFirstSelectedOption().getText(); }
+    public String getDateFilterValue()  { return visible(dateFilter).getAttribute("value"); }
+
+    // --- New Appointment modal actions ---
+
+    public AdminAppointments fillNewAppointmentForm(String patient, String doctor, String hospital,
+                                                    String isoDate, String time, String type,
+                                                    String notes) {
+        new Select(visible(modalPatientSelect)).selectByVisibleText(patient);
+        new Select(visible(modalDoctorSelect)).selectByVisibleText(doctor);
+        new Select(visible(modalHospitalSelect)).selectByVisibleText(hospital);
+        setNativeInputValue(visible(modalDateInput), isoDate);
+        setNativeInputValue(visible(modalTimeInput), time);
+        new Select(visible(modalTypeSelect)).selectByVisibleText(type);
+        if (notes != null && !notes.isEmpty()) {
+            type(modalNotesTextarea, notes);
+        }
+        return this;
+    }
+
+    // React-controlled inputs (date/time) ignore plain .value writes; use the native
+    // setter so React's onChange fires. Same pattern as setDateFilter / dateOfBirth.
+    private void setNativeInputValue(WebElement el, String value) {
+        ((JavascriptExecutor) driver).executeScript(
+                "var setter = Object.getOwnPropertyDescriptor(window.HTMLInputElement.prototype, 'value').set;"
+                        + "setter.call(arguments[0], arguments[1]);"
+                        + "arguments[0].dispatchEvent(new Event('input',  {bubbles:true}));"
+                        + "arguments[0].dispatchEvent(new Event('change', {bubbles:true}));"
+                        + "arguments[0].dispatchEvent(new Event('blur',   {bubbles:true}));",
+                el, value);
+    }
 
     public AdminSidebar sidebar() { return new AdminSidebar(driver); }
 }

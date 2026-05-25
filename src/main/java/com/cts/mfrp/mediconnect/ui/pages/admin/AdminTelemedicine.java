@@ -4,7 +4,10 @@ import com.cts.mfrp.mediconnect.ui.pages.BasePage;
 import com.cts.mfrp.mediconnect.ui.pages.common.AdminSidebar;
 import com.cts.mfrp.mediconnect.utils.ConfigReader;
 import org.openqa.selenium.By;
+import org.openqa.selenium.JavascriptExecutor;
 import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.WebElement;
+import org.openqa.selenium.support.ui.Select;
 
 /** Admin Telemedicine page — /admin/{userId}/telemedicine */
 public class AdminTelemedicine extends BasePage {
@@ -82,6 +85,36 @@ public class AdminTelemedicine extends BasePage {
             ((org.openqa.selenium.JavascriptExecutor) driver)
                     .executeScript("arguments[0].click();", btn);
         }
+    }
+
+    // ===== Schedule Video Session modal actions =====
+
+    public AdminTelemedicine fillScheduleSessionForm(String doctor, String patient,
+                                                     String isoDate, String time,
+                                                     String sessionType, String notes) {
+        new Select(visible(modalDoctorSelect)).selectByVisibleText(doctor);
+        new Select(visible(modalPatientSelect)).selectByVisibleText(patient);
+        setNativeInputValue(visible(modalDateInput), isoDate);
+        setNativeInputValue(visible(modalTimeInput), time);
+        new Select(visible(modalSessionTypeSelect)).selectByVisibleText(sessionType);
+        if (notes != null && !notes.isEmpty()) {
+            type(modalNotesTextarea, notes);
+        }
+        return this;
+    }
+
+    public void clickScheduleSubmit() { click(modalScheduleButton); }
+
+    // React-controlled inputs (date/time) ignore plain .value writes; use the
+    // native setter pattern so onChange fires correctly.
+    private void setNativeInputValue(WebElement el, String value) {
+        ((JavascriptExecutor) driver).executeScript(
+                "var setter = Object.getOwnPropertyDescriptor(window.HTMLInputElement.prototype, 'value').set;"
+                        + "setter.call(arguments[0], arguments[1]);"
+                        + "arguments[0].dispatchEvent(new Event('input',  {bubbles:true}));"
+                        + "arguments[0].dispatchEvent(new Event('change', {bubbles:true}));"
+                        + "arguments[0].dispatchEvent(new Event('blur',   {bubbles:true}));",
+                el, value);
     }
 
     public AdminSidebar sidebar() { return new AdminSidebar(driver); }

@@ -5,6 +5,7 @@ import com.cts.mfrp.mediconnect.ui.pages.common.AdminSidebar;
 import com.cts.mfrp.mediconnect.utils.ConfigReader;
 import org.openqa.selenium.*;
 import org.openqa.selenium.support.ui.FluentWait;
+import org.openqa.selenium.support.ui.Select;
 import org.openqa.selenium.support.ui.Wait;
 
 import java.time.Duration;
@@ -112,6 +113,40 @@ public class AdminSupplyChain extends BasePage {
 
     public void clickNewOrder()       { click(newOrderBtn); }
     public void clickExportCsv()      { click(exportCsvBtn); }
+
+    // ===== New Purchase Order modal =====
+    // Heading + form fields located by their label text (resilient to class-name churn).
+    public final By orderModalHeading      = By.xpath("//*[normalize-space()='New Purchase Order']");
+    public final By orderItemName          = By.xpath("//label[contains(normalize-space(),'Item Name')]/following-sibling::input");
+    public final By orderCategorySelect    = By.xpath("//label[normalize-space()='Category']/following-sibling::select");
+    public final By orderQuantityInput     = By.xpath("//label[contains(normalize-space(),'Quantity')]/following-sibling::input");
+    public final By orderReorderLevelInput = By.xpath("//label[contains(normalize-space(),'Reorder Level')]/following-sibling::input");
+    public final By orderHospitalSelect    = By.xpath("//label[normalize-space()='Hospital']/following-sibling::select");
+    public final By orderNotesTextarea     = By.xpath("//label[normalize-space()='Notes']/following-sibling::textarea");
+    public final By orderPlaceBtn          = By.xpath("//button[normalize-space()='Place Order']");
+    public final By orderCancelBtn         = By.xpath("//button[normalize-space()='Cancel']");
+
+    public boolean isOrderModalOpen() { return isDisplayed(orderModalHeading); }
+
+    public AdminSupplyChain fillNewOrderForm(String itemName, String category, String quantity,
+                                             String reorderLevel, String hospital, String notes) {
+        type(orderItemName, itemName);
+        new Select(visible(orderCategorySelect)).selectByVisibleText(category);
+        // Quantity defaults to 1 and Reorder Level to 10 — clear before typing.
+        WebElement qty = visible(orderQuantityInput);
+        qty.clear();
+        qty.sendKeys(quantity);
+        WebElement reorder = visible(orderReorderLevelInput);
+        reorder.clear();
+        reorder.sendKeys(reorderLevel);
+        new Select(visible(orderHospitalSelect)).selectByVisibleText(hospital);
+        if (notes != null && !notes.isEmpty()) {
+            type(orderNotesTextarea, notes);
+        }
+        return this;
+    }
+
+    public void clickPlaceOrder() { click(orderPlaceBtn); }
     public void clickFilterAll()      { click(filterAll); }
     public void clickFilterLowStock() {
 //        click(filterLowStock);

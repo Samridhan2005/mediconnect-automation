@@ -3,11 +3,14 @@ package com.cts.mfrp.mediconnect.ui.tests.admin;
 import com.cts.mfrp.mediconnect.ui.pages.admin.AdminHospitals;
 import com.cts.mfrp.mediconnect.ui.pages.admin.AdminOverview;
 import com.cts.mfrp.mediconnect.ui.tests.base.BaseAdminTest;
+import com.cts.mfrp.mediconnect.utils.TestData;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebElement;
+import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
 import java.util.List;
+import java.util.Map;
 
 import static org.testng.Assert.assertNotNull;
 import static org.testng.Assert.assertTrue;
@@ -55,43 +58,50 @@ public class AdminHospitalsTest extends BaseAdminTest {
                 "'Multi-Hospital Management' header should be visible");
     }
 
-    // Merged TC087 + TC089
-    @Test(groups = {"regression"})
-    public void TC087_089_admin_add_hospital_modal_and_submit() {
+    @DataProvider(name = "hospitalsToAdd")
+    public Object[][] hospitalsToAdd() {
+        return TestData.hospitalIds();
+    }
+
+    // Merged TC087 + TC089 — data-driven: runs once per row in the Hospitals sheet.
+    @Test(groups = {"regression"}, dataProvider = "hospitalsToAdd")
+    public void TC087_089_admin_add_hospital_modal_and_submit(String testId) {
+        Map<String, String> data = TestData.hospital(testId);
+        String newName = data.get("name"); // includes ${UNIQUE} substitution from the sheet
+
         AdminHospitals page = new AdminHospitals(driver).open(loggedInUserId);
         assertTrue(page.isAddHospitalButtonVisible(),
-                "'+ Add Hospital' button should be visible in the top-right of the Hospitals page");
+                "[" + testId + "] '+ Add Hospital' button should be visible in the top-right of the Hospitals page");
 
         page.clickAddHospital();
-
         wait.until(d -> page.isAddHospitalModalOpen());
         assertTrue(page.isAddHospitalModalOpen(),
-                "Clicking '+ Add Hospital' should open the Add Hospital modal (identified by its close button)");
+                "[" + testId + "] Clicking '+ Add Hospital' should open the Add Hospital modal");
 
         int rowsBefore = driver.findElements(page.hospitalNameCells).size();
 
-        page.clickAddHospital();
-        wait.until(d -> page.isAddHospitalModalOpen());
-
-        long unique = System.currentTimeMillis();
-        String newName = "Auto Hospital " + unique;
-        page.fillAddHospitalForm(newName, "Chennai", "+91-44-28293333",
-                                 "123 Test Street", "10", "3");
+        page.fillAddHospitalForm(
+                newName,
+                data.get("city"),
+                data.get("phone"),
+                data.get("address"),
+                data.get("totalBeds"),
+                data.get("availableBeds"));
         page.submitAddHospital();
 
         // Wait for the new row to appear in the table (the real success signal).
         By newRow = By.xpath("//table//td[contains(normalize-space(),'" + newName + "')]");
         wait.until(d -> d.findElements(newRow).size() > 0);
         assertTrue(driver.findElements(newRow).size() > 0,
-                "Newly added hospital '" + newName + "' should appear in the All Hospitals table");
+                "[" + testId + "] Newly added hospital '" + newName + "' should appear in the All Hospitals table");
 
         int rowsAfter = driver.findElements(page.hospitalNameCells).size();
         assertTrue(rowsAfter >= rowsBefore + 1,
-                "Hospitals table should grow by at least 1 after submit. Before=" + rowsBefore + ", After=" + rowsAfter);
+                "[" + testId + "] Hospitals table should grow by at least 1 after submit. Before=" + rowsBefore + ", After=" + rowsAfter);
 
         // Informational: did the modal auto-close? Not a hard fail — log only.
         if (page.isAddHospitalModalOpen()) {
-            System.out.println("[TC089] WARNING: row was added but modal did not auto-close after submit (UX issue).");
+            System.out.println("[" + testId + "] WARNING: row was added but modal did not auto-close after submit (UX issue).");
         }
     }
 
