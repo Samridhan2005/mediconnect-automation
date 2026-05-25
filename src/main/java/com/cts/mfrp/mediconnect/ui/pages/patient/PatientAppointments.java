@@ -33,10 +33,15 @@ public class PatientAppointments extends BasePage {
     public final By confirmBookingBtn = By.xpath("//button[normalize-space()='Confirm Booking']");
     public final By modalCancelBtn    = By.xpath("//button[normalize-space()='Cancel']");
     public final By modalCloseBtn     = By.cssSelector("button.close-btn");
-    public final By modalDoctorSelect = By.cssSelector("select.field-input");
+    // Anchored on the placeholder option so we don't accidentally bind to another
+    // <select> on the page (e.g. the Time slot select also has class 'field-input').
+    public final By modalDoctorSelect = By.xpath("//select[option[normalize-space()='Select a doctor']]");
     public final By modalReasonField  = By.cssSelector("input[placeholder*='Cardiology'], input[placeholder*='reason' i]");
     public final By modalDateField    = By.cssSelector("input[type='date']");
+    // The Time field in this modal is a <select> ("Select time slot"), NOT input[type='time'].
+    // Keep modalTimeField for any legacy usages but treat modalTimeSelect as the source of truth.
     public final By modalTimeField    = By.cssSelector("input[type='time']");
+    public final By modalTimeSelect   = By.xpath("//select[option[normalize-space()='Select time slot']]");
     public final By validationErrors  = By.xpath("//*[contains(translate(.,'REQUIRED','required'),'required') or contains(@class,'error') or contains(@class,'invalid')]");
 
     // --- Extended locators ---
@@ -111,6 +116,119 @@ public class PatientAppointments extends BasePage {
         if (!driver.findElements(modalCloseBtn).isEmpty()) {
             wait.until(ExpectedConditions.elementToBeClickable(modalCloseBtn)).click();
             wait.until(ExpectedConditions.invisibilityOfElementLocated(modalTitle));
+        }
+    }
+
+    /**
+     * Select a doctor by visible text. Tolerant of separator differences:
+     * em-dash (—), en-dash (–) and hyphen (-) are treated as equivalent, and
+     * runs of whitespace are collapsed. On no match, logs every available
+     * option so the failure pinpoints the actual mismatch.
+     */
+    public PatientAppointments selectDoctor(String visibleText) {
+        WebElement raw = wait.until(ExpectedConditions.visibilityOfElementLocated(modalDoctorSelect));
+        selectFuzzyByText(new Select(raw), visibleText, "doctor");
+        return this;
+    }
+
+    /** Select a time slot by visible text (e.g. '10:00'). The Time field is a <select>. */
+    public PatientAppointments selectTimeSlot(String visibleText) {
+        WebElement raw = wait.until(ExpectedConditions.visibilityOfElementLocated(modalTimeSelect));
+        selectFuzzyByText(new Select(raw), visibleText, "time slot");
+        return this;
+    }
+
+    /** Try exact match first; if it fails, retry with separator/whitespace normalization. */
+    private void selectFuzzyByText(Select select, String visibleText, String fieldLabel) {
+        try {
+            select.selectByVisibleText(visibleText);
+            return;
+        } catch (org.openqa.selenium.NoSuchElementException ignored) { /* fall through */ }
+
+        String wanted = normalizeDashAndSpaces(visibleText);
+        java.util.List<WebElement> options = select.getOptions();
+        for (int i = 0; i < options.size(); i++) {
+            String actual = options.get(i).getText();
+            if (normalizeDashAndSpaces(actual).equalsIgnoreCase(wanted)) {
+                select.selectByIndex(i);
+                return;
+            }
+        }
+        java.util.List<String> available = new java.util.ArrayList<>();
+        for (WebElement opt : options) available.add("'" + opt.getText() + "'");
+        throw new org.openqa.selenium.NoSuchElementException(
+                "Could not find " + fieldLabel + " option matching '" + visibleText
+                        + "'. Available options: " + available);
+    }
+
+    /** Normalize em-dash (U+2014), en-dash (U+2013), and hyphen to a single hyphen; collapse spaces. */
+    private String normalizeDashAndSpaces(String s) {
+        if (s == null) return "";
+        return s.replace('—', '-')
+                .replace('–', '-')
+                .replaceAll("\\s+", " ")
+                .trim();
+    }
+
+    /**
+     * Click the In-person or Video radio button. The radio label contains an inline
+     * icon (SVG) next to the text, which breaks normalize-space() exact matches.
+     * This implementation walks labels / radio inputs in JS and clicks the one whose
+     * surrounding text contains the target ("In-person" / "Video").
+     */
+    public PatientAppointments selectType(String type) {
+        Boolean clicked = (Boolean) ((JavascriptExecutor) driver).executeScript(
+                "const target = arguments[0];"
+                        + "const norm = (s) => (s || '').replace(/\\s+/g, ' ').trim();"
+                        // 1) Try labels — most common pattern: <label><input type='radio'/> Video</label>
+                        + "for (const label of document.querySelectorAll('label')) {"
+                        + "  if (norm(label.textContent).toLowerCase().includes(target.toLowerCase())) {"
+                        + "    const radio = label.querySelector('input[type=\"radio\"]');"
+                        + "    if (radio) { radio.click(); return true; }"
+                        + "    label.click(); return true;"
+                        + "  }"
+                        + "}"
+                        // 2) Try radios whose value or id matches (case-insensitive)
+                        + "for (const r of document.querySelectorAll('input[type=\"radio\"]')) {"
+                        + "  const v = (r.value || '').toLowerCase();"
+                        + "  const id = (r.id || '').toLowerCase();"
+                        + "  if (v === target.toLowerCase() || id === target.toLowerCase()"
+                        + "      || v === target.toLowerCase().replace('-', '')"
+                        + "      || id === target.toLowerCase().replace('-', '')) {"
+                        + "    r.click(); return true;"
+                        + "  }"
+                        + "}"
+                        // 3) Last resort: radios whose nearest container text includes the target
+                        + "for (const r of document.querySelectorAll('input[type=\"radio\"]')) {"
+                        + "  const parent = r.closest('label, .radio, .form-check, div, span');"
+                        + "  if (parent && norm(parent.textContent).toLowerCase().includes(target.toLowerCase())) {"
+                        + "    r.click(); return true;"
+                        + "  }"
+                        + "}"
+                        + "return false;",
+                type);
+        if (clicked == null || !clicked) {
+            throw new org.openqa.selenium.NoSuchElementException(
+                    "Could not find a radio button for type '" + type
+                            + "'. Available radio inputs on page: " + radioInputDiagnostic());
+        }
+        return this;
+    }
+
+    /** For error messages — show what radio inputs and surrounding text exist on the page. */
+    private String radioInputDiagnostic() {
+        try {
+            Object result = ((JavascriptExecutor) driver).executeScript(
+                    "return Array.from(document.querySelectorAll('input[type=\"radio\"]'))"
+                            + ".map(r => ({"
+                            + "  value: r.value || '',"
+                            + "  id: r.id || '',"
+                            + "  name: r.name || '',"
+                            + "  nearbyText: (r.closest('label, div, span') || {}).textContent || ''"
+                            + "}));");
+            return String.valueOf(result);
+        } catch (Exception e) {
+            return "(diagnostic failed: " + e.getMessage() + ")";
         }
     }
 

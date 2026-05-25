@@ -2,11 +2,14 @@ package com.cts.mfrp.mediconnect.ui.tests.patient;
 
 import com.cts.mfrp.mediconnect.ui.pages.patient.PatientAiHealthAssistant;
 import com.cts.mfrp.mediconnect.ui.tests.base.BasePatientTest;
+import com.cts.mfrp.mediconnect.utils.TestData;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.ui.ExpectedConditions;
+import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
 import java.util.List;
+import java.util.Map;
 
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertTrue;
@@ -115,6 +118,67 @@ public class PatientAiAssistantTest extends BasePatientTest {
         // TC191 — Right panel: COMMON QUESTIONS section visible
         assertTrue(driver.findElements(page.commonQuestionsHead).size() > 0,
                 "'COMMON QUESTIONS' section heading should be visible in the right panel");
+    }
+
+    @DataProvider(name = "aiInteractions")
+    public Object[][] aiInteractions() {
+        return TestData.aiAssistantInteractionIds();
+    }
+
+    // TC193 — AI Health Assistant interactions (data-driven).
+    // Each row drives one interaction with the chat assistant:
+    //   - mode (optional): pre-switch the assistant mode (General Chat / Symptom Checker / …).
+    //   - action: which control to exercise — 'chip' / 'type' / 'quickAction' / 'commonQuestion'.
+    //   - text: the chip text, typed message, quick action title, or common question.
+    // The success signal is light — the click/type completes without error and the page
+    // remains on /ai. AI responses are async and out-of-scope for a UI smoke test.
+    @Test(groups = {"regression"}, dataProvider = "aiInteractions")
+    public void TC193_patient_ai_assistant_interaction(String testId) {
+        Map<String, String> data = TestData.aiAssistantInteraction(testId);
+        String mode   = data.get("mode");
+        String action = data.get("action");
+        String text   = data.get("text");
+
+        PatientAiHealthAssistant page = new PatientAiHealthAssistant(driver).open(loggedInUserId);
+
+        if (mode != null && !mode.isBlank()) {
+            page.selectMode(mode);
+            assertTrue(page.activeModeText().toLowerCase().contains(mode.toLowerCase()),
+                    "[" + testId + "] Active mode should reflect '" + mode + "' after switching");
+        }
+
+        switch (action == null ? "" : action.toLowerCase()) {
+            case "chip":
+                page.clickChip(text);
+                try { Thread.sleep(800); } catch (InterruptedException ignored) {}
+                break;
+            case "type":
+                page.typeAsk(text);
+                assertEquals(page.getAskInputValue(), text,
+                        "[" + testId + "] Ask input should hold the typed question");
+                page.clickSend();
+                try { Thread.sleep(800); } catch (InterruptedException ignored) {}
+                break;
+            case "quickaction":
+                page.clickQuickAction(text);
+                try { Thread.sleep(800); } catch (InterruptedException ignored) {}
+                break;
+            case "commonquestion":
+                page.clickCommonQuestion(text);
+                try { Thread.sleep(800); } catch (InterruptedException ignored) {}
+                break;
+            default:
+                throw new IllegalArgumentException(
+                        "[" + testId + "] Unknown action '" + action
+                                + "' — expected chip / type / quickAction / commonQuestion");
+        }
+
+        // Smoke assertion: page didn't navigate away from /ai (or, for the 'Book Appointment'
+        // quick action, navigation to /appointments is the EXPECTED behaviour — allow either).
+        String url = driver.getCurrentUrl();
+        assertTrue(url.contains("/ai") || url.contains("/appointments"),
+                "[" + testId + "] After interaction the URL should still be on /ai (or /appointments " +
+                        "for Book Appointment quick action). Was: " + url);
     }
 
     // TC192 — BUG-002 regression guard: 'Hello null!' / 'null null' should NEVER appear

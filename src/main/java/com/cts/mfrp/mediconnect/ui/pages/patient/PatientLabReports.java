@@ -5,6 +5,7 @@ import com.cts.mfrp.mediconnect.ui.pages.common.PatientSidebar;
 import com.cts.mfrp.mediconnect.utils.ConfigReader;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 
 /** Patient Lab Reports page — /patient/{userId}/lab-reports */
@@ -73,5 +74,31 @@ public class PatientLabReports extends BasePage {
 
     public PatientSidebar sidebar() {
         return new PatientSidebar(driver);
+    }
+
+    // --- AI Report Explanation panel actions ---
+
+    /** Click a chip whose visible text matches exactly. */
+    public PatientLabReports clickChip(String chipText) {
+        click(By.xpath("//button[normalize-space()='" + chipText + "']"));
+        return this;
+    }
+
+    /** Type a question into the 'Ask about your results...' input. */
+    public PatientLabReports typeAskInput(String question) {
+        type(askInput, question);
+        return this;
+    }
+
+    /** Click the send button (the paper-plane arrow next to the Ask input). */
+    public PatientLabReports clickAskSend() {
+        click(askSendButton);
+        return this;
+    }
+
+    public String getAskInputValue() {
+        WebElement input = wait.until(ExpectedConditions.visibilityOfElementLocated(askInput));
+        String v = input.getAttribute("value");
+        return v == null ? "" : v;
     }
 }
