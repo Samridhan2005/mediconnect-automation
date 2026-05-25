@@ -67,6 +67,43 @@ public class ExcelUtils {
     }
 
     /**
+     * Read every data row of a sheet as a list of column-name -> value maps.
+     * Useful for filtering rows on multiple columns in Java rather than POI lookups.
+     */
+    public static java.util.List<Map<String, String>> getAllRows(String filePath,
+                                                                 String sheetName) throws IOException {
+        try (FileInputStream fis = new FileInputStream(filePath);
+             Workbook wb = new XSSFWorkbook(fis)) {
+
+            Sheet sheet = wb.getSheet(sheetName);
+            if (sheet == null) throw new RuntimeException("Sheet not found: " + sheetName);
+
+            Row header = sheet.getRow(0);
+            if (header == null) throw new RuntimeException("Sheet has no header row: " + sheetName);
+
+            int totalCols = header.getLastCellNum();
+            String[] colNames = new String[totalCols];
+            for (int c = 0; c < totalCols; c++) {
+                colNames[c] = getCellValueAsString(header.getCell(c));
+            }
+
+            java.util.List<Map<String, String>> rows = new java.util.ArrayList<>();
+            for (int r = 1; r <= sheet.getLastRowNum(); r++) {
+                Row row = sheet.getRow(r);
+                if (row == null) continue;
+                String uniqueValue = String.valueOf(System.nanoTime());
+                Map<String, String> map = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
+                for (int c = 0; c < totalCols; c++) {
+                    String raw = getCellValueAsString(row.getCell(c));
+                    map.put(colNames[c], substitutePlaceholders(raw, uniqueValue));
+                }
+                rows.add(map);
+            }
+            return rows;
+        }
+    }
+
+    /**
      * Read all values from a single column, useful as a TestNG @DataProvider source.
      * Returns Object[][] where each row is one cell value (no header).
      */

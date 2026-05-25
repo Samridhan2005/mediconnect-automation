@@ -2,39 +2,91 @@ package com.cts.mfrp.mediconnect.ui.tests.admin;
 
 import com.cts.mfrp.mediconnect.ui.pages.admin.AdminAppointments;
 import com.cts.mfrp.mediconnect.ui.tests.base.BaseAdminTest;
-import org.openqa.selenium.By;
+import com.cts.mfrp.mediconnect.utils.TestData;
+import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
-import java.util.List;
+import java.util.Map;
 
+import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertTrue;
 
 /** FRD: TC056, TC083 — Admin Appointment Management. */
 public class AdminAppointmentsTest extends BaseAdminTest {
 
-    // TC056 — Appointment management calendar + filters
-    @Test(groups = {"regression"})
-    public void TC056_admin_appointment_calendar_filters() {
-        AdminAppointments page = new AdminAppointments(driver).open(loggedInUserId);
-        assertTrue(driver.findElements(page.pageHeader).size() > 0);
-        assertTrue(driver.findElements(page.calendarGrid).size() > 0,
-                "Calendar grid should be visible");
-        for (String filter : List.of("All Doctors", "All Departments", "Date Picker")) {
-            assertTrue(driver.findElements(By.xpath("//*[contains(normalize-space(),'" + filter + "')]")).size() > 0,
-                    "Filter missing: " + filter);
-        }
+    @DataProvider(name = "appointmentFilters")
+    public Object[][] appointmentFilters() {
+        return TestData.appointmentIds();
     }
 
-    // TC083 — New Appointment creation
-    @Test(groups = {"regression"})
-    public void TC083_admin_new_appointment_creation() {
+    // TC056 — Appointment management calendar + filters (data-driven).
+    // Runs once per row in the Appointments sheet, applying that row's
+    // doctor / hospital / date and asserting the filters took effect.
+    @Test(groups = {"regression"}, dataProvider = "appointmentFilters")
+    public void TC056_admin_appointment_calendar_filters(String testId) {
+        Map<String, String> data = TestData.appointment(testId);
+        String doctor   = data.get("doctor");
+        String hospital = data.get("hospital");
+        String date     = data.get("date");
+
+        AdminAppointments page = new AdminAppointments(driver).open(loggedInUserId);
+        assertTrue(driver.findElements(page.pageHeader).size() > 0,
+                "[" + testId + "] Appointment Management header should be visible");
+        assertTrue(driver.findElements(page.calendarGrid).size() > 0,
+                "[" + testId + "] Calendar grid should be visible");
+
+        page.selectDoctor(doctor)
+            .selectHospital(hospital)
+            .setDateFilter(date);
+
+        assertEquals(page.getSelectedDoctor(), doctor,
+                "[" + testId + "] Doctor filter should reflect the selected value");
+        assertEquals(page.getSelectedHospital(), hospital,
+                "[" + testId + "] Hospital filter should reflect the selected value");
+        assertEquals(page.getDateFilterValue(), date,
+                "[" + testId + "] Date filter should reflect the selected value");
+
+        // After applying filters the calendar grid must still be rendered.
+        assertTrue(driver.findElements(page.calendarGrid).size() > 0,
+                "[" + testId + "] Calendar grid should remain visible after applying filters");
+    }
+
+    @DataProvider(name = "newAppointments")
+    public Object[][] newAppointments() {
+        return TestData.newAppointmentIds();
+    }
+
+    // TC083 — New Appointment creation (data-driven).
+    // Runs once per row in the NewAppointments sheet. Fills the modal with that
+    // row's patient / doctor / hospital / date / time / type / notes, submits,
+    // and verifies the modal closes (success signal).
+    @Test(groups = {"regression"}, dataProvider = "newAppointments")
+    public void TC083_admin_new_appointment_creation(String testId) {
+        Map<String, String> data = TestData.newAppointment(testId);
+
         AdminAppointments page = new AdminAppointments(driver).open(loggedInUserId);
         assertTrue(driver.findElements(page.newAppointmentBtn).size() > 0,
-                "+ New Appointment button should be visible");
+                "[" + testId + "] + New Appointment button should be visible");
+
         page.clickNewAppointment();
-        try { Thread.sleep(800); } catch (InterruptedException ignored) {}
-        assertTrue(driver.findElements(By.cssSelector("[class*='modal'], form")).size() > 0,
-                "Modal/form should open");
+        wait.until(d -> page.isModalOpen());
+        assertTrue(page.isModalOpen(),
+                "[" + testId + "] New Appointment modal should open");
+
+        page.fillNewAppointmentForm(
+                data.get("patient"),
+                data.get("doctor"),
+                data.get("hospital"),
+                data.get("date"),
+                data.get("time"),
+                data.get("type"),
+                data.get("notes"));
+        page.clickModalCreate();
+
+        // Success signal: modal closes after a successful create.
+        wait.until(d -> !page.isModalOpen());
+        assertTrue(!page.isModalOpen(),
+                "[" + testId + "] Modal should close after creating the appointment");
     }
 
     @Test(groups = {"regression"})

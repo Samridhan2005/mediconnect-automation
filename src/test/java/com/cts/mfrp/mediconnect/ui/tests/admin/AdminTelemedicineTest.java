@@ -2,8 +2,12 @@ package com.cts.mfrp.mediconnect.ui.tests.admin;
 
 import com.cts.mfrp.mediconnect.ui.pages.admin.AdminTelemedicine;
 import com.cts.mfrp.mediconnect.ui.tests.base.BaseAdminTest;
+import com.cts.mfrp.mediconnect.utils.TestData;
 import org.openqa.selenium.By;
+import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
+
+import java.util.Map;
 
 import static org.testng.Assert.assertTrue;
 
@@ -73,6 +77,43 @@ public class AdminTelemedicineTest extends BaseAdminTest {
                 "None happened — Join button is unresponsive. " +
                 "URL before=" + urlBefore + ", after=" + driver.getCurrentUrl() +
                 ", windows=" + driver.getWindowHandles().size() + " (was " + windowsBefore + ")");
+    }
+
+    @DataProvider(name = "telemedicineSessions")
+    public Object[][] telemedicineSessions() {
+        return TestData.telemedicineSessionIds();
+    }
+
+    // TC099 — Schedule Video Session end-to-end (data-driven).
+    // Runs once per row in the TelemedicineSessions sheet. Fills the modal with
+    // doctor / patient / date / time / sessionType / notes, clicks Schedule
+    // Session, and asserts the modal closes (success signal).
+    @Test(groups = {"regression"}, dataProvider = "telemedicineSessions")
+    public void TC099_admin_telemedicine_schedule_session(String testId) {
+        Map<String, String> data = TestData.telemedicineSession(testId);
+
+        AdminTelemedicine page = new AdminTelemedicine(driver).open(loggedInUserId);
+        assertTrue(page.isScheduleSessionButtonVisible(),
+                "[" + testId + "] '+ Schedule Session' button should be visible");
+
+        page.clickScheduleSession();
+        wait.until(d -> page.isScheduleModalOpen());
+        assertTrue(page.isScheduleModalOpen(),
+                "[" + testId + "] 'Schedule Video Session' modal should open");
+
+        page.fillScheduleSessionForm(
+                data.get("doctor"),
+                data.get("patient"),
+                data.get("date"),
+                data.get("time"),
+                data.get("sessionType"),
+                data.get("notes"));
+        page.clickScheduleSubmit();
+
+        // Success signal: modal closes after submit.
+        wait.until(d -> !page.isScheduleModalOpen());
+        assertTrue(!page.isScheduleModalOpen(),
+                "[" + testId + "] Modal should close after clicking Schedule Session");
     }
 
     // TC097_098 — Schedule Session modal opens + has all expected fields

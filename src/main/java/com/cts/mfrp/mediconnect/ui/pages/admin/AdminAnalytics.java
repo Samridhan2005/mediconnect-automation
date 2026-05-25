@@ -5,6 +5,7 @@ import com.cts.mfrp.mediconnect.ui.pages.common.AdminSidebar;
 import com.cts.mfrp.mediconnect.utils.ConfigReader;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.support.ui.Select;
 import org.openqa.selenium.support.ui.WebDriverWait;
 
 import java.time.Duration;
@@ -52,6 +53,35 @@ public class AdminAnalytics extends BasePage {
 
     public boolean isLoaded() {
         return driver.getCurrentUrl().contains("/analytics");
+    }
+
+    // --- Filter actions ---
+    // The hospital dropdown's option list comes from a backend call, so callers should be
+    // prepared to wait for the option to be present (the test class does this with longDropdownWait).
+
+    public AdminAnalytics selectHospital(String visibleText) {
+        new Select(driver.findElement(hospitalSelect)).selectByVisibleText(visibleText);
+        return this;
+    }
+
+    public AdminAnalytics selectDepartment(String visibleText) {
+        new Select(driver.findElement(departmentSelect)).selectByVisibleText(visibleText);
+        return this;
+    }
+
+    public AdminAnalytics selectPeriod(String visibleText) {
+        new Select(driver.findElement(periodSelect)).selectByVisibleText(visibleText);
+        return this;
+    }
+
+    public String getSelectedHospital() {
+        return new Select(driver.findElement(hospitalSelect)).getFirstSelectedOption().getText().trim();
+    }
+    public String getSelectedDepartment() {
+        return new Select(driver.findElement(departmentSelect)).getFirstSelectedOption().getText().trim();
+    }
+    public String getSelectedPeriod() {
+        return new Select(driver.findElement(periodSelect)).getFirstSelectedOption().getText().trim();
     }
 
     public AdminSidebar sidebar() { return new AdminSidebar(driver); }

@@ -390,12 +390,12 @@ public class DoctorAppointmentsTest extends BaseDoctorTest {
 
     @DataProvider(name = "newAppointmentData")
     public Object[][] newAppointmentData() {
-        return TestData.newAppointmentIds();
+        return TestData.doctorNewAppointmentIds();
     }
 
     @Test(groups = {"regression"}, dataProvider = "newAppointmentData")
     public void new_appointment_submit_creates_record(String testId) {
-        Map<String, String> data = TestData.newAppointment(testId);
+        Map<String, String> data = TestData.doctorNewAppointment(testId);
 
         DoctorAppointments page = new DoctorAppointments(driver).open(loggedInUserId);
 

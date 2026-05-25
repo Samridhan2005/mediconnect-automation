@@ -7,10 +7,14 @@ import org.openqa.selenium.By;
 import org.openqa.selenium.NoSuchElementException;
 import org.openqa.selenium.TimeoutException;
 import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.ui.FluentWait;
+import org.openqa.selenium.support.ui.Select;
 import org.openqa.selenium.support.ui.Wait;
 
 import java.time.Duration;
+import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * Admin Diagnostics Module — /admin/{userId}/diagnostics
@@ -103,6 +107,78 @@ public class AdminDiagnostics extends BasePage {
     public void clickFirstView()           { click(viewButtons); }
     public void clickFirstAiExplain()      { click(aiExplainButtons); }
     public void clickFirstUploadResult()   { click(uploadResultButtons); }
+
+    /** Type into the Lab Reports search box. Includes the React debounce settle. */
+    public AdminDiagnostics search(String query) {
+        WebElement box = visible(searchInput);
+        box.clear();
+        box.sendKeys(query);
+        try { Thread.sleep(1500); } catch (InterruptedException ignored) {}
+        return this;
+    }
+
+    /** All visible body-cell texts in the current Lab Reports table — one string per cell. */
+    public List<String> visibleRowTexts() {
+        return driver.findElements(By.cssSelector("table tbody tr td"))
+                .stream()
+                .map(e -> e.getText().trim())
+                .collect(Collectors.toList());
+    }
+
+    public int visibleRowCount() {
+        return driver.findElements(tableRows).size();
+    }
+
+    /**
+     * Select a value in the 'All status' filter. Tolerant of two implementations:
+     *   1) Native &lt;select&gt; — used via Selenium's Select.
+     *   2) Custom React dropdown — click the trigger, then click the matching option.
+     */
+    public AdminDiagnostics selectStatus(String visibleText) {
+        By nativeSelect = By.xpath(
+                "//select[option[normalize-space()='All status' or normalize-space()='All Status']]");
+        List<WebElement> natives = driver.findElements(nativeSelect);
+        if (!natives.isEmpty()) {
+            new Select(natives.get(0)).selectByVisibleText(visibleText);
+            try { Thread.sleep(800); } catch (InterruptedException ignored) {}
+            return this;
+        }
+
+        // Custom dropdown: click any visible trigger showing one of the known status labels.
+        By trigger = By.xpath(
+                "(//button|//div|//span)" +
+                "[normalize-space()='All status' or normalize-space()='All Status' " +
+                " or normalize-space()='Pending' or normalize-space()='Ready' or normalize-space()='Abnormal']" +
+                "[contains(@class,'select') or contains(@class,'dropdown') or contains(@class,'filter') " +
+                " or @role='combobox' or @role='button' or @aria-haspopup]");
+        click(trigger);
+
+        // Option lookup — match the visible text inside a menu/listbox container.
+        By option = By.xpath(
+                "//*[normalize-space()='" + visibleText + "']" +
+                "[ancestor::*[@role='listbox' or @role='menu' " +
+                " or contains(@class,'menu') or contains(@class,'dropdown') " +
+                " or contains(@class,'options')]]");
+        click(option);
+        try { Thread.sleep(800); } catch (InterruptedException ignored) {}
+        return this;
+    }
+
+    /**
+     * Return the status-badge text from every visible body row, in row order.
+     * Looks at the 5th column (STATUS) of each tbody row.
+     */
+    public List<String> visibleStatusBadges() {
+        return driver.findElements(By.cssSelector("table tbody tr"))
+                .stream()
+                .map(row -> {
+                    List<WebElement> cells = row.findElements(By.tagName("td"));
+                    if (cells.size() < 5) return "";
+                    return cells.get(4).getText().trim();
+                })
+                .filter(t -> !t.isEmpty())
+                .collect(Collectors.toList());
+    }
 
     public AdminSidebar sidebar() { return new AdminSidebar(driver); }
 
