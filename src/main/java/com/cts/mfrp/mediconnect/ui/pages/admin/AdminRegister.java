@@ -3,6 +3,7 @@ package com.cts.mfrp.mediconnect.ui.pages.admin;
 import com.cts.mfrp.mediconnect.ui.pages.BasePage;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.support.ui.ExpectedConditions;
 
 public class AdminRegister extends BasePage {
 
@@ -16,7 +17,12 @@ public class AdminRegister extends BasePage {
     public final By terms = By.xpath("//input[@type='checkbox']");
     public final By submit = By.cssSelector("button.submit-btn");
     public final By backToLogin = By.cssSelector("a.hint-link");
-
+    public final By AdminDashboard = By.xpath("//div[text()='System Overview']");
+    public final By emailLogin = By.xpath("//input[@type='email']");
+    public final By pswdLogin = By.xpath("//input[@type='password']");
+    public final By adminLogin = By.xpath("//h1[text()='Admin Sign In']");
+    public final By loginBtn = By.cssSelector("button.submit-btn");
+    public final By errMsg = By.cssSelector(".error-banner");
 
     public AdminRegister(WebDriver driver) {
         super(driver);
@@ -32,6 +38,9 @@ public class AdminRegister extends BasePage {
     public boolean isTermsCheckboxVisible() { return isElementVisible(terms); }
     public boolean isSubmitButtonVisible() { return isElementVisible(submit); }
     public boolean isBackToLoginLinkVisible(){ return isElementVisible(backToLogin); }
+    public boolean isAdminDashboardVisible(){ return  isElementVisible(AdminDashboard); }
+    public boolean isErrMsgVisibile(){ return isElementVisible(errMsg); }
+
 
     public void enterHospital(String value) {selectByText(hospitalSelect,value);}
     public void enterFirstName(String value) { type(firstName, value); }
@@ -43,6 +52,19 @@ public class AdminRegister extends BasePage {
     public void clickTerms() { click(terms); }
     public void clickSubmit() { click(submit); }
 
+    public void enterEmailLogin(String value){
+        wait.until(ExpectedConditions.visibilityOfElementLocated(adminLogin));
+        type(emailLogin,value);
+    }
+    public void enterPasswordLogin(String value){ type(pswdLogin,value);}
+    public void submitLogin(){ click(loginBtn); }
+
+
+    public void loadContents(){
+        wait.until(ExpectedConditions.visibilityOfElementLocated(AdminDashboard));
+    }
     public String getUrl(){ return driver.getCurrentUrl(); }
     public String getTitle(){ return driver.getTitle();}
+
+
 }

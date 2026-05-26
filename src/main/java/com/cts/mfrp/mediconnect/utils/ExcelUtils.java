@@ -206,4 +206,62 @@ public class ExcelUtils {
         wb.close(); fis.close();
         return value;
     }
+
+
+    public static Object[][] getRowDataAsDataProvider(String filePath,
+                                                      String sheetName,
+                                                      String keyColumn,
+                                                      String keyValue) throws IOException {
+
+        try (FileInputStream fis = new FileInputStream(filePath);
+             Workbook wb = new XSSFWorkbook(fis)) {
+
+            DataFormatter formatter = new DataFormatter();
+
+            Sheet sheet = wb.getSheet(sheetName);
+            if (sheet == null) {
+                throw new RuntimeException("Sheet not found: " + sheetName);
+            }
+
+            Row header = sheet.getRow(0);
+            if (header == null) {
+                throw new RuntimeException("Header row missing in: " + sheetName);
+            }
+
+            int keyCol = -1;
+            int totalCols = header.getLastCellNum();
+
+            // ✅ Find key column index
+            for (int c = 0; c < totalCols; c++) {
+                String colName = formatter.formatCellValue(header.getCell(c));
+                if (colName.equalsIgnoreCase(keyColumn)) {
+                    keyCol = c;
+                    break;
+                }
+            }
+
+            if (keyCol < 0) {
+                throw new RuntimeException("Key column not found: " + keyColumn);
+            }
+            for (int r = 1; r <= sheet.getLastRowNum(); r++) {
+                Row row = sheet.getRow(r);
+                if (row == null) continue;
+
+                String keyVal = formatter.formatCellValue(row.getCell(keyCol));
+
+                if (keyVal.equals(keyValue)) {
+                    Object[] rowData = new Object[totalCols];
+                    for (int c = 0; c < totalCols; c++) {
+                        rowData[c] = formatter.formatCellValue(row.getCell(c)); // "" if empty
+                    }
+                    return new Object[][] {
+                            rowData
+                    };
+                }
+            }
+
+            throw new RuntimeException("No row found for " + keyColumn + "=" + keyValue);
+        }
+    }
+
 }

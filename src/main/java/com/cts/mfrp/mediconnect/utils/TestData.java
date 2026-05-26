@@ -15,11 +15,7 @@ public final class TestData {
         return read("Logins", testId);
     }
 
-    /**
-     * Return Logins rows whose testId matches the substring filter.
-     * If {@code expectation} is non-null, the row's "expectation" column must also match.
-     * Output is shaped for TestNG @DataProvider: each Object[] is a single testId.
-     */
+
     public static Object[][] loginIds(String testIdContains, String expectation) {
         try {
             List<Map<String, String>> all = ExcelUtils.getAllRows(FILE, "Logins");

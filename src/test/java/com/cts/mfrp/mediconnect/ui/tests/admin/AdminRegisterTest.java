@@ -8,6 +8,7 @@ import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
 import java.io.IOException;
+import java.util.Map;
 
 import static org.testng.Assert.assertTrue;
 
@@ -49,7 +50,6 @@ public class AdminRegisterTest extends UiBaseTest {
         openRegisterPage();
         AdminRegister admin=new AdminRegister(driver);
 
-
         assertTrue(admin.isHospitalSelectVisible(), "Hospital dropdown not visible");
         assertTrue(admin.isFirstNameVisible(), "First Name field not visible");
         assertTrue(admin.isLastNameVisible(), "Last Name field not visible");
@@ -70,6 +70,33 @@ public class AdminRegisterTest extends UiBaseTest {
         admin.clickTerms();
         admin.clickSubmit();
 
-        assertTrue(admin.getUrl().matches("\".*/admin/\\\\d+/overview$\""),"Not landed in admin page");
+        admin.enterEmailLogin(email);
+        admin.enterPasswordLogin(pswd);
+        admin.submitLogin();
+        admin.loadContents();
+        assertTrue(admin.isAdminDashboardVisible(),"Not landed in admin page");
+    }
+
+    @DataProvider(name = "negativeAdmin")
+    public Object[][] negativeAdmin() throws IOException {
+        return ExcelUtils.getTestData(ConfigReader.get("excelpath"),"NegativeAdminRegistration");
+    }
+
+    @Test(groups = {"regression"},dataProvider = "negativeAdmin")
+    public void negativeAdminRegis(String hospital,String fn,String ln,String email,String phno,String pswd,String cpswd){
+        openRegisterPage();
+        AdminRegister admin=new AdminRegister(driver);
+
+        admin.enterHospital(hospital);
+        admin.enterFirstName(fn);
+        admin.enterLastName(ln);
+        admin.enterEmail(email);
+        admin.enterPhoneNumber(phno);
+        admin.enterPassword(pswd);
+        admin.enterConfirmPassword(cpswd);
+        admin.clickTerms();
+        admin.clickSubmit();
+        assertTrue(admin.isErrMsgVisibile(),"Error message is not shown");
+
     }
 }

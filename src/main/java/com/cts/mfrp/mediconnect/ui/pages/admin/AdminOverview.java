@@ -24,7 +24,12 @@ public class AdminOverview extends BasePage {
     public final By doctorOnDutyHeader = By.xpath("//div[text()='Doctors On Duty']");
     public final By doctorOnDutyValue = By.xpath("//div[text()='Doctors On Duty']/following-sibling::div");
     public final By card = By.cssSelector("div.card-title");
-
+    public final By mediconnectHeader = By.xpath("//span[text()='MediConnect']");
+    public final By adminControlHeader = By.xpath("//div[text()='Admin Control']");
+    public final By overviewDivision = By.xpath("//div[text()='Overview']");
+    public final By patientsAndCareDivision = By.xpath("//div[text()='Patients & Care']");
+    public final By operationsDivision = By.xpath("//div[text()='Operations']");
+    public final By links = By.cssSelector("a.ni");
 
 
 
@@ -62,17 +67,72 @@ public class AdminOverview extends BasePage {
 
     public boolean isTotalPatientsHeaderVisible() { return isElementVisible(totalPatientsHeader); }
     public boolean isTotalPatientsValueVisible() { return isElementVisible(totalPatientsValue); }
+    public boolean validateTotalPatients(){
+        try{
+            String txt=driver.findElement(totalPatientsValue).getText().trim();
+            int patients=Integer.parseInt(txt);
+            return patients > -1;
+        }catch (Exception e){
+            return false;
+        }
+    }
 
     public boolean isTotalDoctorsHeaderVisible() { return isElementVisible(totalDoctorsHeader); }
     public boolean isTotalDoctorsValueVisible() { return isElementVisible(totalDoctorsValue); }
+    public boolean validateTotalDoctors(){
+        try{
+            String txt=driver.findElement(totalDoctorsValue).getText().trim();
+            int doctors=Integer.parseInt(txt);
+            return doctors > -1;
+        }catch (Exception e){
+            return false;
+        }
+    }
+
 
     public boolean isBedOccupancyHeaderVisible() { return isElementVisible(bedOccupancyHeader); }
     public boolean isBedOccupancyValueVisible() { return isElementVisible(bedOccupancyValue); }
+    public boolean validateBedOccupancy(){
+        try{
+            String txt=driver.findElement(bedOccupancyValue).getText().trim();
+            int occupancy =Integer.parseInt(txt.substring(0,txt.length()-1));
+            return occupancy > -1;
+        }catch (Exception e){
+            return false;
+        }
+    }
 
     public boolean isRevenueHeaderVisible() { return isElementVisible(revenueHeader); }
     public boolean isRevenueValueVisible() { return isElementVisible(revenueValue); }
+    public boolean validateRevenueValue(){
+        try{
+            String txt=driver.findElement(revenueValue).getText().trim();
+            double occupancy =Double.parseDouble(txt.substring(1,txt.length()-1));
+            return occupancy >= 0;
+        }catch (Exception e){
+            return false;
+        }
+    }
 
     public boolean isDoctorOnDutyHeaderVisible() { return isElementVisible(doctorOnDutyHeader); }
     public boolean isDoctorOnDutyValueVisible() { return isElementVisible(doctorOnDutyValue); }
+    public boolean validateDoctorsOnDuty(){
+        try{
+            String txt=driver.findElement(doctorOnDutyValue).getText();
+            int doctors =Integer.parseInt(txt);
+            return doctors > -1;
+        }catch (Exception e){
+            return false;
+        }
+    }
+
+    public boolean isMediConnectHeaderVisible() { return isElementVisible(mediconnectHeader); }
+    public boolean isAdminControlHeaderVisible() { return isElementVisible(adminControlHeader); }
+    public boolean isOverviewDivisionVisible() { return isElementVisible(overviewDivision); }
+    public boolean isPatientsAndCareDivisionVisible() { return isElementVisible(patientsAndCareDivision); }
+    public boolean isOperationsDivisionVisible() { return isElementVisible(operationsDivision); }
+
+    public int navLinksCount(){ return driver.findElements(links).size(); }
+
 
 }
